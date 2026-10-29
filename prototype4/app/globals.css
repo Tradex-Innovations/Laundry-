@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-50: #edf6f1;
+  --color-brand-100: #dceee2;
+  --color-brand-500: #38745c;
+  --color-brand-600: #245b46;
+  --color-brand-700: #194b3b;
+  --color-ink: #243a34;
+  --color-canvas: #f5f5ef;
+  --font-sans: "Inter", "Avenir Next", "Segoe UI", sans-serif;
+}
+
+@layer base {
+  body { @apply bg-canvas font-sans text-sm text-ink antialiased; }
+  button, select, summary { @apply cursor-pointer; }
+  button {
+    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-[#dfe5df] bg-white px-3.5 py-2 text-sm font-medium text-ink transition-colors hover:border-[#bdcec2] hover:bg-[#f3f7f2] disabled:cursor-not-allowed disabled:opacity-40;
+  }
+  :is(button, a, input, select, textarea):focus-visible { @apply outline-2 outline-offset-2 outline-brand-500; }
+  input:not([type="checkbox"]):not([type="file"]), select, textarea {
+    @apply min-h-11 w-full rounded-lg border border-[#dce3dc] bg-white px-3 py-2.5 text-sm font-normal text-ink outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100 disabled:bg-[#f2f4f0];
+  }
+  input[type="checkbox"] { @apply size-4 shrink-0 accent-brand-600; }
+  input[type="file"] { @apply w-full text-sm text-[#75827b] file:mr-3 file:rounded-lg file:border-0 file:bg-brand-50 file:px-3 file:py-2 file:font-medium file:text-brand-700; }
+  textarea { @apply min-h-24 resize-y; }
+  button[type="submit"] { @apply border-brand-700 bg-brand-700 text-white hover:border-brand-600 hover:bg-brand-600; }
+  dialog { @apply fixed inset-0 m-auto max-h-[90dvh] w-[92vw] max-w-[620px] overflow-y-auto rounded-2xl border border-[#dfe5df] bg-white p-6 text-ink shadow-2xl md:p-8; }
+  dialog::backdrop { background: rgb(20 39 31 / 45%); backdrop-filter: blur(3px); }
+}
+
+@layer components {
+  .btn-primary { @apply border-brand-700 bg-brand-700 text-white hover:border-brand-600 hover:bg-brand-600; }
+  .btn-danger { @apply border-red-200 bg-red-50 text-red-700 hover:border-red-300 hover:bg-red-100; }
+  .btn-quiet { @apply border-transparent bg-transparent text-[#64766b] hover:border-transparent hover:bg-[#eef2e9]; }
+  .app-content { @apply min-w-0 outline-none; }
+  .app-content > section:not(.dashboard) { @apply rounded-2xl border border-[#e3e7df] bg-white p-5 shadow-[0_2px_8px_#233b2e03] md:p-7; }
+  :is(.app-content, dialog) h1 { @apply mb-5 text-2xl font-semibold tracking-tight text-ink md:text-[28px]; }
+  :is(.app-content, dialog) h2 { @apply mb-4 mt-7 text-lg font-semibold tracking-tight text-ink; }
+  :is(.app-content, dialog) h3 { @apply mb-3 mt-5 text-sm font-semibold text-ink; }
+  :is(.app-content, dialog) p { @apply my-3 leading-relaxed text-[#748078]; }
+  :is(.app-content, dialog) fieldset { @apply my-5 grid min-w-0 gap-5 rounded-xl border border-[#e3e8e0] bg-[#fafbf8] p-5 sm:grid-cols-2; }
+  :is(.app-content, dialog) fieldset > :is(p:not(.field), div, details, fieldset) { @apply col-span-full; }
+  :is(.app-content, dialog) fieldset > button { @apply self-end justify-self-start; }
+  :is(.app-content, dialog) legend { @apply px-2 text-xs font-semibold text-[#617567]; }
+  :is(.app-content, dialog) .field { @apply m-0; }
+  .app-content > section:not(.dashboard) > .field { @apply my-4 max-w-md; }
+  dialog form { @apply flex flex-col gap-4; }
+  :is(.app-content, dialog) .field label { @apply block space-y-2 text-xs font-medium text-[#64746b]; }
+  :is(.app-content, dialog) .field label br { @apply hidden; }
+  :is(.app-content, dialog) .field label > :is(input, select, textarea) { @apply block; }
+  :is(.app-content, dialog) ul { @apply my-3 space-y-2 pl-5 text-sm text-[#64746b]; list-style: disc; }
+  :is(.app-content, dialog) code { @apply break-all rounded bg-[#f1f4ef] px-1.5 py-1 text-[11px] text-[#718274]; }
+  :is(.app-content, dialog) details { @apply my-2 rounded-lg border border-[#e2e7de] bg-white p-4; }
+  :is(.app-content, dialog) summary { @apply text-sm font-medium; }
+  :is(.app-content, dialog) table { @apply w-full border-collapse text-left text-[13px]; border: 0; }
+  :is(.app-content, dialog) th { @apply whitespace-nowrap border-0 border-b border-[#e4e9e1] bg-[#f7f9f4] px-4 py-3.5 text-[11px] font-medium text-[#7b877e]; }
+  :is(.app-content, dialog) td { @apply border-0 border-b border-[#edf0e9] px-4 py-4 text-[#4b6155]; }
+  :is(.app-content, dialog) tbody tr { @apply transition-colors hover:bg-[#fafcf8]; }
+  :is(.app-content, dialog) tbody tr:last-child td { @apply border-b-0; }
+  :is(.app-content, dialog) td button { @apply min-h-8 whitespace-nowrap rounded-md px-2.5 py-1.5 text-xs; }
+  :is(.app-content, dialog) caption { @apply pb-4 text-left text-xs font-medium text-[#76847b]; }
+  .table-scroll { @apply my-4 max-w-full overflow-x-auto rounded-xl border border-[#e7ebe3]; }
+  .table-scroll table { @apply min-w-[700px]; }
+  .page-toolbar { @apply my-5 grid items-end gap-4 rounded-xl border border-[#e6ebe0] bg-[#f9fbf5] p-4 md:grid-cols-3; }
+  .page-toolbar > p:not(.field) { @apply m-0 py-2; }
+  .status-badge { @apply inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 py-1 text-[11px] font-medium; }
+  .status-badge::before { @apply size-1.5 rounded-full bg-current; content: ""; }
+  .ownership-badge { @apply inline-flex whitespace-nowrap rounded-md px-2 py-1 text-[10px] font-medium; }
+  .manifest-print-root { @apply mx-auto max-w-[850px] px-4 py-6; }
+  .manifest { @apply rounded-xl border border-[#dfe5df] bg-white p-8 text-[#243a34] shadow-sm md:p-12; }
+  .manifest h1 { @apply my-5 text-3xl font-semibold; }
+  .manifest h2 { @apply mb-3 mt-5 text-lg font-semibold; }
+  .manifest p { @apply my-3 text-sm leading-relaxed; }
+  .manifest table { @apply my-5 w-full border-collapse text-xs; }
+  .manifest td, .manifest th { @apply border border-[#d9e1d7] p-2.5 text-left; }
+  .manifest th { @apply bg-[#f2f6ef] font-medium; }
+  .manifest .signatures { @apply mt-10 grid grid-cols-2 gap-6; }
+  .manifest .signatures > div { @apply rounded-lg border border-[#d9e1d7] p-4; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .app-content > section { animation: appear 180ms ease-out; }
+  @keyframes appear { from { opacity: .5; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+}

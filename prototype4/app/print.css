@@ -1,0 +1,19 @@
+/* A4 document formatting is independent of the application interface. */
+@page { size: A4 portrait; margin: 12mm; }
+@media print {
+  body { background: #fff; color: #000; }
+  body > * { display: none !important; }
+  body > .manifest-print-root { display: block !important; }
+  .manifest-print-root { max-width: none; margin: 0; padding: 0; }
+  .no-print { display: none !important; }
+  .manifest { font: 10pt Arial, sans-serif; color: #000; border: 0; border-radius: 0; padding: 0; box-shadow: none; }
+  .manifest h1 { font-size: 22pt; margin-bottom: 4mm; }
+  .manifest h2 { font-size: 13pt; }
+  .manifest table { width: 100%; border-collapse: collapse; margin: 4mm 0; }
+  .manifest td, .manifest th { border: 1px solid #888; padding: 2mm; text-align: left; }
+  .manifest tr, .manifest footer, .manifest .signatures { break-inside: avoid; }
+  .manifest thead { display: table-header-group; }
+  .manifest svg { max-width: 100%; height: 16mm; }
+  .manifest .signatures { display: flex; gap: 10mm; margin-top: 12mm; }
+  .manifest .signatures > div { flex: 1; min-height: 22mm; border: 1px solid #888; padding: 3mm; }
+}
