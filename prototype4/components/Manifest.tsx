@@ -19,7 +19,7 @@ export default function Manifest({ db, record, onClose }: { db: Database; record
   }, []);
   if (!container) return null;
   return createPortal(<>
-    <div className="no-print mb-5"><div className="mb-4 flex flex-wrap items-center justify-between gap-3"><button className="btn-quiet !px-0" onClick={onClose}><ArrowLeft size={16} />Close Print Preview</button><button className="btn-primary" onClick={() => window.print()}><Printer size={16} />Print / Save as PDF</button></div><p className="rounded-xl border border-[#e0e6d8] bg-[#edf3e8] px-4 py-3 text-xs leading-relaxed text-[#7e9173]">A4 portrait · Select a printer or Save as PDF in the browser dialog. Printing and reprinting leave the dispatch unchanged.</p></div>
+    <div className="no-print mb-5"><div className="mb-4 flex flex-wrap items-center justify-between gap-3"><button className="btn-quiet !px-0" onClick={onClose}><ArrowLeft size={16} />Close Print Preview</button><button className="btn-primary" onClick={() => window.print()}><Printer size={16} />Print / Save as PDF</button></div><p className="rounded-xl border border-line bg-brand-50 px-4 py-3 text-xs leading-relaxed text-muted">A4 portrait · Select a printer or Save as PDF in the browser dialog. Printing and reprinting leave the dispatch unchanged.</p></div>
     <ManifestDocument db={db} record={record} />
   </>, container);
 }

@@ -74,7 +74,7 @@ export default function Customers({ db, role, mutate, sitesOnly = false }: Maste
         }}>{s.active ? "Deactivate" : "Reactivate"}</button></td>
       </tr>)}</tbody>
     </table></div>}
-    {(sitesOnly ? !siteRows.length : !customerRows.length) && <p className="rounded-xl border border-dashed border-[#dce5d5] px-5 py-10 text-center">{sitesOnly ? "No delivery sites match. Create a site or change your filters." : "No customers match. Create a customer or change your search."}</p>}
+    {(sitesOnly ? !siteRows.length : !customerRows.length) && <p className="rounded-xl border border-dashed border-line px-5 py-10 text-center">{sitesOnly ? "No delivery sites match. Create a site or change your filters." : "No customers match. Create a customer or change your search."}</p>}
     {customer && <Dialog title={db.customers.some(c => c.id === customer.id) ? "Edit Customer" : "Create Customer"} onClose={() => setCustomer(null)}>
       <Errors errors={errors} /><form onSubmit={e => { e.preventDefault(); saveCustomer(); }}>
         <Field label="Customer code *"><input required autoFocus value={customer.code} onChange={e => setCustomer({ ...customer, code: e.target.value })} /></Field>

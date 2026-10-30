@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import type { Category, Item, Method, Ownership } from "../lib/types";
 import { log, ownerLabel, uid } from "../lib/domain";
-import { ActiveBadge, Dialog, Errors, Field, imageUpload, MasterProps, OwnershipBadge, ReadOnlyNotice } from "./shared";
+import { ActiveBadge, CategoryLabel, Dialog, Errors, Field, imageUpload, MasterProps, OwnershipBadge, ReadOnlyNotice } from "./shared";
 
 export default function LinenSetup({ db, role, mutate, view }: MasterProps & { view: "categories" | "items" | "customer-linen" | "pool-linen" }) {
   const [search, setSearch] = useState("");
@@ -54,7 +54,7 @@ export default function LinenSetup({ db, role, mutate, view }: MasterProps & { v
     <p><label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={showInactive} onChange={e => setShowInactive(e.target.checked)} /> Show inactive records</label></p></div>
     {view === "categories" && <>
       <div className="table-scroll"><table><thead><tr><th>Category</th><th>Status</th><th>Actions</th></tr></thead><tbody>
-        {db.categories.filter(c => (showInactive || c.active) && c.name.toLowerCase().includes(search.toLowerCase())).map(c => <tr key={c.id}><td>{c.name}</td><td>{<ActiveBadge active={c.active} />}</td><td><button disabled={!admin} onClick={() => { setErrors([]); setCategory({ ...c }); }}>Edit</button>{" "}<button disabled={!admin} onClick={() => {
+        {db.categories.filter(c => (showInactive || c.active) && c.name.toLowerCase().includes(search.toLowerCase())).map(c => <tr key={c.id}><td><CategoryLabel name={c.name} /></td><td>{<ActiveBadge active={c.active} />}</td><td><button disabled={!admin} onClick={() => { setErrors([]); setCategory({ ...c }); }}>Edit</button>{" "}<button disabled={!admin} onClick={() => {
           if (!window.confirm(`${c.active ? "Deactivate" : "Reactivate"} category ${c.name}?`)) return;
           mutate(state => { if (!admin) throw new Error("Admin access required."); state.categories.find(x => x.id === c.id)!.active = !c.active; log(state, role, "Category status changed", c.name); }, "Category status updated.");
         }}>{c.active ? "Deactivate" : "Reactivate"}</button></td></tr>)}
@@ -62,7 +62,7 @@ export default function LinenSetup({ db, role, mutate, view }: MasterProps & { v
     </>}
     {view === "items" && <>
       <div className="table-scroll"><table><thead><tr><th>Code</th><th>Item</th><th>Category</th><th>Allowed methods</th><th>Default method</th><th>Bundle size</th><th>Status</th><th>Actions</th></tr></thead><tbody>
-        {filteredItems.map(i => <tr key={i.id}><td>{i.code}</td><td>{i.image && <img src={i.image} width={48} height={48} alt="" />} {i.name}</td><td>{db.categories.find(c => c.id === i.categoryId)?.name}</td><td>{i.methods.join(", ")}</td><td>{i.defaultMethod}</td><td>{i.bundleSize ? `${i.bundleSize} pieces/bundle` : "—"}</td><td>{<ActiveBadge active={i.active} />}</td><td><button disabled={!admin} onClick={() => { setErrors([]); setItem({ ...i, methods: [...i.methods] }); }}>Edit</button>{" "}<button disabled={!admin} onClick={() => {
+        {filteredItems.map(i => <tr key={i.id}><td>{i.code}</td><td>{i.image && <img src={i.image} width={48} height={48} alt="" />} {i.name}</td><td><CategoryLabel name={db.categories.find(c => c.id === i.categoryId)?.name} /></td><td>{i.methods.join(", ")}</td><td>{i.defaultMethod}</td><td>{i.bundleSize ? `${i.bundleSize} pieces/bundle` : "—"}</td><td>{<ActiveBadge active={i.active} />}</td><td><button disabled={!admin} onClick={() => { setErrors([]); setItem({ ...i, methods: [...i.methods] }); }}>Edit</button>{" "}<button disabled={!admin} onClick={() => {
           if (!window.confirm(`${i.active ? "Deactivate" : "Reactivate"} ${i.code}? Historical documents will be retained.`)) return;
           mutate(state => { if (!admin) throw new Error("Admin access required."); state.items.find(x => x.id === i.id)!.active = !i.active; log(state, role, "Item status changed", i.code); }, "Item status updated.");
         }}>{i.active ? "Deactivate" : "Reactivate"}</button></td></tr>)}
@@ -85,7 +85,7 @@ export default function LinenSetup({ db, role, mutate, view }: MasterProps & { v
         const record = { ...category, name }; if (index < 0) state.categories.push(record); else state.categories[index] = record;
         log(state, role, "Category saved", name);
       }, "Category saved.")) setCategory(null);
-    }}><Field label="Category name *"><input required value={category.name} onChange={e => setCategory({ ...category, name: e.target.value })} /></Field><button type="submit">Save Category</button></form></Dialog>}
+    }}><Field label="Category name *"><input required value={category.name} onChange={e => setCategory({ ...category, name: e.target.value })} /></Field>{category.name.trim() && <p className="!mt-0"><CategoryLabel name={category.name.trim()} /></p>}<button type="submit">Save Category</button></form></Dialog>}
     {item && <Dialog title={db.items.some(i => i.id === item.id) ? "Edit Item" : "Create Item"} onClose={() => setItem(null)}>
       <Errors errors={errors} /><form onSubmit={e => { e.preventDefault(); saveItem(); }}>
         <Field label="Unique item code *"><input required value={item.code} onChange={e => setItem({ ...item, code: e.target.value })} /></Field>

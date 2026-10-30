@@ -46,7 +46,7 @@ export default function LaundryApp() {
     try { const result = localRepository.update(operation); setDb(result.db); setError(""); setNotice(message); return true; }
     catch (e) { const message = e instanceof Error ? e.message : String(e); setError(message); window.alert(message); return false; }
   };
-  if (!db) return <main className="mx-auto max-w-xl px-6 py-24"><Leaf className="mb-5 text-brand-600" size={32} /><h1 className="mb-4 text-2xl font-semibold">Pure Linen</h1>{error ? <p role="alert" className="rounded-xl bg-red-50 p-5 text-red-700">{error}</p> : <p className="text-[#7b877a]">Getting your workspace ready…</p>}</main>;
+  if (!db) return <main className="mx-auto max-w-xl px-6 py-24"><Leaf className="mb-5 text-brand-500" size={32} /><h1 className="mb-4 text-2xl font-semibold">Pure Linen</h1>{error ? <p role="alert" className="rounded-xl bg-red-50 p-5 text-red-700">{error}</p> : <p className="text-muted">Getting your workspace ready…</p>}</main>;
   const database = db;
   function canLeave() { return !dirty || window.confirm("This draft has unsaved changes. Leave without saving those changes?"); }
   function navigate(next: Page) {
@@ -80,9 +80,9 @@ export default function LaundryApp() {
       <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:p-3">Skip to content</a>
       <Navbar page={page} role={role} onRoleChange={next => { try { localStorage.setItem("laundry.prototype4.role", next); setRole(next); setNotice(`Switched to ${next}. Demo permissions only.`); } catch { setError("The role preference could not be saved to browser storage."); } }} onNavigate={navigate} onCreate={createDispatch} />
       <div className="mx-auto max-w-[1600px] px-5 pb-8 pt-6 lg:px-8 xl:px-10">
-      <div className="mb-5 flex items-center gap-2 text-[11px] text-[#99a28e]"><Leaf size={12} /><span>Workspace</span><ChevronRight size={12} /><span className="text-[#6b7d65]">{pageLabels[page]}</span>{dirty && <span className="ml-auto rounded bg-[#fff0c6] px-2 py-1 text-[10px] text-[#a08a43]">Unsaved changes</span>}</div>
+      <div className="mb-5 flex items-center gap-2 text-[11px] text-muted"><Leaf size={12} /><span>Workspace</span><ChevronRight size={12} /><span className="text-ink">{pageLabels[page]}</span>{dirty && <span className="ml-auto rounded bg-brand-50 px-2 py-1 text-[10px] text-brand-600">Unsaved changes</span>}</div>
       <SectionNavigation page={page} draftCount={db.dispatches.filter(d => d.status === "Draft").length} onNavigate={navigate} />
-      {notice && <div role="status" className="mb-5 flex items-center gap-3 rounded-xl border border-[#d5e7d4] bg-brand-50 px-4 py-3 text-xs text-brand-700"><CheckCircle2 size={17} className="shrink-0" /><span className="flex-1">{notice}</span><button className="btn-quiet !size-7 !min-h-7 !p-0" aria-label="Dismiss notification" onClick={() => setNotice("")}><X size={14} /></button></div>}
+      {notice && <div role="status" className="mb-5 flex items-center gap-3 rounded-xl border border-brand-100 bg-brand-50 px-4 py-3 text-xs text-brand-700"><CheckCircle2 size={17} className="shrink-0" /><span className="flex-1">{notice}</span><button className="btn-quiet !size-7 !min-h-7 !p-0" aria-label="Dismiss notification" onClick={() => setNotice("")}><X size={14} /></button></div>}
       {error && <div role="alert" className="mb-5 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700"><CircleAlert size={17} className="shrink-0" /><p className="flex-1 whitespace-pre-line">{error}</p><button className="btn-quiet !size-7 !min-h-7 !p-0" aria-label="Dismiss error" onClick={() => setError("")}><X size={14} /></button></div>}
       <main ref={mainRef} id="main-content" tabIndex={-1} className="app-content">
         {page === "dashboard" && <Dashboard db={db} onCreate={createDispatch} onOpen={openRecord} onPreview={openPreview} onHistory={() => navigate("history")} onDrafts={() => navigate("drafts")} />}
@@ -94,7 +94,7 @@ export default function LaundryApp() {
         {page === "settings" && <Settings db={db} role={role} mutate={mutate} />}
         {page === "record" && (record ? <RecordView key={record.id} db={db} record={record} role={role} onPreview={openPreview} onCancel={(id, reason) => mutate(state => cancelDispatch(state, id, reason, role), "Dispatch cancelled. Operational dashboard and report totals have been updated.")} /> : <p>Dispatch not found. Open a record from Dispatch History.</p>)}
       </main>
-      <footer className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-[#e0e5d8] pt-5 text-[10px] text-[#99a18f]"><span>Pure Linen · Laundry Management</span><span className="flex items-center gap-1.5"><span className="size-1.5 rounded-full bg-[#9cad8d]" />Saved on this device · Demo workspace</span></footer>
+      <footer className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5 text-[10px] text-muted"><span>Pure Linen · Laundry Management</span><span className="flex items-center gap-1.5"><span className="size-1.5 rounded-full bg-brand-500" />Saved on this device · Demo workspace</span></footer>
       </div>
     </div>
     {preview && <Manifest db={db} record={preview} onClose={() => setPreview(null)} />}

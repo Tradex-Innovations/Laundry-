@@ -1,9 +1,9 @@
 "use client";
 import { useRef, useState } from "react";
-import { Check, Package, Pencil, Plus, Printer, Save, Trash2 } from "lucide-react";
+import { Check, Pencil, Plus, Printer, Save, Trash2 } from "lucide-react";
 import type { Cart, Database, Dispatch, Item, Line, Ownership, Unit, WeightUnit } from "../lib/types";
 import { dispatchErrors, fmt, lineErrors, newCart, normalizeLine, ownerLabel, uid } from "../lib/domain";
-import { Dialog, Errors, Field, OwnershipBadge, QuantitySummary, StatusBadge } from "./shared";
+import { CategoryGlyph, Dialog, Errors, Field, OwnershipBadge, QuantitySummary, StatusBadge } from "./shared";
 
 interface Props {
   db: Database; draft: Dispatch; onChange: (draft: Dispatch) => void;
@@ -46,7 +46,7 @@ function QuantityDialog({ selection, customerId, defaultWeightUnit, onClose, onS
         <Field label="Pieces per bundle used *"><input type="number" required min={1} step={1} value={bundleSize} onChange={e => setBundleSize(e.target.value)} /></Field>
         <p role="status">{quantity || "0"} bundles × {bundleSize || "0"} pieces = <strong>{fmt(Number(quantity) * Number(bundleSize))} equivalent pieces</strong></p>
       </>}
-      <div role="group" aria-label="Numeric keypad" className="grid grid-cols-3 gap-2">{["7", "8", "9", "4", "5", "6", "1", "2", "3", "Clear", "0", "."].map(value => <button key={value} type="button" className="min-h-14 bg-[#f6f8f2] text-lg" aria-label={`Key ${value}`} disabled={value === "." && (unit === "pieces" || unit === "bundles")} onClick={() => key(value)}>{value}</button>)}<button type="button" className="col-span-3" onClick={() => key("Backspace")}>Backspace</button></div>
+      <div role="group" aria-label="Numeric keypad" className="grid grid-cols-3 gap-2">{["7", "8", "9", "4", "5", "6", "1", "2", "3", "Clear", "0", "."].map(value => <button key={value} type="button" className="min-h-14 bg-canvas text-lg" aria-label={`Key ${value}`} disabled={value === "." && (unit === "pieces" || unit === "bundles")} onClick={() => key(value)}>{value}</button>)}<button type="button" className="col-span-3" onClick={() => key("Backspace")}>Backspace</button></div>
       <button type="submit" className="w-full"><Plus size={16} />{line ? "Update Line" : "Add Line"}</button>
     </form>
   </Dialog>;
@@ -111,7 +111,7 @@ export default function DispatchEditor({ db, draft, onChange, onSave, onPreview,
       <Field label="Dispatch notes"><textarea rows={2} value={draft.notes} onChange={e => update({ notes: e.target.value })} /></Field>
     </fieldset>
     <h2>Cart entries</h2>
-    <div className="mb-5 flex flex-wrap items-center gap-2"><div role="tablist" aria-label="Cart entries" className="flex flex-wrap gap-2">{draft.carts.map((c, index) => <button role="tab" aria-selected={cart.id === c.id} className={cart.id === c.id ? "!border-brand-500 !bg-brand-50 !text-brand-700" : ""} key={c.id} onClick={() => setCartId(c.id)}>Cart {index + 1}{c.reference ? ` · ${c.reference}` : ""}<span className="rounded bg-[#edf1e5] px-1.5 py-0.5 text-[10px] text-[#81916e]">{c.lines.length}</span></button>)}</div><button className="btn-quiet text-xs" onClick={() => { const added = newCart(db.company.defaultWeightUnit); update({ carts: [...draft.carts, added] }); setCartId(added.id); }}><Plus size={14} />Add Cart</button></div>
+    <div className="mb-5 flex flex-wrap items-center gap-2"><div role="tablist" aria-label="Cart entries" className="flex flex-wrap gap-2">{draft.carts.map((c, index) => <button role="tab" aria-selected={cart.id === c.id} className={cart.id === c.id ? "!border-brand-500 !bg-brand-50 !text-brand-700" : ""} key={c.id} onClick={() => setCartId(c.id)}>Cart {index + 1}{c.reference ? ` · ${c.reference}` : ""}<span className="rounded bg-canvas px-1.5 py-0.5 text-[10px] text-muted">{c.lines.length}</span></button>)}</div><button className="btn-quiet text-xs" onClick={() => { const added = newCart(db.company.defaultWeightUnit); update({ carts: [...draft.carts, added] }); setCartId(added.id); }}><Plus size={14} />Add Cart</button></div>
     <fieldset><legend>Current cart · {draft.carts.indexOf(cart) + 1}</legend>
       <p>Internal system ID: <code>{cart.id}</code></p>
       <Field label="Cart Reference (optional)"><input value={cart.reference} onChange={e => updateCart({ reference: e.target.value })} /></Field>
@@ -130,8 +130,8 @@ export default function DispatchEditor({ db, draft, onChange, onSave, onPreview,
       <Field label="Category"><select value={categoryId} onChange={e => setCategoryId(e.target.value)}><option value="">All categories</option>{db.categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></Field>
       <Field label="Find item by code or name"><input type="search" value={search} onChange={e => setSearch(e.target.value)} /></Field>
       <Field label="Ownership filter"><select value={ownershipFilter} onChange={e => setOwnershipFilter(e.target.value)}><option value="all">All</option><option value="customer">Customer-owned</option><option value="pool">Laundry Pool</option></select></Field>
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">{available.map(({ item, ownership, id }) => <button key={id} className="group justify-start gap-3 bg-white p-4 text-left hover:border-brand-500 hover:bg-brand-50" onClick={() => setSelection({ item, ownership })}>
-        <span className={`flex size-11 shrink-0 items-center justify-center rounded-xl ${ownership === "customer" ? "bg-[#edf4e5] text-[#81a16c]" : "bg-[#f7f1da] text-[#b9a566]"}`}>{item.image ? <img className="size-10 rounded-lg object-cover" src={item.image} alt="" /> : <Package size={21} strokeWidth={1.4} />}</span><span className="min-w-0 flex-1"><span className="mb-1 block text-[10px] font-normal text-[#9aa38c]">{item.code}</span><span className="mb-2 block text-xs font-medium">{item.name}</span><OwnershipBadge ownership={ownership} /></span><Plus size={15} className="text-[#b0bda1] group-hover:text-brand-600" />
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">{available.map(({ item, ownership, id }) => <button key={id} className={`group justify-start gap-3 p-4 text-left ${ownership === "customer" ? "item-own" : "item-pool"}`} onClick={() => setSelection({ item, ownership })}>
+        {item.image ? <img className="size-11 shrink-0 rounded-xl object-cover" src={item.image} alt="" /> : <CategoryGlyph name={db.categories.find(c => c.id === item.categoryId)?.name} size={20} className={`size-11 rounded-xl ${ownership === "customer" ? "bg-white text-brand-500" : "bg-white text-pool-600"}`} />}<span className="min-w-0 flex-1"><span className="mb-1 block text-[10px] font-normal text-muted">{item.code}</span><span className="mb-2 block text-xs font-medium">{item.name}</span><OwnershipBadge ownership={ownership} /></span><Plus size={15} className={`text-muted ${ownership === "customer" ? "group-hover:text-brand-600" : "group-hover:text-pool-600"}`} />
       </button>)}</div>
       {draft.customerId && !available.length && <p>No matching assigned linen. Change the filters or ask an Admin to configure ownership in Linen Setup.</p>}
     </fieldset>
@@ -141,7 +141,7 @@ export default function DispatchEditor({ db, draft, onChange, onSave, onPreview,
       if (item) setSelection({ item, ownership: line.ownership, line }); else setErrors(["This catalogue item no longer exists. Remove the line."]);
     }} onRemove={id => { if (window.confirm("Remove this item line?")) updateCart({ lines: cart.lines.filter(l => l.id !== id) }); }} /> : <p>This cart is empty. Select an item to enter its quantity.</p>}
     <h2>Dispatch summary · all carts</h2><QuantitySummary records={[draft]} />
-    <div className="sticky bottom-3 z-10 mt-7 flex flex-wrap gap-3 rounded-xl border border-[#e2e8db] bg-white/95 p-4 shadow-lg shadow-[#243a3410] backdrop-blur"><button onClick={() => save(false)}><Save size={16} />Save Draft</button><button className="btn-primary" onClick={() => { const problems = dispatchErrors(db, draft, true); setErrors(problems); if (!problems.length) setConfirming(true); }}><Check size={16} />Confirm Dispatch</button><button className="sm:ml-auto" onClick={() => onPreview(draft)}><Printer size={16} />Print Preview</button></div>
+    <div className="sticky bottom-3 z-10 mt-7 flex flex-wrap gap-3 rounded-xl border border-line bg-white/95 p-4 shadow-lg shadow-slate-900/10 backdrop-blur"><button onClick={() => save(false)}><Save size={16} />Save Draft</button><button className="btn-primary" onClick={() => { const problems = dispatchErrors(db, draft, true); setErrors(problems); if (!problems.length) setConfirming(true); }}><Check size={16} />Confirm Dispatch</button><button className="sm:ml-auto" onClick={() => onPreview(draft)}><Printer size={16} />Print Preview</button></div>
     {selection && <QuantityDialog key={`${selection.item.id}-${selection.ownership}-${selection.line?.id || "new"}`} selection={selection} customerId={draft.customerId} defaultWeightUnit={db.company.defaultWeightUnit} onClose={() => setSelection(null)} onSubmit={line => {
       updateCart({ lines: selection.line ? cart.lines.map(l => l.id === line.id ? line : l) : [...cart.lines, line] });
       setSelection(null); setErrors([]);
