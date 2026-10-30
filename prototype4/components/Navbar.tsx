@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { ChartNoAxesCombined, ChevronDown, Layers3, LayoutDashboard, Leaf, Menu, Plus, Settings2, Truck, UsersRound, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ChartNoAxesCombined, ChevronDown, ChevronRight, Layers3, LayoutDashboard, Leaf, PanelLeftOpen, Plus, Settings2, Truck, UsersRound, X } from "lucide-react";
 import type { Role } from "../lib/types";
 
 export type Page = "dashboard" | "create" | "drafts" | "history" | "customers" | "sites" | "categories" | "items" | "customer-linen" | "pool-linen" | "reports" | "settings" | "record";
@@ -15,42 +15,75 @@ const sections = [
 
 export function SectionNavigation({ page, draftCount, onNavigate }: { page: Page; draftCount: number; onNavigate: (page: Page) => void }) {
   const section = sections.find(s => s.pages.includes(page))!;
-  return <nav aria-label={`${section.label} navigation`} className="mb-7 flex min-h-11 items-center gap-6 overflow-x-auto border-b border-line">
+  return <nav aria-label={`${section.label} navigation`} className="-mb-px min-w-0 flex-1 flex items-center gap-2 overflow-x-auto">
     {section.links.map(([key, label]) => <button key={key} onClick={() => onNavigate(key as Page)} aria-current={page === key || (page === "record" && key === "history") ? "page" : undefined}
-      className={`min-h-11 shrink-0 rounded-none border-0 border-b-2 bg-transparent px-0 pb-3 pt-1 text-xs hover:bg-transparent ${page === key || (page === "record" && key === "history") ? "border-brand-500 font-semibold text-brand-600 hover:border-brand-500" : "border-transparent text-muted hover:border-brand-100"}`}>
-      {label}{key === "drafts" && <span className="rounded bg-brand-50 px-1.5 py-0.5 text-[10px] text-brand-600">{draftCount}</span>}
+      className={`min-h-12 shrink-0 rounded-none border-0 border-b-2 bg-transparent px-3 pb-3 pt-1 text-sm hover:bg-transparent ${page === key || (page === "record" && key === "history") ? "border-brand-500 font-semibold text-brand-600 hover:border-brand-500" : "border-transparent text-muted hover:border-brand-100"}`}>
+      {label}{key === "drafts" && <span className="rounded-full bg-brand-50 px-2 py-0.5 text-[11px] text-brand-600">{draftCount}</span>}
     </button>)}
   </nav>;
 }
 
-export default function Navbar({ page, role, onRoleChange, onNavigate, onCreate }: { page: Page; role: Role; onRoleChange: (role: Role) => void; onNavigate: (page: Page) => void; onCreate: () => void }) {
+export default function Navbar({ page, role, onRoleChange, onNavigate, onCreate, draftCount, pageLabel, dirty }: {
+  page: Page; role: Role; onRoleChange: (role: Role) => void; onNavigate: (page: Page) => void; onCreate: () => void;
+  draftCount: number; pageLabel: string; dirty: boolean;
+}) {
   const [menuOpen, setMenuOpen] = useState(false);
-  return <header className="sticky top-0 z-20 border-b border-line bg-white/95 backdrop-blur-lg">
-    <div className="mx-auto flex max-w-[1600px] items-center gap-5 px-5 py-4 lg:px-8 xl:px-10">
-      <button className="shrink-0 gap-2.5 border-0 bg-transparent p-0 hover:bg-transparent" onClick={() => onNavigate("dashboard")} aria-label="Pure Linen dashboard">
-        <span className="flex size-9 items-center justify-center rounded-xl bg-brand-500 text-white"><Leaf size={21} strokeWidth={1.6} /></span>
-        <span className="text-lg font-semibold tracking-tight">purelinen<span className="text-brand-500">.</span></span>
-      </button>
-      <div className="hidden h-6 border-l border-line xl:block" />
-      <nav aria-label="Main navigation" className="hidden flex-1 items-center gap-1 xl:flex">
-        {sections.map(s => {
-          const active = s.pages.includes(page); const Icon = s.icon;
-          return <button key={s.label} aria-current={active ? "true" : undefined} onClick={() => { if (!active) onNavigate(s.links[0][0] as Page); }}
-            className={`gap-2 rounded-lg border-0 px-3 py-2.5 text-xs xl:px-4 ${active ? "bg-brand-50 font-semibold text-brand-600" : "bg-transparent text-muted hover:bg-brand-50"}`}><Icon size={16} strokeWidth={1.7} />{s.label}</button>;
-        })}
-      </nav>
-      <div className="ml-auto flex items-center gap-3">
-        <label className="relative hidden items-center gap-2 sm:flex">
-          <span className="flex size-8 items-center justify-center rounded-full bg-brand-50 text-[10px] font-semibold text-brand-600">{role === "Admin" ? "AD" : "OP"}</span>
-          <select aria-label="Demo role" value={role} onChange={e => onRoleChange(e.target.value as Role)} className="!min-h-8 !w-24 appearance-none !border-0 !bg-transparent !py-1 !pl-0 !pr-5 !text-xs !font-medium !ring-0"><option>Admin</option><option>Operator</option></select><ChevronDown size={12} className="pointer-events-none absolute right-2 text-muted" />
-        </label>
-        <button className="btn-primary min-h-10 gap-1.5 rounded-lg px-3 text-xs" onClick={onCreate}><Plus size={15} /><span className="hidden sm:inline">Create Dispatch</span><span className="sm:hidden">New</span></button>
-        <button aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen} aria-controls="mobile-navigation" className="btn-quiet size-10 p-0 xl:hidden" onClick={() => setMenuOpen(v => !v)}>{menuOpen ? <X size={20} /> : <Menu size={20} />}</button>
+  const go = (next: Page) => { onNavigate(next); setMenuOpen(false); };
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setMenuOpen(false); };
+    window.addEventListener("keydown", onKey);
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { window.removeEventListener("keydown", onKey); document.body.style.overflow = previous; };
+  }, [menuOpen]);
+  return <>
+    <header className="sticky top-0 z-40">
+      <div className="border-b border-line bg-white/95 backdrop-blur-lg">
+        <div className="mx-auto flex max-w-[1600px] items-center gap-3 px-4 py-3 md:px-6 lg:px-8 xl:px-10">
+          <button aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen} aria-controls="app-drawer" className="btn-quiet size-12 p-0" onClick={() => setMenuOpen(true)}><PanelLeftOpen size={22} /></button>
+          <button className="shrink-0 gap-2.5 border-0 bg-transparent p-0 hover:bg-transparent" onClick={() => go("dashboard")} aria-label="Pure Linen dashboard">
+            <span className="flex size-11 items-center justify-center rounded-xl bg-brand-500 text-white"><Leaf size={22} strokeWidth={1.6} /></span>
+            <span className="hidden text-lg font-semibold tracking-tight sm:inline">purelinen<span className="text-brand-500">.</span></span>
+          </button>
+          <span className="ml-auto truncate text-sm font-medium text-muted">{pageLabel}</span>
+        </div>
       </div>
-    </div>
-    {menuOpen && <nav id="mobile-navigation" aria-label="Mobile navigation" className="grid grid-cols-2 gap-2 border-t border-line p-4 xl:hidden">
-      {sections.map(s => { const Icon = s.icon; return <button key={s.label} className={`justify-start border-0 ${s.pages.includes(page) ? "bg-brand-50 text-brand-600" : "bg-transparent"}`} onClick={() => { if (!s.pages.includes(page)) onNavigate(s.links[0][0] as Page); setMenuOpen(false); }}><Icon size={17} />{s.label}</button>; })}
-      <label className="col-span-2 flex items-center gap-3 pt-2 text-xs text-muted">Demo role<select aria-label="Mobile demo role" value={role} onChange={e => onRoleChange(e.target.value as Role)} className="!w-auto"><option>Admin</option><option>Operator</option></select></label>
-    </nav>}
-  </header>;
+      <div className="border-b border-line bg-canvas/95 backdrop-blur-lg">
+        <div className="mx-auto max-w-[1600px] px-4 pt-3 md:px-6 lg:px-8 xl:px-10">
+          <div className="mb-1 flex items-center gap-2 text-[11px] text-muted">
+            <Leaf size={12} /><span>Workspace</span><ChevronRight size={12} /><span className="text-ink">{pageLabel}</span>
+            {dirty && <span className="ml-auto rounded bg-brand-50 px-2 py-1 text-[10px] text-brand-600">Unsaved changes</span>}
+          </div>
+          <div className="flex items-end justify-between gap-3">
+            <SectionNavigation page={page} draftCount={draftCount} onNavigate={onNavigate} />
+            <button className="btn-primary mb-1.5 min-h-10 shrink-0 gap-1.5 rounded-xl px-3 text-sm" onClick={onCreate}><Plus size={16} />Create Dispatch</button>
+          </div>
+        </div>
+      </div>
+    </header>
+    {menuOpen && <>
+      <div className="app-drawer-backdrop" onClick={() => setMenuOpen(false)} />
+      <aside id="app-drawer" className="app-drawer" aria-label="Main navigation">
+        <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
+          <span className="flex items-center gap-2.5 text-lg font-semibold tracking-tight"><span className="flex size-10 items-center justify-center rounded-xl bg-brand-500 text-white"><Leaf size={20} strokeWidth={1.6} /></span>purelinen<span className="text-brand-500">.</span></span>
+          <button className="btn-quiet size-11 p-0" aria-label="Close navigation" onClick={() => setMenuOpen(false)}><X size={20} /></button>
+        </div>
+        <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
+          {sections.map(s => {
+            const active = s.pages.includes(page); const Icon = s.icon;
+            return <button key={s.label} aria-current={active ? "true" : undefined} onClick={() => { if (!active) go(s.links[0][0] as Page); else setMenuOpen(false); }}
+              className={`min-h-14 justify-start gap-3 border-0 px-3 text-left text-sm ${active ? "bg-brand-50 font-semibold text-brand-600" : "bg-transparent text-ink hover:bg-brand-50"}`}>
+              <Icon size={20} strokeWidth={1.7} />{s.label}
+            </button>;
+          })}
+        </nav>
+        <label className="relative mx-4 mb-4 flex items-center gap-2 rounded-xl border border-line bg-canvas px-3 py-2">
+          <span className="flex size-9 items-center justify-center rounded-full bg-brand-50 text-[11px] font-semibold text-brand-600">{role === "Admin" ? "AD" : "OP"}</span>
+          <select aria-label="Demo role" value={role} onChange={e => onRoleChange(e.target.value as Role)} className="!min-h-10 !border-0 !bg-transparent !py-1 !pl-0 !pr-5 !text-sm !font-medium !ring-0"><option>Admin</option><option>Operator</option></select>
+          <ChevronDown size={12} className="pointer-events-none absolute right-3 text-muted" />
+        </label>
+      </aside>
+    </>}
+  </>;
 }

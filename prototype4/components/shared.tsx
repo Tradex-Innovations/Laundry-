@@ -29,11 +29,14 @@ export function CategoryLabel({ name }: { name?: string | null }) {
 
 export type Mutate = (operation: (db: Database) => void, message: string) => boolean;
 export interface MasterProps { db: Database; role: Role; mutate: Mutate }
-export function Dialog({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
+export function Dialog({ title, onClose, children, badge, className = "" }: { title: string; onClose: () => void; children: React.ReactNode; badge?: React.ReactNode; className?: string }) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => { const el = ref.current; if (el && !el.open) el.showModal(); }, []);
-  return <dialog ref={ref} aria-label={title} onCancel={e => { e.preventDefault(); onClose(); }}>
-    <div className="mb-5 flex items-start justify-between gap-4 border-b border-line pb-5"><h2 className="!m-0 !text-xl">{title}</h2><button type="button" className="btn-quiet !size-8 !min-h-8 shrink-0 !p-0" onClick={onClose} aria-label="Close dialog"><X size={18} /></button></div>{children}
+  return <dialog ref={ref} aria-label={title} className={className} onCancel={e => { e.preventDefault(); onClose(); }}>
+    <div className={`mb-5 flex items-start justify-between gap-4 ${className.includes("keypad-dialog") ? "!mb-0 bg-brand-600 px-5 py-4 text-white" : "border-b border-line pb-5"}`}>
+      <div className="flex min-w-0 flex-wrap items-center gap-3"><h2 className={`!m-0 !text-xl ${className.includes("keypad-dialog") ? "!text-white" : ""}`}>{title}</h2>{badge}</div>
+      <button type="button" className={`btn-quiet !size-11 !min-h-11 shrink-0 !p-0 ${className.includes("keypad-dialog") ? "!border-0 !bg-transparent !text-white hover:!bg-white/10" : ""}`} onClick={onClose} aria-label="Close dialog"><X size={20} /></button>
+    </div>{children}
   </dialog>;
 }
 export function Field({ label, children }: { label: string; children: React.ReactNode }) {
