@@ -3,8 +3,8 @@ import "./globals.css";
 import "./print.css";
 
 export const metadata: Metadata = {
-  title: "Laundry Management · Linen Out",
-  description: "Phase 1 laundry dispatch prototype",
+  title: "Pure Linen · Laundry Management",
+  description: "Touch-friendly laundry receiving and dispatch prototype",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

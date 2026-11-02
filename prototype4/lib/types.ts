@@ -44,9 +44,17 @@ export interface Dispatch {
 export interface Activity {
   id: string; at: string; actor: string; action: string; detail: string; dispatchId?: string;
 }
+export interface ReceivingInput {
+  id: string; customerId: string; siteId: string; receivedDate: string; containers: number;
+  pieces: number; weightKg: number; reference: string; notes: string;
+}
+export interface Receipt extends ReceivingInput {
+  number: string; createdAt: string; createdBy: string; customerName: string; siteName: string;
+}
 export interface Database {
   schemaVersion: 1; nextNumber: number; customers: Customer[]; sites: Site[]; categories: Category[];
   items: Item[]; assignments: Assignment[]; dispatches: Dispatch[]; company: Company; activity: Activity[];
+  receipts?: Receipt[];
 }
 export interface Totals {
   customerPieces: number; poolPieces: number; pieces: number;

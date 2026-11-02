@@ -10,6 +10,10 @@ interface Props {
   onSave: (draft: Dispatch, confirm: boolean) => Dispatch | undefined;
   onPreview: (record: Dispatch) => void; onOpen: (record: Dispatch) => void;
 }
+function DispatchSteps({ step }: { step: number }) {
+  return <div className="workflow-steps" aria-label="Linen out progress"><span data-active={step === 1}><b>1</b>Select customer</span><i /><span data-active={step === 2}><b>2</b>Delivery site</span><i /><span data-active={step === 3}><b>3</b>Pack & dispatch</span></div>;
+}
+
 interface QuantitySelection { item: Item; ownership: Ownership; line?: Line }
 
 function QuantityDialog({ selection, customerId, defaultWeightUnit, onClose, onSubmit }: {
@@ -68,7 +72,7 @@ function QuantityDialog({ selection, customerId, defaultWeightUnit, onClose, onS
 export function LineTable({ cart, editable = false, onEdit, onRemove }: { cart: Cart; editable?: boolean; onEdit?: (line: Line) => void; onRemove?: (id: string) => void }) {
   return <div className="table-scroll !my-0"><table><caption className="px-4 pt-3">Selected items · {cart.reference || "No cart reference"}</caption>
     <thead><tr><th>Item code</th><th>Item</th><th>Ownership</th><th>Quantity</th><th>Unit</th>{editable && <th>Action</th>}</tr></thead>
-    <tbody>{cart.lines.map(line => <tr key={line.id}><td className="font-medium">{line.code}</td><td>{line.description}</td><td><OwnershipBadge ownership={line.ownership} /></td><td className="font-semibold">{fmt(line.quantity)}</td><td>{line.unit}</td>{editable && <td><div className="flex gap-1"><button onClick={() => onEdit?.(line)}><Pencil size={14} />Edit</button><button className="btn-danger" onClick={() => onRemove?.(line.id)}><Trash2 size={14} /></button></div></td>}</tr>)}</tbody>
+    <tbody>{cart.lines.map(line => <tr key={line.id}><td className="font-medium">{line.code}</td><td>{line.description}</td><td><OwnershipBadge ownership={line.ownership} /></td><td className="font-semibold">{fmt(line.quantity)}</td><td>{line.unit}</td>{editable && <td><div className="flex gap-1"><button onClick={() => onEdit?.(line)}><Pencil size={14} />Edit</button><button className="btn-danger" onClick={() => onRemove?.(line.id)}><Trash2 size={14} /><span className="sr-only">Remove {line.description}</span></button></div></td>}</tr>)}</tbody>
   </table></div>;
 }
 
@@ -124,9 +128,10 @@ export default function DispatchEditor({ db, draft, onChange, onSave, onPreview,
 
   if (!draft.customerId) return <section>
     <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-      <div><h1 className="!mb-2">Outgoing Carts</h1><p className="!mt-0">Select Customer</p></div>
-      <input type="search" value={customerQuery} onChange={e => setCustomerQuery(e.target.value)} placeholder="Search" className="!max-w-xs" />
+      <div><div className="eyebrow">CLEAN LINEN</div><h1 className="!mb-2">Linen Out</h1><p className="!mt-0">Choose a customer to start packing clean linen.</p></div>
+      <input type="search" value={customerQuery} onChange={e => setCustomerQuery(e.target.value)} placeholder="Search customer name or code" aria-label="Search dispatch customers" className="!max-w-sm" />
     </div>
+    <DispatchSteps step={1} />
     <Errors errors={errors} />
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">{customers.map(c => {
       const site = db.sites.find(s => s.customerId === c.id && s.active);
@@ -135,11 +140,12 @@ export default function DispatchEditor({ db, draft, onChange, onSave, onPreview,
         <span className="tile-body"><span className="block truncate text-base font-semibold">{c.name}</span><span className="mt-1 block text-xs text-white/80">Department: {site?.department || "—"}</span></span>
       </button>;
     })}</div>
+    {!customers.length && <p>No matching customers. Try another name or add a customer in Administration.</p>}
   </section>;
 
   if (!draft.siteId) return <section>
     <button type="button" className="btn-quiet !px-0" onClick={() => update({ customerId: "", siteId: "", route: "" })}><ArrowLeft size={18} />Change customer</button>
-    <h1 className="!mb-2">Select delivery site</h1>
+    <DispatchSteps step={2} /><h1 className="!mb-2">Select delivery site</h1>
     <p className="!mt-0">{selectedCustomer?.code} · {selectedCustomer?.name}</p>
     <Errors errors={errors} />
     {sites.length ? <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">{sites.map(s => <button key={s.id} type="button" className="tile-card" onClick={() => update({ siteId: s.id, route: s.route || "" })}>
@@ -149,8 +155,9 @@ export default function DispatchEditor({ db, draft, onChange, onSave, onPreview,
   </section>;
 
   return <section>
+    <DispatchSteps step={3} />
     <div className="mb-5 flex flex-wrap items-center gap-3">
-      <h1 className="!m-0">{draft.number ? `Edit Draft · ${draft.number}` : "Create Outgoing Carts"}</h1>
+      <h1 className="!m-0">{draft.number ? `Edit Draft · ${draft.number}` : "Pack clean linen"}</h1>
       <button type="button" className="!h-auto !min-h-11 !justify-start !py-2" onClick={() => changeCustomer("")}><UsersRound size={16} />{selectedCustomer?.name}</button>
       <button type="button" className="!h-auto !min-h-11 !justify-start !py-2" onClick={() => update({ siteId: "", route: selectedSite?.route || "" })}><MapPin size={16} />{selectedSite?.name}{selectedSite?.department ? ` · ${selectedSite.department}` : ""}</button>
       <StatusBadge status="Draft" />
@@ -161,7 +168,7 @@ export default function DispatchEditor({ db, draft, onChange, onSave, onPreview,
 
     <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(260px,0.9fr)]">
       <div className="min-w-0 rounded-2xl border border-line bg-white p-4 md:p-5">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><h2 className="!m-0 !text-base">Select Items</h2><input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search item no or name" className="!max-w-xs" /></div>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><h2 className="!m-0 !text-base">Select Items</h2><input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search item no or name" aria-label="Search linen items" className="!max-w-xs" /></div>
         {cart.lines.length ? <LineTable cart={cart} editable onEdit={line => {
           const item = db.items.find(i => i.id === line.itemId);
           if (item) setSelection({ item, ownership: line.ownership, line }); else setErrors(["This catalogue item no longer exists. Remove the line."]);
@@ -199,17 +206,19 @@ export default function DispatchEditor({ db, draft, onChange, onSave, onPreview,
       </div>
     </div>
 
-    <div className="sticky bottom-3 z-10 mt-6 rounded-2xl border border-line bg-white/95 p-4 shadow-lg shadow-slate-900/10 backdrop-blur">
-      <div className="grid items-end gap-3 sm:grid-cols-2 lg:grid-cols-7">
+    <div className="mt-6 rounded-2xl border border-line bg-canvas p-4">
+      <div className="grid items-end gap-3 sm:grid-cols-2 xl:grid-cols-5">
         <Field label="Cart number"><button type="button" className="keypad-field" onClick={() => setPad({ kind: "reference", title: "Cart Number", decimal: false })}>{cart.reference || draft.number || "Tap to enter"}</button></Field>
         <Field label={`Tare weight (${cart.weightUnit})`}><button type="button" className="keypad-field" onClick={() => setPad({ kind: "tare", title: "Tare Weight", decimal: true })}>{cart.tare ?? ""}</button></Field>
         <Field label={`Gross weight (${cart.weightUnit})`}><button type="button" className="keypad-field" onClick={() => setPad({ kind: "gross", title: "Gross Weight", decimal: true })}>{cart.gross ?? ""}</button></Field>
         <Field label="Net weight"><input readOnly value={net ? `${net} ${cart.weightUnit}` : ""} /></Field>
         <Field label="Shipping date *"><input type="date" required value={draft.shippingDate} onChange={e => update({ shippingDate: e.target.value })} /></Field>
-        <button onClick={() => save(false)}><Save size={18} />Save</button>
-        <button className="btn-primary" onClick={() => { const saved = onSave(draft, false); if (saved) { setErrors([]); onPreview(saved); } }}><Printer size={18} />Save & Print</button>
       </div>
-      <div className="mt-3 flex flex-wrap gap-3">
+    </div>
+    <div className="dispatch-actionbar">
+      <div className="flex flex-wrap items-center gap-3">
+        <button onClick={() => save(false)}><Save size={18} />Save draft</button>
+        <button onClick={() => { const saved = onSave(draft, false); if (saved) { setErrors([]); onPreview(saved); } }}><Printer size={18} />Save & preview</button>
         <button className="btn-primary" onClick={() => { const problems = dispatchErrors(db, draft, true); setErrors(problems); if (!problems.length) setConfirming(true); }}><Check size={18} />Confirm Dispatch</button>
         <button disabled={draft.carts.length === 1} onClick={() => { if (window.confirm("Remove this cart and all its lines?")) { const carts = draft.carts.filter(c => c.id !== cart.id); update({ carts }); setCartId(carts[0].id); } }}>Remove Cart</button>
       </div>
