@@ -1,88 +1,65 @@
 "use client";
-import { useEffect, useState } from "react";
-import { ChartNoAxesCombined, ChevronDown, ChevronRight, Layers3, LayoutDashboard, Leaf, PanelLeftOpen, Plus, Settings2, Truck, UsersRound, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowDownToLine, ArrowUpFromLine, ChartNoAxesCombined, ChevronRight, ClipboardList, FileText, History, Layers3, LayoutGrid, Leaf, Menu, Monitor, Settings2, Truck, UsersRound, X } from "lucide-react";
 import type { Role } from "../lib/types";
 
-export type Page = "dashboard" | "create" | "drafts" | "history" | "customers" | "sites" | "categories" | "items" | "customer-linen" | "pool-linen" | "reports" | "settings" | "record";
-const sections = [
-  { label: "Dashboard", icon: LayoutDashboard, pages: ["dashboard"] as Page[], links: [["dashboard", "Overview"]] },
-  { label: "Linen Out", icon: Truck, pages: ["create", "drafts", "history", "record"] as Page[], links: [["create", "Create Dispatch"], ["drafts", "Draft Dispatches"], ["history", "Dispatch History"]] },
-  { label: "Customers", icon: UsersRound, pages: ["customers", "sites"] as Page[], links: [["customers", "Customer List"], ["sites", "Delivery Sites / Departments"]] },
-  { label: "Linen Setup", icon: Layers3, pages: ["categories", "items", "customer-linen", "pool-linen"] as Page[], links: [["items", "Item Catalogue"], ["categories", "Categories"], ["customer-linen", "Customer-owned Linen"], ["pool-linen", "Laundry Pool Linen"]] },
-  { label: "Reports", icon: ChartNoAxesCombined, pages: ["reports"] as Page[], links: [["reports", "Dispatch Reports"]] },
-  { label: "Settings", icon: Settings2, pages: ["settings"] as Page[], links: [["settings", "Company & Permissions"]] },
+export type Page = "admin-dashboard" | "dashboard" | "receipts" | "receiving" | "create" | "drafts" | "history" | "manifests" | "customers" | "sites" | "categories" | "items" | "customer-linen" | "pool-linen" | "reports" | "settings" | "record";
+export const isAdminPage = (page: Page) => ["admin-dashboard", "customers", "sites", "categories", "items", "customer-linen", "pool-linen", "reports", "settings"].includes(page);
+const operations = [
+  { page: "dashboard" as Page, label: "Overview", icon: LayoutGrid },
+  { page: "receiving" as Page, label: "Linen In", icon: ArrowDownToLine },
+  { page: "create" as Page, label: "Linen Out", icon: ArrowUpFromLine },
+  { page: "drafts" as Page, label: "Dispatches", icon: Truck },
+  { page: "manifests" as Page, label: "Manifests", icon: FileText },
+  { page: "history" as Page, label: "History", icon: History },
+];
+const administration = [
+  { page: "admin-dashboard" as Page, label: "Overview", icon: LayoutGrid },
+  { page: "customers" as Page, label: "Customers", icon: UsersRound },
+  { page: "sites" as Page, label: "Delivery sites", icon: Truck },
+  { page: "items" as Page, label: "Item catalogue", icon: Layers3 },
+  { page: "categories" as Page, label: "Categories", icon: LayoutGrid },
+  { page: "customer-linen" as Page, label: "Customer-owned linen", icon: ClipboardList },
+  { page: "pool-linen" as Page, label: "Laundry pool linen", icon: Layers3 },
+  { page: "reports" as Page, label: "Reports", icon: ChartNoAxesCombined },
+  { page: "settings" as Page, label: "Settings", icon: Settings2 },
 ];
 
-export function SectionNavigation({ page, draftCount, onNavigate }: { page: Page; draftCount: number; onNavigate: (page: Page) => void }) {
-  const section = sections.find(s => s.pages.includes(page))!;
-  return <nav aria-label={`${section.label} navigation`} className="-mb-px min-w-0 flex-1 flex items-center gap-2 overflow-x-auto">
-    {section.links.map(([key, label]) => <button key={key} onClick={() => onNavigate(key as Page)} aria-current={page === key || (page === "record" && key === "history") ? "page" : undefined}
-      className={`min-h-12 shrink-0 rounded-none border-0 border-b-2 bg-transparent px-3 pb-3 pt-1 text-sm hover:bg-transparent ${page === key || (page === "record" && key === "history") ? "border-brand-500 font-semibold text-brand-600 hover:border-brand-500" : "border-transparent text-muted hover:border-brand-100"}`}>
-      {label}{key === "drafts" && <span className="rounded-full bg-brand-50 px-2 py-0.5 text-[11px] text-brand-600">{draftCount}</span>}
-    </button>)}
-  </nav>;
-}
-
-export default function Navbar({ page, role, onRoleChange, onNavigate, onCreate, draftCount, pageLabel, dirty }: {
-  page: Page; role: Role; onRoleChange: (role: Role) => void; onNavigate: (page: Page) => void; onCreate: () => void;
+export default function Navbar({ page, role, onRoleChange, onNavigate, draftCount, pageLabel, dirty }: {
+  page: Page; role: Role; onRoleChange: (role: Role) => void; onNavigate: (page: Page) => void;
   draftCount: number; pageLabel: string; dirty: boolean;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const drawer = useRef<HTMLDialogElement>(null);
+  const admin = isAdminPage(page);
   const go = (next: Page) => { onNavigate(next); setMenuOpen(false); };
   useEffect(() => {
     if (!menuOpen) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setMenuOpen(false); };
-    window.addEventListener("keydown", onKey);
+    drawer.current?.showModal();
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => { window.removeEventListener("keydown", onKey); document.body.style.overflow = previous; };
+    return () => { document.body.style.overflow = previous; };
   }, [menuOpen]);
+  const links = (expanded = false) => <>
+    {admin && <div className="rail-heading">ADMINISTRATION</div>}
+    {(admin ? administration : expanded ? operations : operations.filter(link => ["dashboard", "history", "manifests"].includes(link.page))).map(link => <button key={link.page} title={link.label} onClick={() => go(link.page)} className={`rail-link ${expanded ? "expanded" : ""}`} aria-current={page === link.page || (page === "receipts" && link.page === "receiving") || (page === "record" && link.page === "history") ? "page" : undefined}>
+      <link.icon size={21} strokeWidth={1.7} /><span>{link.label}</span>{link.page === "drafts" && draftCount > 0 && <span className="rail-count">{draftCount}</span>}
+    </button>)}
+    <div className="rail-bottom"><button title={admin ? "Operations" : "Administration"} className={`rail-link ${expanded ? "expanded" : ""}`} onClick={() => go(admin ? "dashboard" : "admin-dashboard")}>
+      {admin ? <LayoutGrid size={21} /> : <Settings2 size={21} />}<span>{admin ? "Operations" : "Admin"}</span>
+    </button><span className="rail-version">PROTOTYPE v1.0</span></div>
+  </>;
   return <>
-    <header className="sticky top-0 z-40">
-      <div className="border-b border-line bg-white/95 backdrop-blur-lg">
-        <div className="mx-auto flex max-w-[1600px] items-center gap-3 px-4 py-3 md:px-6 lg:px-8 xl:px-10">
-          <button aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen} aria-controls="app-drawer" className="btn-quiet size-12 p-0" onClick={() => setMenuOpen(true)}><PanelLeftOpen size={22} /></button>
-          <button className="shrink-0 gap-2.5 border-0 bg-transparent p-0 hover:bg-transparent" onClick={() => go("dashboard")} aria-label="Pure Linen dashboard">
-            <span className="flex size-11 items-center justify-center rounded-xl bg-brand-500 text-white"><Leaf size={22} strokeWidth={1.6} /></span>
-            <span className="hidden text-lg font-semibold tracking-tight sm:inline">purelinen<span className="text-brand-500">.</span></span>
-          </button>
-        </div>
-      </div>
-      <div className="border-b border-line bg-canvas/95 backdrop-blur-lg">
-        <div className="mx-auto max-w-[1600px] px-4 pt-3 md:px-6 lg:px-8 xl:px-10">
-          <div className="mb-1 flex items-center gap-2 text-[11px] text-muted">
-            <Leaf size={12} /><span>Workspace</span><ChevronRight size={12} /><span className="text-ink">{pageLabel}</span>
-            {dirty && <span className="ml-auto rounded bg-brand-50 px-2 py-1 text-[10px] text-brand-600">Unsaved changes</span>}
-          </div>
-          <div className="flex items-end justify-between gap-3">
-            <SectionNavigation page={page} draftCount={draftCount} onNavigate={onNavigate} />
-            {page === "dashboard" && <button className="btn-primary mb-1.5 min-h-10 shrink-0 gap-1.5 rounded-xl px-3 text-sm" onClick={onCreate}><Plus size={16} />Create Dispatch</button>}
-          </div>
-        </div>
-      </div>
+    <header className="workspace-header">
+      <button className="mobile-menu btn-quiet" aria-label="Open navigation" onClick={() => setMenuOpen(true)}><Menu size={23} /></button>
+      <button className="brand-lockup" onClick={() => go(admin || role === "Admin" ? "admin-dashboard" : "dashboard")} aria-label="Pure Linen home"><span className="brand-mark"><Leaf size={25} strokeWidth={1.7} /></span><span>purelinen<span className="brand-dot">.</span><small>LAUNDRY MANAGEMENT</small></span></button>
+      {!admin && <h1 className="operator-page-title">{page === "dashboard" ? "Shipping & Receiving Dashboard" : pageLabel}</h1>}
+      {!admin && dirty && <span className="operator-unsaved">Unsaved changes</span>}
+      <div className="workspace-switch" aria-label="Workspace"><button aria-pressed={!admin} onClick={() => go("dashboard")}><LayoutGrid size={16} />Operations</button><button aria-pressed={admin} onClick={() => go("admin-dashboard")}><Settings2 size={16} />Administration</button></div>
+      <div className="header-right"><span className="demo-indicator"><span />Demo workspace</span><span className="header-divider" /><label className="role-control"><span className="avatar">{role === "Admin" ? "AD" : "OP"}</span><span className="sr-only">Demo role</span><select aria-label="Demo role" value={role} onChange={e => onRoleChange(e.target.value as Role)}><option>Admin</option><option>Operator</option></select></label></div>
     </header>
-    {menuOpen && <>
-      <div className="app-drawer-backdrop" onClick={() => setMenuOpen(false)} />
-      <aside id="app-drawer" className="app-drawer" aria-label="Main navigation">
-        <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
-          <span className="flex items-center gap-2.5 text-lg font-semibold tracking-tight"><span className="flex size-10 items-center justify-center rounded-xl bg-brand-500 text-white"><Leaf size={20} strokeWidth={1.6} /></span>purelinen<span className="text-brand-500">.</span></span>
-          <button className="btn-quiet size-11 p-0" aria-label="Close navigation" onClick={() => setMenuOpen(false)}><X size={20} /></button>
-        </div>
-        <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
-          {sections.map(s => {
-            const active = s.pages.includes(page); const Icon = s.icon;
-            return <button key={s.label} aria-current={active ? "true" : undefined} onClick={() => { if (!active) go(s.links[0][0] as Page); else setMenuOpen(false); }}
-              className={`min-h-14 justify-start gap-3 border-0 px-3 text-left text-sm ${active ? "bg-brand-50 font-semibold text-brand-600" : "bg-transparent text-ink hover:bg-brand-50"}`}>
-              <Icon size={20} strokeWidth={1.7} />{s.label}
-            </button>;
-          })}
-        </nav>
-        <label className="relative mx-4 mb-4 flex items-center gap-2 rounded-xl border border-line bg-canvas px-3 py-2">
-          <span className="flex size-9 items-center justify-center rounded-full bg-brand-50 text-[11px] font-semibold text-brand-600">{role === "Admin" ? "AD" : "OP"}</span>
-          <select aria-label="Demo role" value={role} onChange={e => onRoleChange(e.target.value as Role)} className="!min-h-10 !border-0 !bg-transparent !py-1 !pl-0 !pr-5 !text-sm !font-medium !ring-0"><option>Admin</option><option>Operator</option></select>
-          <ChevronDown size={12} className="pointer-events-none absolute right-3 text-muted" />
-        </label>
-      </aside>
-    </>}
+    <aside className={`workspace-rail ${admin ? "admin-rail" : ""}`}><nav aria-label="Main navigation">{links(admin)}</nav></aside>
+    {menuOpen && <dialog ref={drawer} className="mobile-drawer" aria-label="Main navigation" onCancel={() => setMenuOpen(false)}><div className="flex items-center justify-between border-b border-line pb-4"><strong>Workspace navigation</strong><button aria-label="Close navigation" className="btn-quiet" onClick={() => setMenuOpen(false)}><X size={21} /></button></div><nav>{links(true)}</nav></dialog>}
+    {admin && <div className="workspace-breadcrumb"><span>{admin ? <Settings2 size={14} /> : <Monitor size={14} />}{admin ? "Administration" : "Operations"}</span><ChevronRight size={13} /><strong>{pageLabel}</strong>{dirty ? <span className="unsaved-pill">Unsaved changes</span> : <span className="workspace-kind">{admin ? "Management workspace" : "Touch workspace"}</span>}</div>}
   </>;
 }
