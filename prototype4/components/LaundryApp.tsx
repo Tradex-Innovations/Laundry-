@@ -12,12 +12,14 @@ import Manifest from "./Manifest";
 import Reports from "./Reports";
 import Settings from "./Settings";
 import type { Mutate } from "./shared";
-import Navbar, { isAdminPage, Page } from "./Navbar";
+import Navbar, { isAdminPage, isPlatformPage, Page } from "./Navbar";
 import Dashboard from "./Dashboard";
 import AdminDashboard from "./AdminDashboard";
 import Receiving from "./Receiving";
+import Platform from "./Platform";
 
-const pageLabels: Record<Page, string> = { "admin-dashboard": "Overview", dashboard: "Overview", receiving: "Linen In", receipts: "Receiving records", manifests: "Shipping manifests", create: "Linen Out", drafts: "Dispatch queue", history: "Dispatch History", customers: "Customers", sites: "Delivery Sites", categories: "Categories", items: "Item Catalogue", "customer-linen": "Customer-owned Linen", "pool-linen": "Laundry Pool Linen", reports: "Reports", settings: "Settings", record: "Dispatch Details" };
+const pageLabels: Record<Page, string> = { "admin-dashboard": "Overview", dashboard: "Overview", receiving: "Linen In", receipts: "Receiving records", manifests: "Shipping manifests", create: "Linen Out", drafts: "Dispatch queue", history: "Dispatch History", customers: "Customers", sites: "Delivery Sites", categories: "Categories", items: "Item Catalogue", "customer-linen": "Customer-owned Linen", "pool-linen": "Laundry Pool Linen", reports: "Reports", settings: "Settings", record: "Dispatch Details", "platform-home": "Overview", "platform-laundries": "Laundries", "platform-laundry": "Laundry details", "platform-users": "Users", "platform-audit": "Audit log" };
+const homeFor = (role: Role): Page => role === "SystemsAdministrator" ? "platform-home" : role === "Admin" ? "admin-dashboard" : "dashboard";
 
 export default function LaundryApp() {
   const [db, setDb] = useState<Database | null>(null);
@@ -26,12 +28,13 @@ export default function LaundryApp() {
   const [draft, setDraft] = useState<Dispatch | null>(null);
   const [dirty, setDirty] = useState(false);
   const [recordId, setRecordId] = useState("");
+  const [laundryId, setLaundryId] = useState("");
   const [preview, setPreview] = useState<Dispatch | null>(null);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
   const mainRef = useRef<HTMLElement>(null);
   useEffect(() => {
-    try { setDb(localRepository.load()); const storedRole = localStorage.getItem("laundry.prototype4.role"); if (storedRole === "Operator" || storedRole === "Admin") { setRole(storedRole); setPage(storedRole === "Admin" ? "admin-dashboard" : "dashboard"); } }
+    try { setDb(localRepository.load()); const storedRole = localStorage.getItem("laundry.prototype4.role"); if (storedRole === "Operator" || storedRole === "Admin" || storedRole === "SystemsAdministrator") { setRole(storedRole); setPage(homeFor(storedRole)); } }
     catch (e) { setError(`Cannot load demo data: ${e instanceof Error ? e.message : String(e)}. Please enable browser storage and reload.`); }
     const storage = (e: StorageEvent) => {
       if (e.key === STORAGE_KEY) try { setDb(localRepository.load()); setNotice("Demo data updated in another tab. Reopen a saved draft before editing it here."); } catch (e) { setError(String(e)); }
@@ -55,6 +58,8 @@ export default function LaundryApp() {
     if (next === page) return;
     if (!canLeave()) return;
     setDirty(false); setError(""); setNotice("");
+    if (role === "SystemsAdministrator" && !isPlatformPage(next)) return;
+    if (role !== "SystemsAdministrator" && isPlatformPage(next)) return;
     if (next === "create") setDraft(newDispatch(database, `Demo ${role}`));
     setPage(next);
   }
@@ -62,8 +67,8 @@ export default function LaundryApp() {
     if (next === role || !canLeave()) return;
     try {
       localStorage.setItem("laundry.prototype4.role", next);
-      setRole(next); setDirty(false); setDraft(null); setError(""); setNotice("");
-      setPage(next === "Admin" ? "admin-dashboard" : "dashboard");
+      setRole(next); setDirty(false); setDraft(null); setError(""); setNotice(`Switched to ${next === "SystemsAdministrator" ? "Systems Administrator" : next}. Demo permissions only.`);
+      setPage(homeFor(next));
     } catch { setError("The role preference could not be saved to browser storage."); }
   }
   function createDispatch() {
@@ -86,13 +91,14 @@ export default function LaundryApp() {
   const openPreview = (record: Dispatch) => setPreview(clone(record));
   const record = db.dispatches.find(d => d.id === recordId);
   return <>
-    <div hidden={!!preview} className={isAdminPage(page) ? "admin-workspace" : "floor-workspace"}>
+    <div hidden={!!preview} className={isAdminPage(page) || isPlatformPage(page) ? "admin-workspace" : "floor-workspace"}>
       <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:p-3">Skip to content</a>
       <Navbar page={page} role={role} draftCount={db.dispatches.filter(d => d.status === "Draft").length} pageLabel={pageLabels[page]} dirty={dirty} onRoleChange={changeRole} onNavigate={navigate} />
       <div className="app-shell">
       {notice && <div role="status" className="mb-5 flex items-center gap-3 rounded-xl border border-brand-100 bg-brand-50 px-4 py-3 text-xs text-brand-700"><CheckCircle2 size={17} className="shrink-0" /><span className="flex-1">{notice}</span><button className="btn-quiet !size-7 !min-h-7 !p-0" aria-label="Dismiss notification" onClick={() => setNotice("")}><X size={14} /></button></div>}
       {error && <div role="alert" className="mb-5 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700"><CircleAlert size={17} className="shrink-0" /><p className="flex-1 whitespace-pre-line">{error}</p><button className="btn-quiet !size-7 !min-h-7 !p-0" aria-label="Dismiss error" onClick={() => setError("")}><X size={14} /></button></div>}
       <main ref={mainRef} id="main-content" tabIndex={-1} className="app-content">
+        {isPlatformPage(page) && <Platform db={db} page={page} laundryId={laundryId} mutate={mutate} onNavigate={navigate} onOpenLaundry={id => { setLaundryId(id); setPage("platform-laundry"); }} />}
         {page === "admin-dashboard" && <AdminDashboard db={db} onCreate={createDispatch} onOpen={openRecord} onPreview={openPreview} onNavigate={navigate} />}
         {page === "dashboard" && <Dashboard onCreate={createDispatch} onNavigate={navigate} />}
         {(page === "receiving" || page === "receipts") && <Receiving key={page} initialView={page === "receipts" ? "records" : "new"} db={db} role={role} mutate={mutate} onDirtyChange={setDirty} />}
@@ -104,7 +110,7 @@ export default function LaundryApp() {
         {page === "settings" && <Settings db={db} role={role} mutate={mutate} />}
         {page === "record" && (record ? <RecordView key={record.id} db={db} record={record} role={role} onPreview={openPreview} onCancel={(id, reason) => mutate(state => cancelDispatch(state, id, reason, role), "Dispatch cancelled. Operational dashboard and report totals have been updated.")} /> : <p>Dispatch not found. Open a record from Dispatch History.</p>)}
       </main>
-      {isAdminPage(page) && <footer className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5 text-[10px] text-muted"><span>Pure Linen · Laundry Management</span><span className="flex items-center gap-1.5"><span className="size-1.5 rounded-full bg-brand-500" />Saved on this device · Demo workspace</span></footer>}
+      {(isAdminPage(page) || isPlatformPage(page)) && <footer className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5 text-[10px] text-muted"><span>Pure Linen · {isPlatformPage(page) ? "Platform control" : "Laundry Management"}</span><span className="flex items-center gap-1.5"><span className="size-1.5 rounded-full bg-brand-500" />Saved on this device · Demo workspace</span></footer>}
       </div>
     </div>
     {preview && <Manifest db={db} record={preview} onClose={() => setPreview(null)} />}

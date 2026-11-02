@@ -9,7 +9,7 @@ export default function Settings({ db, role, mutate }: MasterProps) {
   const [errors, setErrors] = useState<string[]>([]);
   const admin = role === "Admin";
   return <section><h1 className="!mb-2">Settings</h1><p className="!mt-0 !text-xs">Your laundry details, printing preferences, and activity in one place.</p><ReadOnlyNotice role={role} />
-    <p>Current demo role: <strong>{role}</strong>. Role switching demonstrates permissions; it is not production authentication.</p>
+    <p>Current demo role: <strong>{role === "SystemsAdministrator" ? "Systems Administrator" : role}</strong>. Role switching demonstrates permissions; it is not production authentication. Systems Administrator lives in its own platform workspace.</p>
     <h2>Company printing details</h2><Errors errors={errors} />
     <form onSubmit={e => { e.preventDefault(); if (!company.name.trim()) return setErrors(["Company name is required."]);
       mutate(state => { if (!admin) throw new Error("Admin access is required."); state.company = { ...company, name: company.name.trim() }; log(state, role, "Company settings saved", company.name); }, "Company printing details saved. Confirmed manifests retain their original details.");
