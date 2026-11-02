@@ -46,7 +46,6 @@ export default function Navbar({ page, role, onRoleChange, onNavigate, onCreate,
             <span className="flex size-11 items-center justify-center rounded-xl bg-brand-500 text-white"><Leaf size={22} strokeWidth={1.6} /></span>
             <span className="hidden text-lg font-semibold tracking-tight sm:inline">purelinen<span className="text-brand-500">.</span></span>
           </button>
-          <span className="ml-auto truncate text-sm font-medium text-muted">{pageLabel}</span>
         </div>
       </div>
       <div className="border-b border-line bg-canvas/95 backdrop-blur-lg">
@@ -57,7 +56,7 @@ export default function Navbar({ page, role, onRoleChange, onNavigate, onCreate,
           </div>
           <div className="flex items-end justify-between gap-3">
             <SectionNavigation page={page} draftCount={draftCount} onNavigate={onNavigate} />
-            <button className="btn-primary mb-1.5 min-h-10 shrink-0 gap-1.5 rounded-xl px-3 text-sm" onClick={onCreate}><Plus size={16} />Create Dispatch</button>
+            {page === "dashboard" && <button className="btn-primary mb-1.5 min-h-10 shrink-0 gap-1.5 rounded-xl px-3 text-sm" onClick={onCreate}><Plus size={16} />Create Dispatch</button>}
           </div>
         </div>
       </div>

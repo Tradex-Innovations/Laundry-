@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useRef } from "react";
-import { AlertCircle, Bath, BedDouble, CookingPot, Layers3, LockKeyhole, Shirt, type LucideIcon, UtensilsCrossed, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { AlertCircle, Bath, BedDouble, CookingPot, Delete, Layers3, LockKeyhole, Shirt, type LucideIcon, UtensilsCrossed, X } from "lucide-react";
 import type { Database, Dispatch, Role } from "../lib/types";
 import { fmt, totals } from "../lib/domain";
 
@@ -41,6 +41,32 @@ export function Dialog({ title, onClose, children, badge, className = "" }: { ti
 }
 export function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return <p className="field"><label>{label}<br />{children}</label></p>;
+}
+export function KeypadDialog({ title, initial = "", decimal = true, onClose, onEnter }: {
+  title: string; initial?: string; decimal?: boolean; onClose: () => void; onEnter: (value: string) => void;
+}) {
+  const [value, setValue] = useState(initial);
+  const [pressed, setPressed] = useState("");
+  const [acc, setAcc] = useState(0);
+  function press(key: string) {
+    setPressed(key);
+    if (key === "back") return setValue(v => v.slice(0, -1));
+    if (key === "+") { setAcc(a => a + Number(value || 0)); setValue(""); return; }
+    if (key === "." && (!decimal || value.includes("."))) return;
+    setValue(v => v + key);
+  }
+  const display = value === "" ? (acc ? String(acc) : "0") : value;
+  return <Dialog className="keypad-dialog" title={title} onClose={onClose}>
+    <div className="grid grid-cols-[1fr_auto] items-stretch border-b border-line">
+      <div className="flex items-center justify-end px-5 py-6 text-5xl font-semibold tabular-nums tracking-tight">{display}</div>
+      <button type="button" className={`keypad-key !min-h-[88px] !w-[88px] ${pressed === "back" ? "is-pressed" : ""}`} aria-label="Backspace" onClick={() => press("back")}><Delete size={26} /></button>
+    </div>
+    <div className="keypad-grid">
+      {["1", "2", "3", "4", "5", "6", "7", "8", "9", "+", "0", "."].map(key =>
+        <button key={key} type="button" className={`keypad-key ${pressed === key ? "is-pressed" : ""}`} aria-label={`Key ${key}`} disabled={key === "." && !decimal} onClick={() => press(key)}>{key}</button>)}
+    </div>
+    <button type="button" className="btn-primary keypad-enter" onClick={() => onEnter(String(acc + Number(value || 0)))}>Enter</button>
+  </Dialog>;
 }
 export function Errors({ errors }: { errors: string[] }) {
   if (!errors.length) return null;

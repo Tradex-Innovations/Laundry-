@@ -3,7 +3,7 @@ import { useRef, useState } from "react";
 import { ArrowLeft, Check, Delete, Layers3, MapPin, PackageCheck, Pencil, Plus, Printer, Save, Trash2, UsersRound } from "lucide-react";
 import type { Cart, Database, Dispatch, Item, Line, Ownership, Unit, WeightUnit } from "../lib/types";
 import { dispatchErrors, fmt, lineErrors, newCart, normalizeLine, uid } from "../lib/domain";
-import { CategoryGlyph, Dialog, Errors, Field, OwnershipBadge, QuantitySummary, StatusBadge } from "./shared";
+import { CategoryGlyph, Dialog, Errors, Field, KeypadDialog, OwnershipBadge, QuantitySummary, StatusBadge } from "./shared";
 
 interface Props {
   db: Database; draft: Dispatch; onChange: (draft: Dispatch) => void;
@@ -54,13 +54,13 @@ function QuantityDialog({ selection, customerId, defaultWeightUnit, onClose, onS
           <p role="status" className="!my-0">{quantity || "0"} bundles × {bundleSize || "0"} pieces = <strong>{fmt(Number(quantity) * Number(bundleSize))} equivalent pieces</strong></p>
         </>}
       </div>
-      <div role="group" aria-label="Numeric keypad" className="grid grid-cols-3 border-t border-line">
-        {keys.map(value => <button key={value} type="button" className="!min-h-[76px] !rounded-none !border-0 !border-b !border-r !border-line !text-2xl" aria-label={`Key ${value}`} onClick={() => key(value)}>{value}</button>)}
-        <button type="button" className="!min-h-[76px] !rounded-none !border-0 !border-r !border-line !text-lg" onClick={() => key("Clear")}>C</button>
-        <button type="button" className="!min-h-[76px] !rounded-none !border-0 !border-r !border-line !text-2xl" aria-label="Key 0" onClick={() => key("0")}>0</button>
-        <button type="button" className="!min-h-[76px] !rounded-none !border-0 !border-line !text-2xl" aria-label="Decimal" disabled={unit === "pieces" || unit === "bundles"} onClick={() => key(".")}>.</button>
+      <div role="group" aria-label="Numeric keypad" className="keypad-grid">
+        {keys.map(value => <button key={value} type="button" className="keypad-key" aria-label={`Key ${value}`} onClick={() => key(value)}>{value}</button>)}
+        <button type="button" className="keypad-key !text-lg" onClick={() => key("Clear")}>C</button>
+        <button type="button" className="keypad-key" aria-label="Key 0" onClick={() => key("0")}>0</button>
+        <button type="button" className="keypad-key" aria-label="Decimal" disabled={unit === "pieces" || unit === "bundles"} onClick={() => key(".")}>.</button>
       </div>
-      <button type="submit" className="btn-primary !min-h-16 !w-full !rounded-none !text-xl">{line ? "Update" : "Enter"}</button>
+      <button type="submit" className="btn-primary keypad-enter">{line ? "Update" : "Enter"}</button>
     </form>
   </Dialog>;
 }
@@ -81,6 +81,8 @@ export default function DispatchEditor({ db, draft, onChange, onSave, onPreview,
   const [errors, setErrors] = useState<string[]>([]);
   const [confirming, setConfirming] = useState(false);
   const [nextCustomer, setNextCustomer] = useState<string | null>(null);
+  const [customerQuery, setCustomerQuery] = useState("");
+  const [pad, setPad] = useState<null | { kind: "tare" | "gross" | "reference"; title: string; decimal: boolean }>(null);
   const busy = useRef(false);
   const cart = draft.carts.find(c => c.id === cartId) || draft.carts[0];
   const selectedCustomer = db.customers.find(c => c.id === draft.customerId);
@@ -116,13 +118,15 @@ export default function DispatchEditor({ db, draft, onChange, onSave, onPreview,
       if (result) { setErrors([]); if (confirm) { setConfirming(false); onOpen(result); } }
     } finally { busy.current = false; }
   }
-  const customers = db.customers.filter(c => c.active || c.id === draft.customerId);
+  const customers = db.customers.filter(c => (c.active || c.id === draft.customerId) && `${c.name} ${c.code}`.toLowerCase().includes(customerQuery.toLowerCase()));
   const sites = db.sites.filter(s => s.customerId === draft.customerId && (s.active || s.id === draft.siteId));
   const net = cart.tare !== null && cart.gross !== null ? fmt(cart.gross - cart.tare) : "";
 
   if (!draft.customerId) return <section>
-    <h1 className="!mb-2">Select Customer</h1>
-    <p className="!mt-0">Tap a customer card to start an outgoing cart.</p>
+    <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+      <div><h1 className="!mb-2">Outgoing Carts</h1><p className="!mt-0">Select Customer</p></div>
+      <input type="search" value={customerQuery} onChange={e => setCustomerQuery(e.target.value)} placeholder="Search" className="!max-w-xs" />
+    </div>
     <Errors errors={errors} />
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">{customers.map(c => {
       const site = db.sites.find(s => s.customerId === c.id && s.active);
@@ -145,10 +149,12 @@ export default function DispatchEditor({ db, draft, onChange, onSave, onPreview,
   </section>;
 
   return <section>
-    <div className="flex flex-wrap items-start justify-between gap-3"><div><h1 className="!mb-2">{draft.number ? `Edit Draft · ${draft.number}` : "Create Outgoing Carts"}</h1><p className="!mb-0 !mt-0 !text-sm">Build your carts, check the quantities, and dispatch with confidence.</p></div><StatusBadge status="Draft" /></div>
-    <div className="mb-5 flex flex-wrap items-center gap-2">
-      <button type="button" className="!h-auto !min-h-12 !justify-start !py-2" onClick={() => changeCustomer("")}><UsersRound size={16} />{selectedCustomer?.name}<span className="text-xs font-normal text-muted">Change</span></button>
-      <button type="button" className="!h-auto !min-h-12 !justify-start !py-2" onClick={() => update({ siteId: "", route: selectedSite?.route || "" })}><MapPin size={16} />{selectedSite?.name}{selectedSite?.department ? ` · ${selectedSite.department}` : ""}</button>
+    <div className="mb-5 flex flex-wrap items-center gap-3">
+      <h1 className="!m-0">{draft.number ? `Edit Draft · ${draft.number}` : "Create Outgoing Carts"}</h1>
+      <button type="button" className="!h-auto !min-h-11 !justify-start !py-2" onClick={() => changeCustomer("")}><UsersRound size={16} />{selectedCustomer?.name}</button>
+      <button type="button" className="!h-auto !min-h-11 !justify-start !py-2" onClick={() => update({ siteId: "", route: selectedSite?.route || "" })}><MapPin size={16} />{selectedSite?.name}{selectedSite?.department ? ` · ${selectedSite.department}` : ""}</button>
+      <StatusBadge status="Draft" />
+      <button type="button" className="ml-auto" onClick={() => update({ siteId: "", route: selectedSite?.route || "" })}><ArrowLeft size={16} />Back</button>
     </div>
     <Errors errors={errors} />
     <div className="mb-4 flex flex-wrap items-center gap-2"><div role="tablist" aria-label="Cart entries" className="flex flex-wrap gap-2">{draft.carts.map((c, index) => <button role="tab" aria-selected={cart.id === c.id} className={cart.id === c.id ? "!border-brand-500 !bg-brand-50 !text-brand-700" : ""} key={c.id} onClick={() => setCartId(c.id)}>Cart {index + 1}{c.reference ? ` · ${c.reference}` : ""}<span className="rounded-full bg-canvas px-2 py-0.5 text-[11px] text-muted">{c.lines.length}</span></button>)}</div><button className="btn-quiet" onClick={() => { const added = newCart(db.company.defaultWeightUnit); update({ carts: [...draft.carts, added] }); setCartId(added.id); }}><Plus size={16} />Add Cart</button></div>
@@ -193,19 +199,19 @@ export default function DispatchEditor({ db, draft, onChange, onSave, onPreview,
       </div>
     </div>
 
-    <div className="sticky bottom-3 z-10 mt-6 space-y-3 rounded-2xl border border-line bg-white/95 p-4 shadow-lg shadow-slate-900/10 backdrop-blur">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <Field label="Cart number"><input value={cart.reference || draft.number || "Unsaved"} readOnly /></Field>
-        <Field label={`Tare (${cart.weightUnit})`}><input type="number" min={0} step="any" value={cart.tare ?? ""} onChange={e => updateCart({ tare: e.target.value === "" ? null : Number(e.target.value) })} /></Field>
-        <Field label={`Gross (${cart.weightUnit})`}><input type="number" min={0} step="any" value={cart.gross ?? ""} onChange={e => updateCart({ gross: e.target.value === "" ? null : Number(e.target.value) })} /></Field>
-        <Field label="Net weight"><input readOnly value={net ? `${net} ${cart.weightUnit}` : "—"} /></Field>
+    <div className="sticky bottom-3 z-10 mt-6 rounded-2xl border border-line bg-white/95 p-4 shadow-lg shadow-slate-900/10 backdrop-blur">
+      <div className="grid items-end gap-3 sm:grid-cols-2 lg:grid-cols-7">
+        <Field label="Cart number"><button type="button" className="keypad-field" onClick={() => setPad({ kind: "reference", title: "Cart Number", decimal: false })}>{cart.reference || draft.number || "Tap to enter"}</button></Field>
+        <Field label={`Tare weight (${cart.weightUnit})`}><button type="button" className="keypad-field" onClick={() => setPad({ kind: "tare", title: "Tare Weight", decimal: true })}>{cart.tare ?? ""}</button></Field>
+        <Field label={`Gross weight (${cart.weightUnit})`}><button type="button" className="keypad-field" onClick={() => setPad({ kind: "gross", title: "Gross Weight", decimal: true })}>{cart.gross ?? ""}</button></Field>
+        <Field label="Net weight"><input readOnly value={net ? `${net} ${cart.weightUnit}` : ""} /></Field>
         <Field label="Shipping date *"><input type="date" required value={draft.shippingDate} onChange={e => update({ shippingDate: e.target.value })} /></Field>
+        <button onClick={() => save(false)}><Save size={18} />Save</button>
+        <button className="btn-primary" onClick={() => { const saved = onSave(draft, false); if (saved) { setErrors([]); onPreview(saved); } }}><Printer size={18} />Save & Print</button>
       </div>
-      <div className="flex flex-wrap gap-3">
-        <button onClick={() => save(false)}><Save size={18} />Save Draft</button>
+      <div className="mt-3 flex flex-wrap gap-3">
         <button className="btn-primary" onClick={() => { const problems = dispatchErrors(db, draft, true); setErrors(problems); if (!problems.length) setConfirming(true); }}><Check size={18} />Confirm Dispatch</button>
-        <button onClick={() => onPreview(draft)}><Printer size={18} />Print Preview</button>
-        <button className="sm:ml-auto" disabled={draft.carts.length === 1} onClick={() => { if (window.confirm("Remove this cart and all its lines?")) { const carts = draft.carts.filter(c => c.id !== cart.id); update({ carts }); setCartId(carts[0].id); } }}>Remove Cart</button>
+        <button disabled={draft.carts.length === 1} onClick={() => { if (window.confirm("Remove this cart and all its lines?")) { const carts = draft.carts.filter(c => c.id !== cart.id); update({ carts }); setCartId(carts[0].id); } }}>Remove Cart</button>
       </div>
     </div>
 
@@ -217,8 +223,11 @@ export default function DispatchEditor({ db, draft, onChange, onSave, onPreview,
         <p className="!m-0 self-end"><button type="button" onClick={() => updateCart({ tare: null, gross: null })}>Clear Weighing</button></p>
       </div>
     </details>
-    <h2>Dispatch summary · all carts</h2><QuantitySummary records={[draft]} />
-
+    {pad && <KeypadDialog title={pad.title} decimal={pad.decimal} initial={pad.kind === "reference" ? cart.reference : pad.kind === "tare" ? String(cart.tare ?? "") : String(cart.gross ?? "")} onClose={() => setPad(null)} onEnter={value => {
+      if (pad.kind === "reference") updateCart({ reference: value === "0" ? "" : value });
+      else updateCart({ [pad.kind]: value === "" ? null : Number(value) });
+      setPad(null);
+    }} />}
     {selection && <QuantityDialog key={`${selection.item.id}-${selection.ownership}-${selection.line?.id || "new"}`} selection={selection} customerId={draft.customerId} defaultWeightUnit={db.company.defaultWeightUnit} onClose={() => setSelection(null)} onSubmit={line => {
       updateCart({ lines: selection.line ? cart.lines.map(l => l.id === line.id ? line : l) : [...cart.lines, line] });
       setSelection(null); setErrors([]);

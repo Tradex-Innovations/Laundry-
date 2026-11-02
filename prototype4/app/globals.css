@@ -39,7 +39,7 @@
   button[type="submit"] { @apply border-brand-500 bg-brand-500 text-white hover:border-brand-600 hover:bg-brand-600; }
   dialog { @apply fixed inset-0 m-auto max-h-[90dvh] w-[92vw] max-w-[620px] overflow-y-auto rounded-2xl border border-line bg-white p-6 text-ink shadow-2xl md:p-8; }
   dialog::backdrop { background: rgb(15 23 42 / 40%); backdrop-filter: blur(3px); }
-  dialog.keypad-dialog { @apply max-w-[440px] overflow-hidden p-0; }
+  dialog.keypad-dialog { @apply max-w-[460px] overflow-hidden p-0; }
 }
 
 @layer components {
@@ -62,7 +62,16 @@
     @apply flex min-h-[88px] items-center gap-3 overflow-hidden rounded-2xl border border-line bg-white p-0 text-left hover:border-brand-500;
   }
   .launch-tile {
-    @apply flex min-h-[140px] flex-col items-center justify-center gap-3 rounded-2xl border border-line bg-white p-5 text-center shadow-[0_2px_8px_rgb(15_23_42_/_0.04)] hover:border-brand-500 hover:bg-brand-50;
+    @apply flex min-h-[158px] flex-col items-center justify-center gap-3 rounded-2xl border border-line bg-white p-5 text-center shadow-[0_2px_8px_rgb(15_23_42_/_0.04)] hover:border-brand-500 hover:bg-brand-50;
+  }
+  .keypad-grid { @apply grid grid-cols-3; }
+  .keypad-key {
+    @apply !min-h-[78px] !rounded-none !border-0 !border-b !border-r !border-line !bg-white !text-3xl !font-medium hover:!bg-brand-50;
+  }
+  .keypad-key.is-pressed { @apply !border-brand-500 !bg-brand-500 !text-white hover:!bg-brand-500; }
+  .keypad-enter { @apply !min-h-[72px] !w-full !rounded-none !text-2xl; }
+  .keypad-field {
+    @apply !min-h-12 !w-full !justify-start !rounded-xl !border !border-line !bg-white !px-3.5 !py-3 !text-left !text-base !font-normal !text-ink hover:!border-brand-500 hover:!bg-white;
   }
   :is(.app-content, dialog) h1 { @apply mb-5 text-2xl font-semibold tracking-tight text-ink md:text-[28px]; }
   :is(.app-content, dialog) h2 { @apply mb-4 mt-7 text-lg font-semibold tracking-tight text-ink; }
