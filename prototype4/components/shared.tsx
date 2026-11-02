@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useRef } from "react";
-import { AlertCircle, Bath, BedDouble, CookingPot, Layers3, LockKeyhole, Shirt, type LucideIcon, UtensilsCrossed, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { AlertCircle, Bath, BedDouble, CookingPot, Delete, Layers3, LockKeyhole, Shirt, type LucideIcon, UtensilsCrossed, X } from "lucide-react";
 import type { Database, Dispatch, Role } from "../lib/types";
 import { fmt, totals } from "../lib/domain";
 
@@ -29,15 +29,44 @@ export function CategoryLabel({ name }: { name?: string | null }) {
 
 export type Mutate = (operation: (db: Database) => void, message: string) => boolean;
 export interface MasterProps { db: Database; role: Role; mutate: Mutate }
-export function Dialog({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
+export function Dialog({ title, onClose, children, badge, className = "" }: { title: string; onClose: () => void; children: React.ReactNode; badge?: React.ReactNode; className?: string }) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => { const el = ref.current; if (el && !el.open) el.showModal(); }, []);
-  return <dialog ref={ref} aria-label={title} onCancel={e => { e.preventDefault(); onClose(); }}>
-    <div className="mb-5 flex items-start justify-between gap-4 border-b border-line pb-5"><h2 className="!m-0 !text-xl">{title}</h2><button type="button" className="btn-quiet !size-8 !min-h-8 shrink-0 !p-0" onClick={onClose} aria-label="Close dialog"><X size={18} /></button></div>{children}
+  return <dialog ref={ref} aria-label={title} className={className} onCancel={e => { e.preventDefault(); onClose(); }}>
+    <div className={`mb-5 flex items-start justify-between gap-4 ${className.includes("keypad-dialog") ? "!mb-0 bg-brand-600 px-5 py-4 text-white" : "border-b border-line pb-5"}`}>
+      <div className="flex min-w-0 flex-wrap items-center gap-3"><h2 className={`!m-0 !text-xl ${className.includes("keypad-dialog") ? "!text-white" : ""}`}>{title}</h2>{badge}</div>
+      <button type="button" className={`btn-quiet !size-11 !min-h-11 shrink-0 !p-0 ${className.includes("keypad-dialog") ? "!border-0 !bg-transparent !text-white hover:!bg-white/10" : ""}`} onClick={onClose} aria-label="Close dialog"><X size={20} /></button>
+    </div>{children}
   </dialog>;
 }
 export function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return <p className="field"><label>{label}<br />{children}</label></p>;
+}
+export function KeypadDialog({ title, initial = "", decimal = true, onClose, onEnter }: {
+  title: string; initial?: string; decimal?: boolean; onClose: () => void; onEnter: (value: string) => void;
+}) {
+  const [value, setValue] = useState(initial);
+  const [pressed, setPressed] = useState("");
+  const [acc, setAcc] = useState(0);
+  function press(key: string) {
+    setPressed(key);
+    if (key === "back") return setValue(v => v.slice(0, -1));
+    if (key === "+") { setAcc(a => a + Number(value || 0)); setValue(""); return; }
+    if (key === "." && (!decimal || value.includes("."))) return;
+    setValue(v => v + key);
+  }
+  const display = value === "" ? (acc ? String(acc) : "0") : value;
+  return <Dialog className="keypad-dialog" title={title} onClose={onClose}>
+    <div className="grid grid-cols-[1fr_auto] items-stretch border-b border-line">
+      <div className="flex items-center justify-end px-5 py-6 text-5xl font-semibold tabular-nums tracking-tight">{display}</div>
+      <button type="button" className={`keypad-key !min-h-[88px] !w-[88px] ${pressed === "back" ? "is-pressed" : ""}`} aria-label="Backspace" onClick={() => press("back")}><Delete size={26} /></button>
+    </div>
+    <div className="keypad-grid">
+      {["1", "2", "3", "4", "5", "6", "7", "8", "9", "+", "0", "."].map(key =>
+        <button key={key} type="button" className={`keypad-key ${pressed === key ? "is-pressed" : ""}`} aria-label={`Key ${key}`} disabled={key === "." && !decimal} onClick={() => press(key)}>{key}</button>)}
+    </div>
+    <button type="button" className="btn-primary keypad-enter" onClick={() => onEnter(String(acc + Number(value || 0)))}>Enter</button>
+  </Dialog>;
 }
 export function Errors({ errors }: { errors: string[] }) {
   if (!errors.length) return null;

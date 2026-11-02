@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { CheckCircle2, ChevronRight, CircleAlert, Leaf, X } from "lucide-react";
+import { CheckCircle2, CircleAlert, Leaf, X } from "lucide-react";
 import type { Database, Dispatch, Role } from "../lib/types";
 import { cancelDispatch, clone, newDispatch, saveDispatch } from "../lib/domain";
 import { localRepository, STORAGE_KEY } from "../lib/repository";
@@ -12,7 +12,7 @@ import Manifest from "./Manifest";
 import Reports from "./Reports";
 import Settings from "./Settings";
 import type { Mutate } from "./shared";
-import Navbar, { Page, SectionNavigation } from "./Navbar";
+import Navbar, { Page } from "./Navbar";
 import Dashboard from "./Dashboard";
 
 const pageLabels: Record<Page, string> = { dashboard: "Dashboard", create: "Create Dispatch", drafts: "Draft Dispatches", history: "Dispatch History", customers: "Customers", sites: "Delivery Sites", categories: "Categories", items: "Item Catalogue", "customer-linen": "Customer-owned Linen", "pool-linen": "Laundry Pool Linen", reports: "Reports", settings: "Settings", record: "Dispatch Details" };
@@ -78,14 +78,12 @@ export default function LaundryApp() {
   return <>
     <div hidden={!!preview}>
       <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:p-3">Skip to content</a>
-      <Navbar page={page} role={role} onRoleChange={next => { try { localStorage.setItem("laundry.prototype4.role", next); setRole(next); setNotice(`Switched to ${next}. Demo permissions only.`); } catch { setError("The role preference could not be saved to browser storage."); } }} onNavigate={navigate} onCreate={createDispatch} />
-      <div className="mx-auto max-w-[1600px] px-5 pb-8 pt-6 lg:px-8 xl:px-10">
-      <div className="mb-5 flex items-center gap-2 text-[11px] text-muted"><Leaf size={12} /><span>Workspace</span><ChevronRight size={12} /><span className="text-ink">{pageLabels[page]}</span>{dirty && <span className="ml-auto rounded bg-brand-50 px-2 py-1 text-[10px] text-brand-600">Unsaved changes</span>}</div>
-      <SectionNavigation page={page} draftCount={db.dispatches.filter(d => d.status === "Draft").length} onNavigate={navigate} />
+      <Navbar page={page} role={role} draftCount={db.dispatches.filter(d => d.status === "Draft").length} pageLabel={pageLabels[page]} dirty={dirty} onRoleChange={next => { try { localStorage.setItem("laundry.prototype4.role", next); setRole(next); setNotice(`Switched to ${next}. Demo permissions only.`); } catch { setError("The role preference could not be saved to browser storage."); } }} onNavigate={navigate} onCreate={createDispatch} />
+      <div className="app-shell">
       {notice && <div role="status" className="mb-5 flex items-center gap-3 rounded-xl border border-brand-100 bg-brand-50 px-4 py-3 text-xs text-brand-700"><CheckCircle2 size={17} className="shrink-0" /><span className="flex-1">{notice}</span><button className="btn-quiet !size-7 !min-h-7 !p-0" aria-label="Dismiss notification" onClick={() => setNotice("")}><X size={14} /></button></div>}
       {error && <div role="alert" className="mb-5 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700"><CircleAlert size={17} className="shrink-0" /><p className="flex-1 whitespace-pre-line">{error}</p><button className="btn-quiet !size-7 !min-h-7 !p-0" aria-label="Dismiss error" onClick={() => setError("")}><X size={14} /></button></div>}
       <main ref={mainRef} id="main-content" tabIndex={-1} className="app-content">
-        {page === "dashboard" && <Dashboard db={db} onCreate={createDispatch} onOpen={openRecord} onPreview={openPreview} onHistory={() => navigate("history")} onDrafts={() => navigate("drafts")} />}
+        {page === "dashboard" && <Dashboard db={db} onCreate={createDispatch} onOpen={openRecord} onPreview={openPreview} onNavigate={navigate} />}
         {page === "create" && draft && <DispatchEditor key={draft.id} db={db} draft={draft} onChange={d => { setDraft(d); setDirty(true); }} onSave={persist} onOpen={d => openRecord(d, false)} onPreview={openPreview} />}
         {(page === "drafts" || page === "history") && <History key={page} db={db} draftsOnly={page === "drafts"} onOpen={openRecord} onPreview={openPreview} />}
         {(page === "customers" || page === "sites") && <Customers key={page} db={db} role={role} mutate={mutate} sitesOnly={page === "sites"} />}
