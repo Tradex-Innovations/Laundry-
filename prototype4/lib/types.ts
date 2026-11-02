@@ -1,4 +1,6 @@
-export type Role = "Admin" | "Operator";
+export type Role = "Admin" | "Operator" | "SystemsAdministrator";
+export type LaundryStatus = "active" | "trial" | "suspended";
+export type LaundryPlan = "trial" | "standard" | "premium";
 export type Ownership = "customer" | "pool";
 export type Method = "pieces" | "bundles" | "weight";
 export type WeightUnit = "kg" | "lb";
@@ -42,7 +44,18 @@ export interface Dispatch {
   snapshot: DocumentSnapshot | null; version: number;
 }
 export interface Activity {
-  id: string; at: string; actor: string; action: string; detail: string; dispatchId?: string;
+  id: string; at: string; actor: string; action: string; detail: string; dispatchId?: string; laundryId?: string; scope?: "platform";
+}
+export interface LaundrySnapshot { customers: number; sites: number; items: number; dispatches: number; receipts: number }
+export interface Laundry {
+  id: string; code: string; name: string; legalName: string; city: string; address: string; contact: string;
+  email: string; phone: string; website: string; logo: string; status: LaundryStatus; plan: LaundryPlan;
+  goLiveDate: string; planEndsOn: string; suspendReason: string; defaultWeightUnit: WeightUnit;
+  timezone: string; numberPrefix: string; createdAt: string; snapshot: LaundrySnapshot;
+}
+export interface PlatformUser {
+  id: string; name: string; email: string; phone: string; laundryId: string | null;
+  role: Role; active: boolean; lastSignIn: string | null;
 }
 export interface ReceivingInput {
   id: string; customerId: string; siteId: string; receivedDate: string; containers: number;
@@ -54,7 +67,7 @@ export interface Receipt extends ReceivingInput {
 export interface Database {
   schemaVersion: 1; nextNumber: number; customers: Customer[]; sites: Site[]; categories: Category[];
   items: Item[]; assignments: Assignment[]; dispatches: Dispatch[]; company: Company; activity: Activity[];
-  receipts?: Receipt[];
+  receipts?: Receipt[]; laundries?: Laundry[]; users?: PlatformUser[];
 }
 export interface Totals {
   customerPieces: number; poolPieces: number; pieces: number;

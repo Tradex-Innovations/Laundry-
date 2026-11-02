@@ -1,5 +1,6 @@
 import type { Database, Dispatch, Line, Ownership, Unit } from "./types";
 import { cancelDispatch, clone, newDispatch, normalizeLine, saveDispatch, today, uid } from "./domain";
+import { ensurePlatform } from "./platform";
 
 export function seedDatabase(): Database {
   const db: Database = {
@@ -48,5 +49,6 @@ export function seedDatabase(): Database {
   cancelled.carts[0].reference = "RR-03"; cancelled.carts[0].lines = [line("table", "pool", 8, "kg", "riverside")];
   const saved = saveDispatch(db, cancelled, "Operator", true);
   cancelDispatch(db, saved.id, "Customer rescheduled delivery; linen did not leave on this document.", "Admin");
+  ensurePlatform(db);
   return db;
 }
