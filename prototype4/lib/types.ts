@@ -64,10 +64,15 @@ export interface ReceivingInput {
 export interface Receipt extends ReceivingInput {
   number: string; createdAt: string; createdBy: string; customerName: string; siteName: string;
 }
+export interface LaundryWorkspace {
+  nextNumber: number; company: Company; customers: Customer[]; sites: Site[]; categories: Category[];
+  items: Item[]; assignments: Assignment[]; dispatches: Dispatch[]; receipts: Receipt[]; activity: Activity[];
+}
 export interface Database {
   schemaVersion: 1; nextNumber: number; customers: Customer[]; sites: Site[]; categories: Category[];
   items: Item[]; assignments: Assignment[]; dispatches: Dispatch[]; company: Company; activity: Activity[];
   receipts?: Receipt[]; laundries?: Laundry[]; users?: PlatformUser[];
+  laundryWorkspaces?: Record<string, LaundryWorkspace>;
 }
 export interface Totals {
   customerPieces: number; poolPieces: number; pieces: number;

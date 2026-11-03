@@ -1,0 +1,295 @@
+/* Platform administration is deliberately scoped away from owner and operator UI. */
+.platform-workspace { --platform-navy: #142f40; --platform-accent: #167d88; min-height: 100dvh; background: #f4f6f9; }
+.platform-workspace .workspace-header { height: 76px; gap: 28px; background: linear-gradient(to right, var(--platform-navy) 0, var(--platform-navy) 248px, #fff 248px); border-bottom-color: #e6ebf0; }
+.platform-workspace .brand-lockup { width: 196px; color: #fff; }
+.platform-workspace .brand-lockup small { color: #b0c4d0; }
+.platform-workspace .brand-mark { background: #23878b; }
+.platform-header-label { display: flex; align-items: center; gap: 9px; color: #506375; font-size: 12px; font-weight: 500; }
+.platform-workspace .workspace-rail { top: 76px; width: 248px; padding: 28px 16px 20px; background: var(--platform-navy); border: 0; }
+.platform-workspace .rail-heading { color: #88a5b6; font-size: 10px; letter-spacing: 1.8px; padding-left: 14px; margin-bottom: 10px; }
+.platform-workspace .workspace-rail .rail-link { min-height: 46px; padding: 0 14px; gap: 13px; color: #b9cbd7; border-radius: 9px; font-size: 12px; }
+.platform-workspace .workspace-rail .rail-link:hover { color: #fff; background: #ffffff0b; }
+.platform-workspace .workspace-rail .rail-link[aria-current="page"] { color: #fff; background: #ffffff14; }
+.platform-workspace .rail-link[aria-current="page"]::before { display: none; }
+.platform-workspace .workspace-rail .rail-link[aria-current="page"]::after { content: ""; width: 5px; height: 5px; margin-left: auto; border-radius: 50%; background: #73cebf; }
+.platform-workspace .rail-version { color: #7f9aaa; font-size: 8px; margin-top: 20px; }
+.platform-sidebar-note { border-top: 1px solid #ffffff16; padding: 22px 12px 8px; color: #8eabba; }
+.platform-sidebar-note > svg { color: #78bcb8; margin-bottom: 10px; }
+.platform-sidebar-note strong { display: block; font-weight: 500; font-size: 11px; color: #d0dfe7; }
+.platform-sidebar-note span { display: block; margin-top: 6px; font-size: 11px; line-height: 1.7; max-width: 165px; }
+.platform-workspace .workspace-breadcrumb { margin-left: 248px; min-height: 46px; padding: 0 32px; background: #fff; border-bottom: 1px solid #e6ebf0; }
+.platform-workspace .app-shell { margin-left: 248px; margin-right: 0; max-width: none; padding: 28px 32px 24px; }
+.platform-workspace .app-content > section.platform-page { border: 0; background: transparent; padding: 0; box-shadow: none; border-radius: 0; }
+.platform-page-heading { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-bottom: 26px; }
+.platform-eyebrow { color: #6d8392; font-size: 10px; font-weight: 600; letter-spacing: 1.7px; margin-bottom: 8px; }
+.platform-workspace .platform-page-heading h1 { margin: 0; font-size: 29px; letter-spacing: -.9px; line-height: 1.25; font-weight: 600; }
+.platform-workspace .platform-page-heading p { font-size: 12px; color: #738292; margin: 9px 0 0; line-height: 1.6; }
+.platform-heading-actions { display: flex; gap: 16px; align-items: center; flex-shrink: 0; }
+.platform-workspace .app-content button { font-size: 12px; min-height: 38px; border-radius: 8px; }
+.platform-workspace .app-content .platform-primary { background: var(--platform-accent); border-color: var(--platform-accent); min-height: 41px; padding: 9px 15px; box-shadow: 0 2px 4px #183f5010; }
+.platform-workspace .app-content .platform-primary:hover { background: #126b76; border-color: #126b76; }
+.platform-date { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #738292; }
+.platform-metrics { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 16px; margin-bottom: 24px; }
+.platform-metric { background: #fff; border: 1px solid #e3e9ef; border-radius: 12px; padding: 20px; box-shadow: 0 2px 3px #20334702; }
+.platform-metric > div { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.platform-metric > div > span:first-child { font-size: 11px; color: #6d7d8d; font-weight: 500; }
+.platform-metric-icon { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 10px; }
+.platform-metric-icon.blue { background: #edf3fa; color: #547ca7; }
+.platform-metric-icon.teal { background: #eaf6f3; color: #278572; }
+.platform-metric-icon.violet { background: #f0edfa; color: #8070b1; }
+.platform-metric-icon.amber { background: #fff5e8; color: #c08a3f; }
+.platform-metric > strong { display: block; font-size: 32px; font-weight: 600; line-height: 1.3; letter-spacing: -.9px; margin: 8px 0 5px; font-variant-numeric: tabular-nums; }
+.platform-metric > small { color: #677b8c; font-size: 11px; }
+.platform-overview-grid { display: grid; grid-template-columns: minmax(0,1fr) 310px; align-items: start; gap: 22px; }
+.platform-overview-main, .platform-overview-aside { display: flex; flex-direction: column; min-width: 0; gap: 22px; }
+.platform-workspace .platform-panel { border: 1px solid #e2e8ee; background: #fff; border-radius: 12px; box-shadow: 0 2px 4px #20334702; overflow: visible; min-width: 0; }
+.platform-panel-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 21px 22px; }
+.platform-workspace .platform-panel-heading h2 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 14px; font-weight: 600; letter-spacing: -.2px; }
+.platform-workspace .platform-panel-heading p { margin: 5px 0 0; color: #687c8d; font-size: 11px; }
+.platform-workspace .app-content .platform-text-button { min-height: 32px; padding: 4px 0; border: 0; background: transparent; color: #33808c; font-size: 11px; font-weight: 500; white-space: nowrap; }
+.platform-workspace .platform-text-button:hover { color: #165963; }
+.platform-table-scroll { width: 100%; overflow-x: auto; }
+.platform-workspace .platform-table-scroll table { min-width: 690px; font-size: 12px; }
+.platform-workspace .platform-overview-main table { min-width: 540px; }
+.platform-workspace .platform-table-scroll th { padding: 13px 20px; background: #f9fafc; color: #667989; border-top: 1px solid #edf0f3; border-bottom-color: #edf0f3; font-size: 10px; font-weight: 500; letter-spacing: .2px; }
+.platform-workspace .platform-table-scroll td { padding: 18px 20px; border-bottom-color: #edf0f3; }
+.platform-workspace .platform-table-scroll tbody tr:hover { background: #fbfcfd; }
+.platform-workspace .platform-table-scroll tbody tr:last-child td { border-bottom: 0; }
+.platform-workspace .platform-table-scroll td:first-child { min-width: 210px; }
+.platform-workspace .platform-directory-table td:first-child { min-width: 260px; }
+.platform-business-cell, .platform-person-cell { display: flex; gap: 12px; align-items: center; }
+.platform-laundry-mark { width: 58px; height: 58px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 15px; background: #e9f2f5; color: #3d7386; font-size: 19px; font-weight: 600; letter-spacing: -.6px; }
+.platform-laundry-mark.small { width: 40px; height: 40px; border-radius: 11px; font-size: 12px; letter-spacing: -.2px; }
+.platform-laundry-mark img { width: 100%; height: 100%; border-radius: inherit; object-fit: contain; }
+.platform-business-cell strong, .platform-person-cell strong, .platform-audit-cell strong { display: block; font-size: 12px; font-weight: 600; line-height: 1.4; }
+.platform-business-cell small, .platform-person-cell small { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; color: #6f8090; font-size: 11px; margin-top: 5px; }
+.platform-business-cell small i { width: 2px; height: 2px; background: #aeb7c0; border-radius: 50%; }
+.platform-plan { font-size: 11px; font-weight: 500; color: #718195; text-transform: capitalize; }
+.platform-plan.plan-premium { color: #8a73ae; }
+.platform-plan.plan-trial { color: #a48356; }
+.platform-team-count { display: inline-flex; align-items: center; gap: 6px; color: #667b8b; font-size: 12px; }
+.platform-team-count small { font-size: 11px; color: #6f8191; }
+.platform-record-count { font-size: 11px; color: #607385; }
+.platform-record-count small { display: block; font-size: 11px; color: #6f8191; margin-top: 4px; }
+.platform-status { display: inline-flex; align-items: center; gap: 6px; padding: 5px 8px; border-radius: 6px; white-space: nowrap; font-size: 10px; font-weight: 500; text-transform: capitalize; background: #f0f3f7; color: #7c8b99; }
+.platform-status i { width: 4px; height: 4px; background: currentColor; border-radius: 50%; }
+.platform-status.status-active { color: #276f5c; background: #edf7f1; }
+.platform-status.status-trial { color: #8a672d; background: #fff6e8; }
+.platform-status.status-suspended { color: #9d525a; background: #fceff0; }
+.platform-workspace .app-content .platform-open { font-size: 11px; min-height: 32px; padding: 5px 10px; border-color: #e4eaf0; color: #597283; gap: 8px; white-space: nowrap; }
+.platform-workspace .platform-open:hover { background: #f0f7f8; border-color: #bad7dd; }
+.platform-panel-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 21px; border-top: 1px solid #edf0f3; font-size: 11px; color: #6e8191; }
+.platform-panel-footer > span { display: flex; gap: 6px; align-items: center; font-size: 10px; }
+.platform-activity-list { padding: 0 22px 6px; }
+.platform-activity-list > div { display: flex; align-items: start; gap: 11px; padding: 15px 0; border-top: 1px solid #eef1f4; }
+.platform-event-icon { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid #e7edf1; border-radius: 10px; background: #f7f9fb; color: #8394a2; }
+.platform-activity-list strong { font-size: 11px; font-weight: 500; }
+.platform-workspace .platform-activity-list p { font-size: 11px; margin: 4px 0 0; color: #6b7f8e; }
+.platform-activity-list time { font-size: 10px; color: #6f8292; margin-left: auto; flex-shrink: 0; padding-top: 4px; }
+.platform-empty { padding: 34px 22px 38px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.platform-empty > span { width: 53px; height: 53px; display: flex; align-items: center; justify-content: center; background: #f6f8fb; border: 1px solid #e9edf2; color: #a0afbc; border-radius: 17px; margin-bottom: 15px; }
+.platform-workspace .platform-empty h3 { margin: 0; font-size: 12px; font-weight: 500; }
+.platform-workspace .platform-empty p { margin: 7px 0 0; color: #6c8090; font-size: 11px; max-width: 330px; }
+.platform-empty > button { margin-top: 15px; }
+.platform-small-count { font-size: 11px; padding: 3px 7px; border-radius: 5px; background: #f8f0e5; color: #ad8551; }
+.platform-attention-list { padding: 0 18px 12px; }
+.platform-workspace .app-content .platform-attention-list > button { display: flex; width: 100%; justify-content: start; border: 0; border-top: 1px solid #f0f2f5; border-radius: 0; padding: 16px 2px; gap: 10px; text-align: left; }
+.platform-attention-list > button > span:first-child { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 9px; flex-shrink: 0; }
+.attention-red { color: #ba7b80; background: #fdf0f1; }
+.attention-amber { color: #bb975c; background: #fff6e8; }
+.platform-attention-list strong { font-size: 11px; display: block; font-weight: 500; }
+.platform-attention-list small { display: block; font-size: 10px; color: #8b98a2; margin-top: 5px; }
+.platform-attention-list > button > svg { margin-left: auto; color: #a1adb7; }
+.platform-all-clear { padding: 10px 22px 26px; color: #4c9b86; text-align: center; }
+.platform-all-clear strong { display: block; font-size: 12px; margin-top: 10px; }
+.platform-workspace .platform-all-clear p { font-size: 11px; color: #85949d; margin: 7px 0 0; }
+.platform-plan-distribution { padding: 0 22px 22px; }
+.platform-plan-distribution > div { margin-top: 15px; }
+.platform-plan-distribution > div > div:first-child { display: flex; justify-content: space-between; font-size: 11px; color: #7b8b98; text-transform: capitalize; }
+.platform-plan-distribution strong { font-weight: 500; color: #597080; }
+.platform-progress { height: 5px; background: #f1f4f7; border-radius: 4px; margin-top: 8px; overflow: hidden; }
+.platform-progress > span { display: block; height: 100%; background: #7fa9c0; border-radius: 4px; }
+.platform-progress.plan-trial > span { background: #dbbb83; }
+.platform-progress.plan-premium > span { background: #a596c6; }
+.platform-access-panel { padding: 23px; border-radius: 12px; background: #eaf0f4; border: 1px solid #dee7ed; color: #6f929c; }
+.platform-workspace .platform-access-panel h2 { margin: 12px 0 7px; color: #35596b; font-size: 14px; }
+.platform-workspace .platform-access-panel p { font-size: 11px; color: #7c909c; margin: 0; }
+.platform-workspace .app-content .platform-access-panel button { min-height: 35px; margin-top: 18px; width: 100%; border-color: #d7e2e8; background: #fff; color: #426a7d; justify-content: space-between; padding: 8px 12px; font-size: 11px; }
+.platform-status-tabs { display: flex; gap: 23px; border-bottom: 1px solid #dfe6ed; margin-bottom: 21px; overflow-x: auto; }
+.platform-workspace .app-content .platform-status-tabs button { position: relative; gap: 8px; padding: 0 0 13px; min-height: 37px; background: transparent; border: 0; border-radius: 0; color: #7c8d9b; font-size: 11px; white-space: nowrap; text-transform: capitalize; }
+.platform-workspace .platform-status-tabs button[aria-pressed="true"] { color: #327886; }
+.platform-status-tabs button[aria-pressed="true"]::after { position: absolute; content: ""; height: 2px; background: #2c8791; bottom: -1px; left: 0; right: 0; }
+.platform-status-tabs button > span { min-width: 20px; padding: 2px 5px; border-radius: 5px; background: #e9eef3; font-size: 10px; }
+.platform-status-tabs button[aria-pressed="true"] > span { background: #e1eff0; color: #47858b; }
+.platform-filterbar { display: flex; align-items: center; gap: 15px; justify-content: space-between; padding: 18px 21px; }
+.platform-search { position: relative; display: flex; align-items: center; width: 100%; max-width: 355px; }
+.platform-search > svg { position: absolute; left: 12px; color: #9ba8b2; pointer-events: none; }
+.platform-workspace .app-content .platform-search input { padding-left: 37px; background: #f9fafb; border-color: #e7ebf0; min-height: 38px; font-size: 11px; }
+.platform-workspace .platform-search input::placeholder { color: #728393; }
+.platform-filter-controls { display: flex; gap: 9px; align-items: center; flex-shrink: 0; }
+.platform-workspace .app-content .platform-filter-controls select { min-height: 38px; width: auto; font-size: 11px; max-width: 185px; padding-left: 11px; padding-right: 8px; border-color: #e6ebef; color: #6d8292; }
+.platform-inline-stats { display: flex; flex-wrap: wrap; gap: 25px; align-items: center; margin: -4px 0 23px; }
+.platform-inline-stats > span { display: flex; align-items: center; gap: 7px; font-size: 11px; color: #8695a1; }
+.platform-inline-stats strong { color: #5b7182; font-size: 12px; font-weight: 600; }
+.platform-inline-stats i { width: 5px; height: 5px; border-radius: 50%; }
+.green-dot { background: #61a18a; }
+.gray-dot { background: #b4bdc6; }
+.platform-person-avatar { display: flex; width: 35px; height: 35px; flex-shrink: 0; align-items: center; justify-content: center; border-radius: 50%; background: #f0f4f7; color: #8093a2; font-size: 11px; font-weight: 600; }
+.platform-person-avatar.system { color: #8c7bad; background: #f1edf8; }
+.platform-role { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; color: #6b8192; white-space: nowrap; }
+.platform-role.role-SystemsAdministrator { color: #8a78b0; }
+.platform-row-actions { display: flex; align-items: center; gap: 7px; }
+.platform-workspace .app-content .platform-row-actions > button { min-height: 31px; padding: 5px 9px; font-size: 11px; color: #6b8190; white-space: nowrap; }
+.platform-workspace .app-content .platform-icon-button { width: 31px; padding: 0; border-color: transparent; color: #95a3ad; }
+.platform-time { color: #788c9b; font-size: 11px; white-space: nowrap; }
+.platform-time small { display: block; font-size: 10px; color: #a0adb7; margin-top: 5px; }
+.platform-audit-cell { display: flex; gap: 10px; align-items: start; max-width: 380px; }
+.platform-audit-cell small { display: block; color: #6b7f90; font-size: 11px; line-height: 1.7; margin-top: 5px; }
+.platform-workspace .app-content .platform-back { min-height: 28px; font-size: 11px; padding: 0; border: 0; background: transparent; color: #718897; margin: -4px 0 17px; }
+.platform-workspace .platform-workspace-hero { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 23px 25px; }
+.platform-workspace-identity { display: flex; align-items: center; gap: 16px; }
+.platform-workspace-name { display: flex; align-items: center; gap: 13px; flex-wrap: wrap; }
+.platform-workspace .platform-workspace-name h1 { margin: 0; font-size: 24px; line-height: 1.3; letter-spacing: -.7px; }
+.platform-workspace .platform-workspace-identity p { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin: 9px 0 0; font-size: 11px; color: #6d8292; }
+.platform-workspace-identity p > span { display: inline-flex; align-items: center; gap: 4px; }
+.platform-workspace-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.platform-workspace .app-content .platform-workspace-actions button { min-height: 35px; padding: 6px 11px; font-size: 11px; color: #6a8392; }
+.platform-workspace .app-content details.platform-action-menu { position: relative; margin: 0; border: 0; padding: 0; background: transparent; border-radius: 8px; }
+.platform-action-menu summary { display: flex; align-items: center; gap: 6px; border: 1px solid #e2e8ee; border-radius: 8px; min-height: 35px; padding: 6px 10px; color: #6a8392; font-size: 11px; list-style: none; }
+.platform-action-menu summary::-webkit-details-marker { display: none; }
+.platform-action-menu > div { position: absolute; right: 0; top: calc(100% + 7px); z-index: 25; width: 180px; border: 1px solid #e1e7ed; border-radius: 10px; padding: 6px; box-shadow: 0 10px 25px #20334716; background: #fff; }
+.platform-action-menu > div > button { display: block; text-align: left; border: 0; width: 100%; background: transparent; }
+.platform-action-menu > div > button:hover { background: #f3f7f9; }
+.platform-workspace-stats { display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); border: 1px solid #e3e9ef; border-radius: 11px; background: #fff; margin: 14px 0 23px; padding: 17px 0; }
+.platform-workspace-stats > div { border-right: 1px solid #e9eef2; padding: 0 23px; }
+.platform-workspace-stats > div:last-child { border: 0; }
+.platform-workspace-stats dt { color: #6c8090; font-size: 10px; text-transform: capitalize; }
+.platform-workspace-stats dd { margin-top: 5px; font-size: 23px; line-height: 1.2; font-weight: 600; letter-spacing: -.4px; }
+.platform-workspace .laundry-browser { border: 1px solid #e1e7ee; border-radius: 12px; background: #fff; overflow: hidden; }
+.laundry-browser-heading { display: flex; justify-content: space-between; align-items: center; gap: 15px; padding: 18px 23px; border-bottom: 1px solid #e9edf2; }
+.platform-workspace .laundry-browser-heading h2 { font-size: 12px !important; letter-spacing: 0; font-weight: 500; }
+.laundry-browser-heading > span { font-size: 10px; padding: 4px 8px; border-radius: 5px; background: #f0f6f7; color: #70909b; }
+.laundry-browser-layout { display: grid; grid-template-columns: 193px minmax(0,1fr); }
+.laundry-browser-nav { padding: 14px 10px; border-right: 1px solid #e9edf2; background: #fbfcfd; display: flex; flex-direction: column; gap: 4px; }
+.platform-workspace .app-content .laundry-browser-nav > button { display: flex; justify-content: start; gap: 10px; min-height: 39px; padding: 8px 10px; border: 0 !important; border-radius: 7px; background: transparent; color: #8595a2; font-size: 11px; }
+.platform-workspace .app-content .laundry-browser-nav > button[aria-pressed="true"] { background: #eaf3f5 !important; color: #357d89 !important; }
+.platform-workspace .app-content .laundry-browser-nav > button:hover { background: #f0f4f7; }
+.laundry-browser-nav > button > svg { flex-shrink: 0; }
+.laundry-browser-nav > button > span:first-of-type { flex: 1; text-align: left; }
+.laundry-browser-nav > button > span:last-of-type:not(:first-of-type) { background: transparent; color: #748695; font-size: 10px; padding: 0; }
+.laundry-browser-content { min-width: 0; padding: 23px 25px 27px; min-height: 480px; }
+.laundry-section-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 21px; }
+.laundry-section-title > span { font-size: 16px; letter-spacing: -.2px; font-weight: 600; }
+.laundry-section-title small { font-size: 10px; color: #718494; }
+.platform-workspace .laundry-browser-content > label { max-width: 340px; }
+.platform-workspace .laundry-browser-content > label input { font-size: 11px; background: #fafbfd; border-color: #e5eaf0; }
+.platform-workspace .laundry-browser-content h2 { font-size: 13px; margin: 26px 0 17px; }
+.platform-workspace .laundry-browser-content .table-scroll { border-radius: 9px; border-color: #e7edf2; }
+.platform-workspace .laundry-browser-content th { font-size: 10px; background: #f8fafc; color: #6b7f90; padding: 13px 14px; }
+.platform-workspace .laundry-browser-content td { font-size: 11px; padding: 14px; }
+.platform-workspace .laundry-browser-content .table-scroll table { min-width: 620px; }
+.platform-workspace .laundry-browser-content .read-table-count { color: #6c8090; font-size: 11px !important; }
+.platform-workspace .laundry-browser-content .laundry-detail-fields { gap: 20px 22px; }
+.platform-workspace .laundry-detail-fields dt { font-size: 11px; color: #6e8090; }
+.platform-workspace .laundry-detail-fields dd { font-size: 12px; color: #526b7c; line-height: 1.6; }
+.platform-workspace .platform-dialog { border-radius: 15px; border-color: #dfe7ed; }
+.platform-workspace .platform-dialog > div:first-child { padding-bottom: 17px; margin-bottom: 21px; }
+.platform-workspace .platform-dialog h2 { font-size: 19px !important; letter-spacing: -.5px; }
+.platform-workspace .platform-dialog input, .platform-workspace .platform-dialog select { min-height: 42px; font-size: 12px; border-radius: 8px; padding-top: 9px; padding-bottom: 9px; }
+.platform-workspace .platform-dialog .field label { font-size: 11px; color: #7b8c9b; }
+.platform-workspace .platform-dialog .field label > input, .platform-workspace .platform-dialog .field label > select { margin-top: 7px; }
+.platform-form-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 17px; }
+.platform-form-grid .full-width { grid-column: 1 / -1; }
+.platform-workspace .platform-form-section h3 { display: flex; align-items: center; gap: 8px; font-size: 12px; margin: 0 0 18px; color: #526f80; }
+.platform-form-section + .platform-form-section { border-top: 1px solid #ecf0f4; margin-top: 6px; padding-top: 22px; }
+.platform-dialog-actions { display: flex; justify-content: flex-end; gap: 9px; border-top: 1px solid #e9eef3; margin-top: 13px; padding-top: 18px; }
+.platform-workspace .platform-dialog-actions > button { min-height: 38px; font-size: 11px; border-radius: 8px; }
+.platform-workspace .platform-dialog-actions > button[type="submit"] { background: #167d88; border-color: #167d88; }
+.platform-checkbox { display: flex; gap: 10px; align-items: center; padding: 14px 15px; border: 1px solid #e9eef2; background: #f9fbfc; border-radius: 9px; margin-top: 6px; }
+.platform-checkbox strong { display: block; font-size: 11px; font-weight: 500; color: #5f7889; }
+.platform-checkbox small { display: block; font-size: 11px; margin-top: 4px; color: #6f8292; }
+.platform-workspace .app-shell > footer { border-top-color: #e4eaf0; color: #9aa7b3; font-size: 10px; margin-top: 27px; }
+@media (min-width: 1900px) { .platform-workspace .app-shell { max-width: 1680px; margin-left: 248px; } }
+@media (max-width: 1250px) {
+  .platform-overview-grid { grid-template-columns: minmax(0,1fr); }
+  .platform-overview-aside { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 15px; }
+  .platform-metric { padding: 17px; }
+  .platform-workspace .app-shell { padding: 24px; }
+  .platform-heading-actions { gap: 10px; }
+  .platform-date { display: none; }
+  .platform-filterbar { flex-wrap: wrap; }
+  .platform-filter-controls { flex-shrink: 1; flex-wrap: wrap; }
+  .platform-workspace .platform-workspace-hero { flex-wrap: wrap; }
+  .laundry-browser-layout { grid-template-columns: 170px minmax(0,1fr); }
+  .laundry-browser-content { padding: 20px; }
+}
+@media (max-width: 1023px) {
+  .platform-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .platform-overview-aside { grid-template-columns: 1fr 1fr; }
+  .platform-access-panel { grid-column: 1 / -1; }
+  .platform-workspace-stats { grid-template-columns: repeat(3,minmax(0,1fr)); row-gap: 18px; }
+  .platform-workspace-stats > div:nth-child(3) { border: 0; }
+  .laundry-browser-layout { grid-template-columns: minmax(0,1fr); }
+  .laundry-browser-nav { flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid #e9edf2; }
+  .platform-workspace .app-content .laundry-browser-nav > button { white-space: nowrap; }
+}
+@media (max-width: 767px) {
+  .platform-workspace .workspace-header { height: 72px; background: #fff; padding: 0 15px; gap: 12px; }
+  .platform-workspace .brand-lockup { color: #203347; width: auto; font-size: 19px; }
+  .platform-workspace .brand-lockup small { color: #6f8292; }
+  .platform-header-label { display: none; }
+  .platform-workspace .role-control select { max-width: 130px; font-size: 11px !important; }
+  .platform-workspace .workspace-breadcrumb { margin-left: 0; padding: 0 18px; }
+  .platform-workspace .app-shell { margin-left: 0; padding: 22px 16px; }
+  .platform-page-heading { flex-wrap: wrap; align-items: start; gap: 17px; margin-bottom: 22px; }
+  .platform-workspace .platform-page-heading h1 { font-size: 26px; }
+  .platform-workspace .platform-page-heading p { font-size: 11px; }
+  .platform-heading-actions { width: 100%; justify-content: flex-end; }
+  .platform-metrics { gap: 10px; }
+  .platform-metric { padding: 14px; }
+  .platform-metric > div > span:first-child { font-size: 11px; }
+  .platform-metric-icon { width: 28px; height: 28px; }
+  .platform-metric > strong { font-size: 28px; }
+  .platform-metric > small { font-size: 10px; line-height: 1.6; display: block; }
+  .platform-overview-aside { display: flex; flex-direction: column; }
+  .platform-panel-heading { padding: 18px; }
+  .platform-workspace .platform-panel-heading h2 { font-size: 13px; }
+  .platform-workspace .platform-panel-heading p { max-width: 190px; line-height: 1.6; }
+  .platform-workspace .app-content .platform-text-button { font-size: 11px; }
+  .platform-filterbar { padding: 16px; }
+  .platform-search { max-width: none; }
+  .platform-filter-controls { width: 100%; }
+  .platform-workspace .app-content .platform-filter-controls select { max-width: none; flex: 1; min-width: 110px; }
+  .platform-panel-footer { flex-wrap: wrap; font-size: 10px; padding: 14px 16px; }
+  .platform-status-tabs { gap: 19px; }
+  .platform-inline-stats { gap: 14px 20px; }
+  .platform-inline-stats > span { font-size: 11px; }
+  .platform-workspace .platform-workspace-hero { padding: 19px; gap: 18px; }
+  .platform-workspace-identity { gap: 11px; align-items: start; }
+  .platform-laundry-mark { width: 44px; height: 44px; border-radius: 12px; font-size: 15px; }
+  .platform-workspace .platform-workspace-name h1 { font-size: 20px; }
+  .platform-workspace-name { gap: 8px; }
+  .platform-workspace .platform-workspace-identity p { gap: 8px; font-size: 10px; }
+  .platform-workspace-actions { width: 100%; justify-content: flex-end; }
+  .platform-workspace-stats > div { padding: 0 14px; }
+  .platform-workspace-stats dd { font-size: 21px; }
+  .laundry-browser-heading { padding: 16px; }
+  .platform-workspace .laundry-browser-heading h2 { font-size: 11px !important; }
+  .laundry-browser-content { padding: 19px 16px; }
+  .laundry-section-title small { display: none; }
+  .platform-form-grid { grid-template-columns: minmax(0,1fr); }
+}
+
+/* Explicit select styling avoids undersized native controls in Safari. */
+.platform-workspace .app-content .platform-filter-controls select,
+.platform-workspace .platform-form-grid select {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 38px;
+  min-width: 120px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238293a1' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 11px center;
+  background-size: 12px;
+  padding-right: 31px;
+}

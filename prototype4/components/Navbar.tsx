@@ -53,7 +53,7 @@ export default function Navbar({ page, role, onRoleChange, onNavigate, draftCoun
     {(platformView ? platform : admin ? administration : expanded ? operations : operations.filter(link => ["dashboard", "history", "manifests"].includes(link.page))).map(link => <button key={link.page} title={link.label} onClick={() => go(link.page)} className={`rail-link ${expanded ? "expanded" : ""}`} aria-current={page === link.page || (page === "receipts" && link.page === "receiving") || (page === "record" && link.page === "history") || (page === "platform-laundry" && link.page === "platform-laundries") ? "page" : undefined}>
       <link.icon size={21} strokeWidth={1.7} /><span>{link.label}</span>{link.page === "drafts" && draftCount > 0 && <span className="rail-count">{draftCount}</span>}
     </button>)}
-    <div className="rail-bottom">{!platformView && <button title={admin ? "Operations" : "Administration"} className={`rail-link ${expanded ? "expanded" : ""}`} onClick={() => go(admin ? "dashboard" : "admin-dashboard")}>
+    <div className="rail-bottom">{platformView && <div className="platform-sidebar-note"><Shield size={18} /><strong>Platform administration</strong><span>Manage every laundry from one place.</span></div>}{!platformView && <button title={admin ? "Operations" : "Administration"} className={`rail-link ${expanded ? "expanded" : ""}`} onClick={() => go(admin ? "dashboard" : "admin-dashboard")}>
       {admin ? <LayoutGrid size={21} /> : <Settings2 size={21} />}<span>{admin ? "Operations" : "Admin"}</span>
     </button>}<span className="rail-version">PROTOTYPE v1.0</span></div>
   </>;
@@ -61,6 +61,7 @@ export default function Navbar({ page, role, onRoleChange, onNavigate, draftCoun
     <header className="workspace-header">
       <button className="mobile-menu btn-quiet" aria-label="Open navigation" onClick={() => setMenuOpen(true)}><Menu size={23} /></button>
       <button className="brand-lockup" onClick={() => go(platformView || role === "SystemsAdministrator" ? "platform-home" : admin || role === "Admin" ? "admin-dashboard" : "dashboard")} aria-label="Pure Linen home"><span className="brand-mark"><Leaf size={25} strokeWidth={1.7} /></span><span>purelinen<span className="brand-dot">.</span><small>{platformView ? "PLATFORM CONTROL" : "LAUNDRY MANAGEMENT"}</small></span></button>
+      {platformView && <span className="platform-header-label"><Shield size={16} />Administration console</span>}
       {!admin && !platformView && <h1 className="operator-page-title">{page === "dashboard" ? "Shipping & Receiving Dashboard" : pageLabel}</h1>}
       {!admin && !platformView && dirty && <span className="operator-unsaved">Unsaved changes</span>}
       {!platformView && <div className="workspace-switch" aria-label="Workspace"><button aria-pressed={!admin} onClick={() => go("dashboard")}><LayoutGrid size={16} />Operations</button><button aria-pressed={admin} onClick={() => go("admin-dashboard")}><Settings2 size={16} />Administration</button></div>}

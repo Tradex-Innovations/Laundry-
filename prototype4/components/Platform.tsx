@@ -1,132 +1,125 @@
 "use client";
-import { useState } from "react";
-import { Building2, Plus, Shield, UsersRound } from "lucide-react";
+import { useState, type ReactNode } from "react";
+import { Activity, ArrowLeft, ArrowRight, Building2, CalendarDays, Check, ChevronDown, ChevronRight, CircleAlert, ClipboardList, Layers3, MapPin, Pencil, Plus, Power, Search, Shield, ShieldCheck, UsersRound, X } from "lucide-react";
 import type { Database, Laundry, LaundryPlan, LaundryStatus, PlatformUser, Role } from "../lib/types";
-import { uid } from "../lib/domain";
-import { laundryName, laundryPlans, laundryStats, laundryStatuses, LIVE_LAUNDRY_ID, saveLaundry, saveUser, setLaundryStatus, setUserActive } from "../lib/platform";
+import { csvText, today, uid } from "../lib/domain";
+import { laundryName, laundryPlans, laundryStats, laundryStatuses, LIVE_LAUNDRY_ID, normalizeLaundry, saveLaundry, saveUser, setLaundryStatus, setUserActive, timezones, weightUnits } from "../lib/platform";
 import type { Page } from "./Navbar";
-import type { Mutate } from "./shared";
-import { Dialog, Errors, Field } from "./shared";
+import LaundryDetails from "./LaundryDetails";
+import { Dialog, Field, type Mutate } from "./shared";
 
-const blankLaundry = (): Laundry => ({ id: uid(), code: "", name: "", city: "", contact: "", email: "", phone: "", status: "trial", plan: "trial", createdAt: "", snapshot: { customers: 0, sites: 0, items: 0, dispatches: 0, receipts: 0 } });
+const blankLaundry = (): Laundry => normalizeLaundry({ id: uid(), code: "", name: "" });
 const blankUser = (): PlatformUser => ({ id: uid(), name: "", email: "", phone: "", laundryId: LIVE_LAUNDRY_ID, role: "Operator", active: true, lastSignIn: null });
-const statusClass = (status: string) => status === "active" ? "bg-brand-50 text-brand-600" : status === "trial" ? "bg-weight-50 text-weight-700" : "bg-red-50 text-red-600";
+const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join("").toUpperCase();
+const roleLabel = (role: Role) => role === "SystemsAdministrator" ? "Systems administrator" : role === "Admin" ? "Laundry owner" : "Operator";
+const dateLabel = (value: string | null) => value ? new Date(value.length === 10 ? `${value}T12:00:00` : value).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "Not recorded";
+function Status({ value }: { value: string }) { return <span className={`platform-status status-${value.toLowerCase()}`}><i />{value}</span>; }
+function LaundryMark({ laundry, small = false }: { laundry: Laundry; small?: boolean }) { return <span className={`platform-laundry-mark ${small ? "small" : ""}`}>{laundry.logo ? <img src={laundry.logo} alt="" /> : initials(laundry.name)}</span>; }
+function Heading({ eyebrow, title, description, action }: { eyebrow: string; title: string; description: string; action?: ReactNode }) { return <div className="platform-page-heading"><div><div className="platform-eyebrow">{eyebrow}</div><h1>{title}</h1><p>{description}</p></div><div className="platform-heading-actions">{action}</div></div>; }
+function Empty({ title, children, action }: { title: string; children: ReactNode; action?: ReactNode }) { return <div className="platform-empty"><span><ClipboardList size={27} strokeWidth={1.5} /></span><h3>{title}</h3><p>{children}</p>{action}</div>; }
+function SearchBox({ value, onChange, placeholder, label }: { value: string; onChange: (value: string) => void; placeholder: string; label: string }) { return <label className="platform-search"><Search size={17} /><input type="search" aria-label={label} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} /></label>; }
 
 export default function Platform({ db, page, laundryId, mutate, onNavigate, onOpenLaundry }: {
   db: Database; page: Page; laundryId: string; mutate: Mutate; onNavigate: (page: Page) => void; onOpenLaundry: (id: string) => void;
 }) {
   const [laundry, setLaundry] = useState<Laundry | null>(null);
   const [user, setUser] = useState<PlatformUser | null>(null);
-  const [errors, setErrors] = useState<string[]>([]);
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [planFilter, setPlanFilter] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
+  const [laundryFilter, setLaundryFilter] = useState("");
+  const [actionFilter, setActionFilter] = useState("");
+  const [suspending, setSuspending] = useState<Laundry | null>(null);
+  const [suspendReason, setSuspendReason] = useState("");
   const laundries = db.laundries || [];
   const users = db.users || [];
-  const platformLog = db.activity.filter(a => a.scope === "platform");
+  const platformLog = db.activity.filter(a => a.scope === "platform").sort((a, b) => b.at.localeCompare(a.at));
   const selected = laundries.find(l => l.id === laundryId);
-  if (page === "platform-home") {
-    const active = laundries.filter(l => l.status !== "suspended").length;
-    return <section>
-      <div className="eyebrow">PLATFORM CONTROL</div>
-      <h1 className="!mb-2">Systems Administrator</h1>
-      <p className="!mt-0">Issue Pure Linen to laundries, then manage the people who work there.</p>
-      <div className="mb-7 grid grid-cols-2 gap-4 xl:grid-cols-4" aria-label="Platform totals">
-        {[{ label: "Laundries", value: laundries.length, icon: Building2 }, { label: "Active sites", value: active, icon: Building2 }, { label: "Users", value: users.length, icon: UsersRound }, { label: "Active users", value: users.filter(u => u.active).length, icon: Shield }].map(card =>
-          <div className="rounded-2xl border border-line bg-white p-5" key={card.label}><div className="mb-3 flex items-center justify-between text-sm text-muted">{card.label}<card.icon size={18} className="text-brand-500" /></div><div className="text-[32px] font-semibold tracking-tight">{card.value}</div></div>)}
-      </div>
-      <div className="grid gap-4 md:grid-cols-3">
-        {[{ title: "Laundries", copy: "Create, pause or review a business.", page: "platform-laundries" as Page }, { title: "Users", copy: "Add staff and Systems Administrators.", page: "platform-users" as Page }, { title: "Audit log", copy: "See who changed a laundry or a user.", page: "platform-audit" as Page }].map(card =>
-          <button key={card.title} className="min-h-32 flex-col items-start justify-between p-5 text-left" onClick={() => onNavigate(card.page)}><strong>{card.title}</strong><span className="text-sm font-normal text-muted">{card.copy}</span></button>)}
-      </div>
-      <h2>Recent platform actions</h2>
-      {platformLog.length ? <ul>{platformLog.slice(0, 6).map(a => <li key={a.id}>{new Date(a.at).toLocaleString()} · {a.action} · {a.detail}</li>)}</ul> : <p>No platform actions yet.</p>}
+  const activeUsers = users.filter(u => u.active).length;
+  const systemAdmins = users.filter(u => u.role === "SystemsAdministrator");
+  const count = (status: string) => laundries.filter(l => l.status === status).length;
+  const newLaundry = () => setLaundry(blankLaundry());
+  const resetFilters = () => { setQuery(""); setStatusFilter(""); setPlanFilter(""); setRoleFilter(""); setLaundryFilter(""); setActionFilter(""); };
+  const attention = laundries.filter(l => l.status === "suspended" || (l.status === "trial" && l.planEndsOn && l.planEndsOn <= today()));
+
+  function directory(rows: Laundry[], compact = false) {
+    return <div className="platform-table-scroll"><table className="platform-directory-table"><thead><tr><th>Laundry</th><th>Plan</th><th>Team</th>{!compact && <th>Saved records</th>}<th>Status</th><th><span className="sr-only">Open workspace</span></th></tr></thead><tbody>{rows.map(l => {
+      const stats = laundryStats(db, l);
+      return <tr key={l.id}><td><div className="platform-business-cell"><LaundryMark laundry={l} small /><span><strong>{l.name}</strong><small>{l.code}<i />{l.city || "City not added"}</small></span></div></td><td><span className={`platform-plan plan-${l.plan}`}>{l.plan}</span></td><td><span className="platform-team-count"><UsersRound size={15} />{stats.users}<small>{stats.users === 1 ? "user" : "users"}</small></span></td>{!compact && <td><span className="platform-record-count">{stats.items} items<small>{stats.customers} customers</small></span></td>}<td><Status value={l.status} /></td><td><button className="platform-open" aria-label={`Open ${l.name}`} onClick={() => onOpenLaundry(l.id)}>Open <ArrowRight size={15} /></button></td></tr>;
+    })}</tbody></table></div>;
+  }
+
+  if (page === "platform-home") return <section className="platform-page">
+    <Heading eyebrow="PLATFORM OVERVIEW" title="Control center" description="A clear view of your laundries, people and platform activity." action={<><span className="platform-date"><CalendarDays size={16} />{dateLabel(today())}</span><button className="btn-primary platform-primary" onClick={newLaundry}><Plus size={17} />Add laundry</button></>} />
+    <div className="platform-metrics" aria-label="Platform totals">
+      {[{ label: "Total laundries", value: laundries.length, note: `${count("active")} active · ${count("trial")} on trial`, icon: Building2, tone: "blue" }, { label: "Active users", value: activeUsers, note: `${users.length} users across the platform`, icon: UsersRound, tone: "teal" }, { label: "Systems administrators", value: systemAdmins.length, note: `${systemAdmins.filter(u => u.active).length} active platform accounts`, icon: ShieldCheck, tone: "violet" }, { label: "Needs attention", value: attention.length, note: `${count("suspended")} suspended ${count("suspended") === 1 ? "laundry" : "laundries"}`, icon: CircleAlert, tone: "amber" }].map(m => <div className="platform-metric" key={m.label}><div><span>{m.label}</span><span className={`platform-metric-icon ${m.tone}`}><m.icon size={19} strokeWidth={1.7} /></span></div><strong>{m.value}</strong><small>{m.note}</small></div>)}
+    </div>
+    <div className="platform-overview-grid"><div className="platform-overview-main">
+      <section className="platform-panel"><div className="platform-panel-heading"><div><h2>Your laundries</h2><p>Open a workspace to review its records.</p></div><button className="platform-text-button" onClick={() => onNavigate("platform-laundries")}>View directory <ArrowRight size={16} /></button></div>{laundries.length ? directory(laundries.slice(0, 5), true) : <Empty title="Your first laundry starts here" action={<button onClick={newLaundry}>Add laundry</button>}>Add a laundry to set up its workspace.</Empty>}</section>
+      <section className="platform-panel"><div className="platform-panel-heading"><div><h2>Recent platform activity</h2><p>Changes to laundries and user accounts.</p></div><button className="platform-text-button" onClick={() => onNavigate("platform-audit")}>View audit log <ArrowRight size={16} /></button></div>{platformLog.length ? <div className="platform-activity-list">{platformLog.slice(0, 4).map(a => <div key={a.id}><span className="platform-event-icon"><Activity size={16} /></span><div><strong>{a.action}</strong><p>{a.detail}</p></div><time>{dateLabel(a.at)}</time></div>)}</div> : <Empty title="No platform changes yet">Laundry and account changes will appear here as you work.</Empty>}</section>
+    </div><aside className="platform-overview-aside">
+      <section className="platform-panel platform-attention"><div className="platform-panel-heading"><div><h2><CircleAlert size={17} />Needs attention</h2><p>Workspaces to review.</p></div><span className="platform-small-count">{attention.length}</span></div>{attention.length ? <div className="platform-attention-list">{attention.map(l => <button key={l.id} onClick={() => onOpenLaundry(l.id)}><span className={l.status === "suspended" ? "attention-red" : "attention-amber"}><Building2 size={18} /></span><span><strong>{l.name}</strong><small>{l.status === "suspended" ? "Workspace suspended" : l.planEndsOn === today() ? "Trial ends today" : "Trial period has ended"}</small></span><ChevronRight size={15} /></button>)}</div> : <div className="platform-all-clear"><Check size={21} /><strong>All caught up</strong><p>No workspaces need a review.</p></div>}</section>
+      <section className="platform-panel"><div className="platform-panel-heading"><div><h2>Plan distribution</h2><p>{laundries.length} registered workspaces</p></div><Layers3 size={18} className="text-muted" /></div><div className="platform-plan-distribution">{laundryPlans.map(plan => { const n = laundries.filter(l => l.plan === plan).length; return <div key={plan}><div><span>{plan}</span><strong>{n}</strong></div><div className={`platform-progress plan-${plan}`}><span style={{ width: `${laundries.length ? n / laundries.length * 100 : 0}%` }} /></div></div>; })}</div></section>
+      <section className="platform-access-panel"><Shield size={23} /><h2>People & access</h2><p>Manage owners, operators and platform administrators.</p><button onClick={() => onNavigate("platform-users")}>Manage users <ArrowRight size={16} /></button></section>
+    </aside></div>{forms()}
+  </section>;
+
+  if (page === "platform-audit") {
+    const rows = platformLog.filter(a => `${a.actor} ${a.action} ${a.detail} ${laundryName(db, a.laundryId || null)}`.toLowerCase().includes(query.toLowerCase()) && (!actionFilter || a.action === actionFilter) && (!laundryFilter || (laundryFilter === "platform" ? !a.laundryId : a.laundryId === laundryFilter)));
+    return <section className="platform-page"><Heading eyebrow="PLATFORM ACTIVITY" title="Audit log" description="Review changes to businesses, account access and platform settings." action={<button disabled={!rows.length} onClick={() => {
+      const blob = new Blob([csvText([["Time", "Actor", "Action", "Laundry", "Details"], ...rows.map(a => [a.at, a.actor, a.action, laundryName(db, a.laundryId || null), a.detail])])], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob); const link = document.createElement("a"); link.href = url; link.download = "platform-audit-log.csv"; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }}><ClipboardList size={16} />Export log</button>} />
+      <section className="platform-panel"><div className="platform-filterbar"><SearchBox label="Search audit log" value={query} onChange={setQuery} placeholder="Search actions, people or details…" /><div className="platform-filter-controls"><select aria-label="Audit action" value={actionFilter} onChange={e => setActionFilter(e.target.value)}><option value="">All actions</option>{[...new Set(platformLog.map(a => a.action))].map(a => <option key={a}>{a}</option>)}</select><select aria-label="Audit laundry" value={laundryFilter} onChange={e => setLaundryFilter(e.target.value)}><option value="">All workspaces</option><option value="platform">Platform</option>{laundries.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}</select></div></div>
+      {rows.length ? <div className="platform-table-scroll"><table><thead><tr><th>Action & details</th><th>Workspace</th><th>Performed by</th><th>Time</th></tr></thead><tbody>{rows.map(a => <tr key={a.id}><td><div className="platform-audit-cell"><span className="platform-event-icon"><Activity size={16} /></span><span><strong>{a.action}</strong><small>{a.detail}</small></span></div></td><td>{laundryName(db, a.laundryId || null)}</td><td>{["Admin", "Operator", "SystemsAdministrator"].includes(a.actor) ? roleLabel(a.actor as Role) : a.actor}</td><td className="platform-time">{dateLabel(a.at)}<small>{new Date(a.at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}</small></td></tr>)}</tbody></table></div> : <Empty title={platformLog.length ? "No matching activity" : "No activity recorded yet"} action={platformLog.length ? <button onClick={resetFilters}>Clear filters</button> : undefined}>{platformLog.length ? "Try a different search or filter." : "Changes to laundry profiles, status and user accounts will appear here."}</Empty>}
+      <div className="platform-panel-footer">{rows.length} of {platformLog.length} recorded actions<span><Shield size={13} />Platform changes</span></div></section>
     </section>;
   }
-  if (page === "platform-audit") return <section>
-    <h1 className="!mb-2">Audit log</h1>
-    <p className="!mt-0">Systems Administrator actions only. Laundry floor work stays in each laundry.</p>
-    {platformLog.length ? <div className="table-scroll"><table><thead><tr><th>Time</th><th>Action</th><th>Details</th></tr></thead>
-      <tbody>{platformLog.map(a => <tr key={a.id}><td>{new Date(a.at).toLocaleString()}</td><td>{a.action}</td><td>{a.detail}</td></tr>)}</tbody></table></div> : <p>No platform actions yet.</p>}
-  </section>;
+
   if (page === "platform-laundry" && selected) {
     const stats = laundryStats(db, selected);
-    const staff = users.filter(u => u.laundryId === selected.id);
-    return <section>
-      <button className="btn-quiet !px-0" onClick={() => onNavigate("platform-laundries")}>Back to laundries</button>
-      <div className="mb-4 flex flex-wrap items-start justify-between gap-3"><div><h1 className="!mb-2">{selected.name}</h1><p className="!mt-0">{selected.code} · {selected.city} · {selected.contact}</p></div><span className={`status-badge ${statusClass(selected.status)}`}>{selected.status}</span></div>
-      <dl className="mb-6 grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        {Object.entries(stats).map(([label, value]) => <div key={label} className="rounded-xl border border-line bg-canvas p-4"><dt className="text-[11px] capitalize text-muted">{label}</dt><dd className="mt-1 text-2xl font-semibold">{value}</dd></div>)}
-      </dl>
-      <p className="!text-xs">{selected.id === LIVE_LAUNDRY_ID ? "Counts come from this demo laundry’s live records." : "This laundry is a platform record. Floor data is not mixed with Pure Linen’s carts."}</p>
-      <div className="mb-4 flex flex-wrap gap-2">
-        {laundryStatuses.filter(s => s !== selected.status).map(status => <button key={status} onClick={() => mutate(state => setLaundryStatus(state, selected.id, status, "SystemsAdministrator"), `${selected.name} is now ${status}.`)}>{status === "suspended" ? "Suspend" : status === "active" ? "Activate" : "Set trial"}</button>)}
-        <button onClick={() => { setErrors([]); setLaundry({ ...selected }); }}>Edit laundry</button>
-      </div>
-      <h2>People at this laundry</h2>
-      {staff.length ? <div className="table-scroll"><table><thead><tr><th>Name</th><th>Role</th><th>Email</th><th>Status</th></tr></thead>
-        <tbody>{staff.map(u => <tr key={u.id}><td>{u.name}</td><td>{u.role}</td><td>{u.email}</td><td><span className={`status-badge ${u.active ? "bg-brand-50 text-brand-600" : "bg-canvas text-muted"}`}>{u.active ? "Active" : "Inactive"}</span></td></tr>)}</tbody></table></div> : <p>No users assigned yet.</p>}
-      {forms()}
+    return <section className="platform-page"><button className="platform-back" onClick={() => onNavigate("platform-laundries")}><ArrowLeft size={16} />Laundry directory</button>
+      <section className="platform-panel platform-workspace-hero"><div className="platform-workspace-identity"><LaundryMark laundry={selected} /><div><div className="platform-workspace-name"><h1>{selected.name}</h1><Status value={selected.status} /></div><p><span>{selected.code}</span><span><MapPin size={13} />{selected.city || "City not added"}</span><span className="platform-plan">{selected.plan} plan</span></p></div></div><div className="platform-workspace-actions"><button onClick={() => setLaundry({ ...selected })}><Pencil size={15} />Edit profile</button><details className="platform-action-menu"><summary>Manage status <ChevronDown size={14} /></summary><div>{laundryStatuses.filter(s => s !== selected.status).map(status => <button key={status} className={status === "suspended" ? "text-red-700" : ""} onClick={() => { if (status === "suspended") { setSuspending(selected); setSuspendReason(""); } else mutate(state => setLaundryStatus(state, selected.id, status, "SystemsAdministrator"), `${selected.name} is now ${status}.`); }}>{status === "suspended" ? "Suspend laundry" : status === "active" ? "Activate laundry" : "Set trial status"}</button>)}</div></details></div></section>
+      <dl className="platform-workspace-stats">{Object.entries(stats).map(([label, value]) => <div key={label}><dt>{["customers", "sites", "items"].includes(label) ? `Active ${label}` : label}</dt><dd>{value}</dd></div>)}</dl>
+      <LaundryDetails key={selected.id} db={db} laundry={selected} />{forms()}
     </section>;
   }
+
   if (page === "platform-users") {
-    const rows = users.filter(u => `${u.name} ${u.email}`.toLowerCase().includes(query.toLowerCase()) && (!statusFilter || (statusFilter === "active" ? u.active : !u.active)) && (!roleFilter || u.role === roleFilter));
-    return <section>
-      <div className="flex flex-wrap items-start justify-between gap-3"><div><h1 className="!mb-2">Users</h1><p className="!mt-0">Everyone who can sign in, across every laundry.</p></div><button className="btn-primary" onClick={() => { setErrors([]); setUser(blankUser()); }}><Plus size={15} />Add user</button></div>
-      <div className="page-toolbar">
-        <Field label="Search"><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Name or email" /></Field>
-        <Field label="Role"><select value={roleFilter} onChange={e => setRoleFilter(e.target.value)}><option value="">All roles</option><option value="SystemsAdministrator">Systems Administrator</option><option>Admin</option><option>Operator</option></select></Field>
-        <Field label="Status"><select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}><option value="">All</option><option value="active">Active</option><option value="inactive">Inactive</option></select></Field>
-      </div>
-      <div className="table-scroll"><table><thead><tr><th>Name</th><th>Email</th><th>Laundry</th><th>Role</th><th>Last sign-in</th><th>Status</th><th>Actions</th></tr></thead>
-        <tbody>{rows.map(u => <tr key={u.id}><td>{u.name}</td><td>{u.email}</td><td>{laundryName(db, u.laundryId)}</td><td>{u.role === "SystemsAdministrator" ? "Systems Admin" : u.role}</td><td>{u.lastSignIn ? new Date(u.lastSignIn).toLocaleString() : "—"}</td><td><span className={`status-badge ${u.active ? "bg-brand-50 text-brand-600" : "bg-canvas text-muted"}`}>{u.active ? "Active" : "Inactive"}</span></td>
-          <td><div className="flex gap-1"><button onClick={() => { setErrors([]); setUser({ ...u }); }}>Edit</button><button onClick={() => mutate(state => setUserActive(state, u.id, !u.active, "SystemsAdministrator"), u.active ? `${u.name} deactivated.` : `${u.name} reactivated.`)}>{u.active ? "Deactivate" : "Reactivate"}</button></div></td></tr>)}</tbody></table></div>
-      {forms()}
+    const rows = users.filter(u => `${u.name} ${u.email} ${u.phone}`.toLowerCase().includes(query.toLowerCase()) && (!statusFilter || (statusFilter === "active" ? u.active : !u.active)) && (!roleFilter || u.role === roleFilter) && (!laundryFilter || (laundryFilter === "platform" ? !u.laundryId : u.laundryId === laundryFilter)));
+    return <section className="platform-page"><Heading eyebrow="PEOPLE & ACCESS" title="Users" description="Manage who works across the platform and each laundry." action={<button className="btn-primary platform-primary" onClick={() => setUser(blankUser())}><Plus size={17} />Add user</button>} />
+      <div className="platform-inline-stats"><span><strong>{users.length}</strong>Total users</span><span><i className="green-dot" /><strong>{activeUsers}</strong>Active</span><span><i className="gray-dot" /><strong>{users.length - activeUsers}</strong>Inactive</span><span><Shield size={15} /><strong>{systemAdmins.length}</strong>Systems administrators</span></div>
+      <section className="platform-panel"><div className="platform-filterbar"><SearchBox label="Search users" value={query} onChange={setQuery} placeholder="Search name, email or phone…" /><div className="platform-filter-controls"><select aria-label="User role" value={roleFilter} onChange={e => setRoleFilter(e.target.value)}><option value="">All roles</option><option value="SystemsAdministrator">Systems administrator</option><option value="Admin">Laundry owner</option><option value="Operator">Operator</option></select><select aria-label="User laundry" value={laundryFilter} onChange={e => setLaundryFilter(e.target.value)}><option value="">All laundries</option><option value="platform">Platform</option>{laundries.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}</select><select aria-label="User status" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}><option value="">All statuses</option><option value="active">Active</option><option value="inactive">Inactive</option></select></div></div>
+      {rows.length ? <div className="platform-table-scroll"><table><thead><tr><th>User</th><th>Workspace</th><th>Role</th><th>Last sign-in</th><th>Status</th><th>Actions</th></tr></thead><tbody>{rows.map(u => <tr key={u.id}><td><div className="platform-person-cell"><span className={`platform-person-avatar ${u.role === "SystemsAdministrator" ? "system" : ""}`}>{initials(u.name)}</span><span><strong>{u.name}</strong><small>{u.email}</small></span></div></td><td>{laundryName(db, u.laundryId)}</td><td><span className={`platform-role role-${u.role}`}>{u.role === "SystemsAdministrator" && <Shield size={12} />}{roleLabel(u.role)}</span></td><td className="platform-time">{dateLabel(u.lastSignIn)}</td><td><Status value={u.active ? "active" : "inactive"} /></td><td><div className="platform-row-actions"><button aria-label={`Edit ${u.name}`} onClick={() => setUser({ ...u })}><Pencil size={14} />Edit</button><button className="platform-icon-button" title={u.active ? `Deactivate ${u.name}` : `Reactivate ${u.name}`} aria-label={u.active ? `Deactivate ${u.name}` : `Reactivate ${u.name}`} onClick={() => mutate(state => setUserActive(state, u.id, !u.active, "SystemsAdministrator"), `${u.name} ${u.active ? "deactivated" : "reactivated"}.`)}><Power size={15} /></button></div></td></tr>)}</tbody></table></div> : <Empty title="No users match" action={<button onClick={resetFilters}>Clear filters</button>}>Try a different name, role or workspace.</Empty>}
+      <div className="platform-panel-footer">Showing {rows.length} of {users.length} users<span>Role-based workspace access</span></div></section>{forms()}
     </section>;
   }
-  const rows = laundries.filter(l => `${l.name} ${l.code} ${l.city}`.toLowerCase().includes(query.toLowerCase()) && (!statusFilter || l.status === statusFilter));
-  return <section>
-    <div className="flex flex-wrap items-start justify-between gap-3"><div><h1 className="!mb-2">Laundries</h1><p className="!mt-0">Each business is a separate workspace. Floor data is never mixed.</p></div><button className="btn-primary" onClick={() => { setErrors([]); setLaundry(blankLaundry()); }}><Plus size={15} />Add laundry</button></div>
-    <div className="page-toolbar">
-      <Field label="Search"><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Name, code or city" /></Field>
-      <Field label="Status"><select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}><option value="">All</option>{laundryStatuses.map(s => <option key={s}>{s}</option>)}</select></Field>
-    </div>
-    <div className="table-scroll"><table><thead><tr><th>Code</th><th>Laundry</th><th>City</th><th>Plan</th><th>Status</th><th>Users</th><th></th></tr></thead>
-      <tbody>{rows.map(l => <tr key={l.id}><td>{l.code}</td><td>{l.name}</td><td>{l.city}</td><td>{l.plan}</td><td><span className={`status-badge ${statusClass(l.status)}`}>{l.status}</span></td><td>{users.filter(u => u.laundryId === l.id).length}</td>
-        <td><button onClick={() => onOpenLaundry(l.id)}>Open</button></td></tr>)}</tbody></table></div>
-    {forms()}
+
+  if (page === "platform-laundry") return <section className="platform-page"><Empty title="Laundry not found" action={<button onClick={() => onNavigate("platform-laundries")}>Back to laundries</button>}>This workspace is no longer available in the directory.</Empty></section>;
+  const rows = laundries.filter(l => `${l.name} ${l.code} ${l.city} ${l.contact} ${l.email}`.toLowerCase().includes(query.toLowerCase()) && (!statusFilter || l.status === statusFilter) && (!planFilter || l.plan === planFilter));
+  return <section className="platform-page"><Heading eyebrow="WORKSPACE DIRECTORY" title="Laundries" description="Manage each business and explore its records in one place." action={<button className="btn-primary platform-primary" onClick={newLaundry}><Plus size={17} />Add laundry</button>} />
+    <div className="platform-status-tabs" aria-label="Filter laundries by status">{[{ value: "", label: "All laundries", count: laundries.length }, ...laundryStatuses.map(status => ({ value: status, label: status, count: count(status) }))].map(tab => <button key={tab.value} aria-pressed={statusFilter === tab.value} onClick={() => setStatusFilter(tab.value)}>{tab.label}<span>{tab.count}</span></button>)}</div>
+    <section className="platform-panel"><div className="platform-filterbar"><SearchBox label="Search laundries" value={query} onChange={setQuery} placeholder="Search laundry, code, city or contact…" /><div className="platform-filter-controls"><select aria-label="Laundry plan" value={planFilter} onChange={e => setPlanFilter(e.target.value)}><option value="">All plans</option>{laundryPlans.map(plan => <option key={plan}>{plan}</option>)}</select>{(query || statusFilter || planFilter) && <button className="platform-text-button" onClick={resetFilters}><X size={14} />Clear filters</button>}</div></div>
+      {rows.length ? directory(rows) : <Empty title={laundries.length ? "No laundries match" : "Add your first laundry"} action={<button onClick={laundries.length ? resetFilters : newLaundry}>{laundries.length ? "Clear filters" : "Add laundry"}</button>}>{laundries.length ? "Try another name, plan or status." : "Create a workspace to begin managing a business."}</Empty>}
+      <div className="platform-panel-footer">Showing {rows.length} of {laundries.length} laundries<span><Building2 size={13} />Individual business workspaces</span></div>
+    </section>{forms()}
   </section>;
 
   function forms() {
     return <>
-      {laundry && <Dialog title={laundries.some(l => l.id === laundry.id && l.name) ? "Edit laundry" : "New laundry"} onClose={() => setLaundry(null)}>
-        <Errors errors={errors} />
-        <form onSubmit={e => { e.preventDefault(); if (mutate(state => saveLaundry(state, laundry, "SystemsAdministrator"), `${laundry.name} saved.`)) setLaundry(null); }}>
-          <Field label="Laundry name *"><input required value={laundry.name} onChange={e => setLaundry({ ...laundry, name: e.target.value })} /></Field>
-          <Field label="Code *"><input required value={laundry.code} onChange={e => setLaundry({ ...laundry, code: e.target.value })} /></Field>
-          <Field label="City"><input value={laundry.city} onChange={e => setLaundry({ ...laundry, city: e.target.value })} /></Field>
-          <Field label="Contact"><input value={laundry.contact} onChange={e => setLaundry({ ...laundry, contact: e.target.value })} /></Field>
-          <Field label="Email"><input type="email" value={laundry.email} onChange={e => setLaundry({ ...laundry, email: e.target.value })} /></Field>
-          <Field label="Phone"><input value={laundry.phone} onChange={e => setLaundry({ ...laundry, phone: e.target.value })} /></Field>
-          <Field label="Plan"><select value={laundry.plan} onChange={e => setLaundry({ ...laundry, plan: e.target.value as LaundryPlan })}>{laundryPlans.map(p => <option key={p}>{p}</option>)}</select></Field>
-          <Field label="Status"><select value={laundry.status} onChange={e => setLaundry({ ...laundry, status: e.target.value as LaundryStatus })}>{laundryStatuses.map(s => <option key={s}>{s}</option>)}</select></Field>
-          <button type="submit">Save laundry</button>
-        </form>
-      </Dialog>}
-      {user && <Dialog title={users.some(u => u.id === user.id && u.email) ? "Edit user" : "New user"} onClose={() => setUser(null)}>
-        <Errors errors={errors} />
-        <form onSubmit={e => { e.preventDefault(); if (mutate(state => saveUser(state, user, "SystemsAdministrator"), `${user.name} saved.`)) setUser(null); }}>
-          <Field label="Name *"><input required value={user.name} onChange={e => setUser({ ...user, name: e.target.value })} /></Field>
-          <Field label="Email *"><input required type="email" value={user.email} onChange={e => setUser({ ...user, email: e.target.value })} /></Field>
-          <Field label="Phone"><input value={user.phone} onChange={e => setUser({ ...user, phone: e.target.value })} /></Field>
-          <Field label="Role *"><select value={user.role} onChange={e => setUser({ ...user, role: e.target.value as Role, laundryId: e.target.value === "SystemsAdministrator" ? null : user.laundryId || LIVE_LAUNDRY_ID })}>
-            <option value="Operator">Operator</option><option value="Admin">Laundry Admin</option><option value="SystemsAdministrator">Systems Administrator</option>
-          </select></Field>
-          {user.role !== "SystemsAdministrator" && <Field label="Laundry *"><select value={user.laundryId || ""} onChange={e => setUser({ ...user, laundryId: e.target.value })}>{laundries.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}</select></Field>}
-          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={user.active} onChange={e => setUser({ ...user, active: e.target.checked })} /> Active</label>
-          <button type="submit">Save user</button>
-        </form>
-      </Dialog>}
+      {suspending && <Dialog title={`Suspend ${suspending.name}`} className="platform-dialog" onClose={() => setSuspending(null)}><p>Record why this workspace is being suspended.</p><form onSubmit={e => { e.preventDefault(); if (mutate(state => setLaundryStatus(state, suspending.id, "suspended", "SystemsAdministrator", suspendReason), `${suspending.name} suspended.`)) setSuspending(null); }}><Field label="Suspension reason *"><textarea required value={suspendReason} onChange={e => setSuspendReason(e.target.value)} /></Field><div className="platform-dialog-actions"><button type="button" onClick={() => setSuspending(null)}>Cancel</button><button type="submit">Suspend laundry</button></div></form></Dialog>}
+      {laundry && <Dialog title={laundries.some(l => l.id === laundry.id) ? "Edit laundry profile" : "Add a laundry"} className="platform-dialog !max-w-[760px]" onClose={() => setLaundry(null)}><form onSubmit={e => { e.preventDefault(); if (mutate(state => saveLaundry(state, laundry, "SystemsAdministrator"), `${laundry.name} saved.`)) setLaundry(null); }}>
+        <div className="platform-form-section"><h3><Building2 size={16} />Business details</h3><div className="platform-form-grid"><Field label="Laundry name *"><input required value={laundry.name} onChange={e => setLaundry({ ...laundry, name: e.target.value })} /></Field><Field label="Business code *"><input required value={laundry.code} onChange={e => setLaundry({ ...laundry, code: e.target.value })} placeholder="e.g. PL001" /></Field><Field label="Legal name"><input value={laundry.legalName} onChange={e => setLaundry({ ...laundry, legalName: e.target.value })} /></Field><Field label="City"><input value={laundry.city} onChange={e => setLaundry({ ...laundry, city: e.target.value })} /></Field><div className="full-width"><Field label="Business address"><input value={laundry.address} onChange={e => setLaundry({ ...laundry, address: e.target.value })} /></Field></div></div></div>
+        <div className="platform-form-section"><h3><UsersRound size={16} />Contact information</h3><div className="platform-form-grid"><Field label="Contact person"><input value={laundry.contact} onChange={e => setLaundry({ ...laundry, contact: e.target.value })} /></Field><Field label="Email"><input type="email" value={laundry.email} onChange={e => setLaundry({ ...laundry, email: e.target.value })} /></Field><Field label="Phone"><input type="tel" value={laundry.phone} onChange={e => setLaundry({ ...laundry, phone: e.target.value })} /></Field><Field label="Website"><input value={laundry.website} onChange={e => setLaundry({ ...laundry, website: e.target.value })} /></Field></div></div>
+        <div className="platform-form-section"><h3><Layers3 size={16} />Plan & workspace</h3><div className="platform-form-grid"><Field label="Plan"><select value={laundry.plan} onChange={e => setLaundry({ ...laundry, plan: e.target.value as LaundryPlan })}>{laundryPlans.map(p => <option key={p}>{p}</option>)}</select></Field><Field label="Status"><select value={laundry.status} onChange={e => setLaundry({ ...laundry, status: e.target.value as LaundryStatus })}>{laundryStatuses.map(s => <option key={s}>{s}</option>)}</select></Field><Field label="Go-live date"><input type="date" value={laundry.goLiveDate} onChange={e => setLaundry({ ...laundry, goLiveDate: e.target.value })} /></Field><Field label="Plan ends"><input type="date" value={laundry.planEndsOn} onChange={e => setLaundry({ ...laundry, planEndsOn: e.target.value })} /></Field><Field label="Default weight unit"><select value={laundry.defaultWeightUnit} onChange={e => setLaundry({ ...laundry, defaultWeightUnit: e.target.value as Laundry["defaultWeightUnit"] })}>{weightUnits.map(u => <option key={u}>{u}</option>)}</select></Field><Field label="Time zone"><select value={laundry.timezone} onChange={e => setLaundry({ ...laundry, timezone: e.target.value })}>{[...new Set([...timezones, laundry.timezone])].map(t => <option key={t}>{t}</option>)}</select></Field><Field label="Document prefix"><input value={laundry.numberPrefix} onChange={e => setLaundry({ ...laundry, numberPrefix: e.target.value })} /></Field>{laundry.status === "suspended" && <Field label="Suspension reason *"><input required value={laundry.suspendReason} onChange={e => setLaundry({ ...laundry, suspendReason: e.target.value })} /></Field>}</div></div>
+        <div className="platform-dialog-actions"><button type="button" onClick={() => setLaundry(null)}>Cancel</button><button type="submit"><Check size={16} />Save laundry</button></div>
+      </form></Dialog>}
+      {user && <Dialog title={users.some(u => u.id === user.id) ? "Edit user" : "Add a user"} className="platform-dialog" onClose={() => setUser(null)}><form onSubmit={e => { e.preventDefault(); if (mutate(state => saveUser(state, user, "SystemsAdministrator"), `${user.name} saved.`)) setUser(null); }}>
+        <div className="platform-form-grid"><Field label="Full name *"><input required value={user.name} onChange={e => setUser({ ...user, name: e.target.value })} /></Field><Field label="Email address *"><input required type="email" value={user.email} onChange={e => setUser({ ...user, email: e.target.value })} /></Field><Field label="Phone"><input type="tel" value={user.phone} onChange={e => setUser({ ...user, phone: e.target.value })} /></Field><Field label="Role *"><select value={user.role} onChange={e => setUser({ ...user, role: e.target.value as Role, laundryId: e.target.value === "SystemsAdministrator" ? null : user.laundryId || LIVE_LAUNDRY_ID })}><option value="Operator">Operator</option><option value="Admin">Laundry owner</option><option value="SystemsAdministrator">Systems administrator</option></select></Field>{user.role !== "SystemsAdministrator" && <div className="full-width"><Field label="Assigned laundry *"><select required value={user.laundryId || ""} onChange={e => setUser({ ...user, laundryId: e.target.value })}>{laundries.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}</select></Field></div>}</div>
+        <label className="platform-checkbox"><input type="checkbox" checked={user.active} onChange={e => setUser({ ...user, active: e.target.checked })} /><span><strong>Active account</strong><small>Include this person in active workspace users.</small></span></label>
+        <div className="platform-dialog-actions"><button type="button" onClick={() => setUser(null)}>Cancel</button><button type="submit"><Check size={16} />Save user</button></div>
+      </form></Dialog>}
     </>;
   }
 }

@@ -91,14 +91,14 @@ export default function LaundryApp() {
   const openPreview = (record: Dispatch) => setPreview(clone(record));
   const record = db.dispatches.find(d => d.id === recordId);
   return <>
-    <div hidden={!!preview} className={isAdminPage(page) || isPlatformPage(page) ? "admin-workspace" : "floor-workspace"}>
+    <div hidden={!!preview} className={isPlatformPage(page) ? "admin-workspace platform-workspace" : isAdminPage(page) ? "admin-workspace" : "floor-workspace"}>
       <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:p-3">Skip to content</a>
       <Navbar page={page} role={role} draftCount={db.dispatches.filter(d => d.status === "Draft").length} pageLabel={pageLabels[page]} dirty={dirty} onRoleChange={changeRole} onNavigate={navigate} />
       <div className="app-shell">
       {notice && <div role="status" className="mb-5 flex items-center gap-3 rounded-xl border border-brand-100 bg-brand-50 px-4 py-3 text-xs text-brand-700"><CheckCircle2 size={17} className="shrink-0" /><span className="flex-1">{notice}</span><button className="btn-quiet !size-7 !min-h-7 !p-0" aria-label="Dismiss notification" onClick={() => setNotice("")}><X size={14} /></button></div>}
       {error && <div role="alert" className="mb-5 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700"><CircleAlert size={17} className="shrink-0" /><p className="flex-1 whitespace-pre-line">{error}</p><button className="btn-quiet !size-7 !min-h-7 !p-0" aria-label="Dismiss error" onClick={() => setError("")}><X size={14} /></button></div>}
       <main ref={mainRef} id="main-content" tabIndex={-1} className="app-content">
-        {isPlatformPage(page) && <Platform db={db} page={page} laundryId={laundryId} mutate={mutate} onNavigate={navigate} onOpenLaundry={id => { setLaundryId(id); setPage("platform-laundry"); }} />}
+        {isPlatformPage(page) && <Platform key={page} db={db} page={page} laundryId={laundryId} mutate={mutate} onNavigate={navigate} onOpenLaundry={id => { setLaundryId(id); setPage("platform-laundry"); }} />}
         {page === "admin-dashboard" && <AdminDashboard db={db} onCreate={createDispatch} onOpen={openRecord} onPreview={openPreview} onNavigate={navigate} />}
         {page === "dashboard" && <Dashboard onCreate={createDispatch} onNavigate={navigate} />}
         {(page === "receiving" || page === "receipts") && <Receiving key={page} initialView={page === "receipts" ? "records" : "new"} db={db} role={role} mutate={mutate} onDirtyChange={setDirty} />}

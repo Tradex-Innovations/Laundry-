@@ -43,7 +43,8 @@ test("deactivating the last Systems Administrator is blocked", () => {
 
 test("laundry suspend is recorded on the platform audit log", () => {
   const db = seedDatabase();
-  setLaundryStatus(db, "harbour", "suspended", "SystemsAdministrator");
+  assert.throws(() => setLaundryStatus(db, "harbour", "suspended", "SystemsAdministrator"), /reason/);
+  setLaundryStatus(db, "harbour", "suspended", "SystemsAdministrator", "Contract paused");
   assert.equal(db.laundries!.find(l => l.id === "harbour")?.status, "suspended");
   assert.equal(db.activity[0].scope, "platform");
   assert.match(db.activity[0].detail, /Harbour Wash/);

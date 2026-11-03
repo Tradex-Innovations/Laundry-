@@ -1,7 +1,8 @@
 import type { Database, Laundry, LaundryPlan, LaundryStatus, PlatformUser, Role, WeightUnit } from "./types";
 import { log, uid } from "./domain";
+import { ensureLaundryWorkspaces, laundryRecordCounts, LIVE_LAUNDRY_ID } from "./laundry-workspace";
 
-export const LIVE_LAUNDRY_ID = "purelinen";
+export { LIVE_LAUNDRY_ID } from "./laundry-workspace";
 const requirePlatform = (role: Role) => {
   if (role !== "SystemsAdministrator") throw new Error("Only a Systems Administrator can manage laundries and users.");
 };
@@ -43,21 +44,14 @@ export function ensurePlatform(db: Database) {
     { id: "hw-op", name: "K. Bandara", email: "k.bandara@harbourwash.example", phone: "+94 77 555 0202", laundryId: "harbour", role: "Operator", active: true, lastSignIn: "2026-10-28T08:20:00.000Z" },
     { id: "hc-admin", name: "R. Wijesinghe", email: "r.wijesinghe@hilllinen.example", phone: "+94 77 555 0301", laundryId: "hillcountry", role: "Admin", active: false, lastSignIn: "2026-08-14T11:00:00.000Z" },
   ];
+  ensureLaundryWorkspaces(db);
 }
 export function laundryName(db: Database, laundryId: string | null) {
   if (!laundryId) return "Platform";
   return db.laundries?.find(l => l.id === laundryId)?.name || "Unknown laundry";
 }
 export function laundryStats(db: Database, laundry: Laundry) {
-  if (laundry.id !== LIVE_LAUNDRY_ID) return { ...laundry.snapshot, users: (db.users || []).filter(u => u.laundryId === laundry.id).length };
-  return {
-    customers: db.customers.filter(c => c.active).length,
-    sites: db.sites.filter(s => s.active).length,
-    items: db.items.filter(i => i.active).length,
-    dispatches: db.dispatches.length,
-    receipts: (db.receipts || []).length,
-    users: (db.users || []).filter(u => u.laundryId === laundry.id).length,
-  };
+  return { ...laundryRecordCounts(db, laundry.id), users: (db.users || []).filter(u => u.laundryId === laundry.id).length };
 }
 export function laundryAudit(db: Database, laundryId: string) {
   const laundry = db.laundries?.find(l => l.id === laundryId);
@@ -74,6 +68,7 @@ export function saveLaundry(db: Database, input: Partial<Laundry> & Pick<Laundry
     record.snapshot = existing.snapshot;
     Object.assign(existing, record);
   } else db.laundries!.push(record);
+  ensureLaundryWorkspaces(db);
   logPlatform(db, role, existing ? "Laundry updated" : "Laundry created", record.name, record.id);
   return record;
 }

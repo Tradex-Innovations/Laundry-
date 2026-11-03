@@ -1,6 +1,6 @@
 import type { Database } from "./types";
 import { seedDatabase } from "./seed";
-import { ensurePlatform } from "./platform";
+import { ensurePlatform, LIVE_LAUNDRY_ID } from "./platform";
 
 export const STORAGE_KEY = "laundry.prototype4.v1";
 
@@ -21,7 +21,7 @@ export const localRepository: Repository = {
     if (db.schemaVersion !== 1 || !Array.isArray(db.dispatches) || !Array.isArray(db.items) || !db.company) {
       throw new Error("This browser contains an unsupported demo data format.");
     }
-    const needsPlatform = !db.laundries?.length || !db.users?.length || db.laundries.some(l => !("legalName" in l));
+    const needsPlatform = !db.laundries?.length || !db.users?.length || db.laundries.some(l => !("legalName" in l)) || !db.laundryWorkspaces || db.laundries.some(l => l.id !== LIVE_LAUNDRY_ID && !Object.hasOwn(db.laundryWorkspaces!, l.id));
     if (needsPlatform) {
       ensurePlatform(db);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
