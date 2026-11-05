@@ -3,14 +3,15 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowDownToLine, ArrowUpFromLine, Building2, ChartNoAxesCombined, ChevronRight, ClipboardList, FileText, History, Layers3, LayoutGrid, Leaf, Menu, Monitor, Settings2, Shield, Truck, UsersRound, X } from "lucide-react";
 import type { Role } from "../lib/types";
 
-export type Page = "admin-dashboard" | "dashboard" | "receipts" | "receiving" | "create" | "drafts" | "history" | "manifests" | "customers" | "sites" | "categories" | "items" | "customer-linen" | "pool-linen" | "reports" | "settings" | "record" | "platform-home" | "platform-laundries" | "platform-laundry" | "platform-users" | "platform-audit";
-export const isAdminPage = (page: Page) => ["admin-dashboard", "customers", "sites", "categories", "items", "customer-linen", "pool-linen", "reports", "settings"].includes(page);
+export type Page = "admin-dashboard" | "dashboard" | "receipts" | "receiving" | "create" | "drafts" | "deliveries" | "drivers" | "history" | "manifests" | "customers" | "sites" | "categories" | "items" | "customer-linen" | "pool-linen" | "reports" | "settings" | "record" | "platform-home" | "platform-laundries" | "platform-laundry" | "platform-users" | "platform-audit";
+export const isAdminPage = (page: Page) => ["admin-dashboard", "customers", "sites", "categories", "items", "customer-linen", "pool-linen", "reports", "settings", "drivers"].includes(page);
 export const isPlatformPage = (page: Page) => page.startsWith("platform-");
 const operations = [
   { page: "dashboard" as Page, label: "Overview", icon: LayoutGrid },
   { page: "receiving" as Page, label: "Linen In", icon: ArrowDownToLine },
   { page: "create" as Page, label: "Linen Out", icon: ArrowUpFromLine },
-  { page: "drafts" as Page, label: "Dispatches", icon: Truck },
+  { page: "drafts" as Page, label: "Packed carts", icon: ClipboardList },
+  { page: "deliveries" as Page, label: "Assign Deliveries", icon: Truck },
   { page: "manifests" as Page, label: "Manifests", icon: FileText },
   { page: "history" as Page, label: "History", icon: History },
 ];
@@ -22,6 +23,7 @@ const administration = [
   { page: "categories" as Page, label: "Categories", icon: LayoutGrid },
   { page: "customer-linen" as Page, label: "Customer-owned linen", icon: ClipboardList },
   { page: "pool-linen" as Page, label: "Laundry pool linen", icon: Layers3 },
+  { page: "drivers" as Page, label: "Drivers", icon: Truck },
   { page: "reports" as Page, label: "Reports", icon: ChartNoAxesCombined },
   { page: "settings" as Page, label: "Settings", icon: Settings2 },
 ];
@@ -50,7 +52,7 @@ export default function Navbar({ page, role, onRoleChange, onNavigate, draftCoun
   }, [menuOpen]);
   const links = (expanded = false) => <>
     {(platformView ? <div className="rail-heading">PLATFORM</div> : admin ? <div className="rail-heading">ADMINISTRATION</div> : null)}
-    {(platformView ? platform : admin ? administration : expanded ? operations : operations.filter(link => ["dashboard", "history", "manifests"].includes(link.page))).map(link => <button key={link.page} title={link.label} onClick={() => go(link.page)} className={`rail-link ${expanded ? "expanded" : ""}`} aria-current={page === link.page || (page === "receipts" && link.page === "receiving") || (page === "record" && link.page === "history") || (page === "platform-laundry" && link.page === "platform-laundries") ? "page" : undefined}>
+    {(platformView ? platform : admin ? administration : expanded ? operations : operations.filter(link => ["dashboard", "deliveries", "history", "manifests"].includes(link.page))).map(link => <button key={link.page} title={link.label} onClick={() => go(link.page)} className={`rail-link ${expanded ? "expanded" : ""}`} aria-current={page === link.page || (page === "receipts" && link.page === "receiving") || (page === "record" && link.page === "history") || (page === "platform-laundry" && link.page === "platform-laundries") ? "page" : undefined}>
       <link.icon size={21} strokeWidth={1.7} /><span>{link.label}</span>{link.page === "drafts" && draftCount > 0 && <span className="rail-count">{draftCount}</span>}
     </button>)}
     <div className="rail-bottom">{platformView && <div className="platform-sidebar-note"><Shield size={18} /><strong>Platform administration</strong><span>Manage every laundry from one place.</span></div>}{!platformView && <button title={admin ? "Operations" : "Administration"} className={`rail-link ${expanded ? "expanded" : ""}`} onClick={() => go(admin ? "dashboard" : "admin-dashboard")}>

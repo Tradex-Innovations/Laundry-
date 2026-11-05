@@ -6,7 +6,7 @@ export default function Dashboard({ onCreate, onNavigate }: { onCreate: () => vo
   const tiles = [
     { label: "Linen In (Soil)", icon: ArrowDownToLine, color: "#8575b9", action: () => onNavigate("receiving") },
     { label: "Linen Out (Clean)", icon: Layers3, color: "#26a8df", action: onCreate },
-    { label: "Dispatches", icon: Truck, color: "#e99a50", action: () => onNavigate("drafts") },
+    { label: "Assign Deliveries", icon: Truck, color: "#e99a50", action: () => onNavigate("deliveries") },
     { label: "Shipping Manifest", icon: FileText, color: "#7e8c96", action: () => onNavigate("manifests") },
     { label: "Receiving Records", icon: ClipboardList, color: "#17b4b7", action: () => onNavigate("receipts") },
     { label: "Dispatch History", icon: History, color: "#6289c5", action: () => onNavigate("history") },

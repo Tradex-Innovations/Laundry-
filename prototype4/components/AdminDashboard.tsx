@@ -1,6 +1,7 @@
 "use client";
 import { ArrowDownToLine, ArrowRight, ArrowUpFromLine, CalendarDays, ClipboardList, FileText, History, Layers3, PackageCheck, Truck, UsersRound } from "lucide-react";
 import type { Database, Dispatch } from "../lib/types";
+import { deliveryFor, deliveryRecords } from "../lib/deliveries";
 import { fmt, operational, today, totals } from "../lib/domain";
 import { DispatchTable } from "./History";
 import type { Page } from "./Navbar";
@@ -9,12 +10,12 @@ export default function AdminDashboard({ db, onCreate, onOpen, onPreview, onNavi
   const records = operational(db).filter(d => d.shippingDate === today());
   const t = totals(records);
   const receipts = (db.receipts || []).filter(r => r.receivedDate === today());
-  const drafts = db.dispatches.filter(d => d.status === "Draft");
+  const unassigned = deliveryRecords(db).filter(d => !deliveryFor(db, d.id)).length;
   const date = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   const actions = [
-    { title: "Linen In", subtitle: "Receive soiled linen", description: "Record incoming bags, pieces and weight.", icon: ArrowDownToLine, theme: "in", tag: "RECEIVING", action: () => onNavigate("receiving"), footer: "Receive linen" },
+    { title: "Linen In", subtitle: "Receive soiled linen", description: "Record incoming items, carts and weight.", icon: ArrowDownToLine, theme: "in", tag: "RECEIVING", action: () => onNavigate("receiving"), footer: "Receive linen" },
     { title: "Linen Out", subtitle: "Prepare clean linen", description: "Select a customer, pack carts and add items.", icon: Layers3, theme: "out", tag: "CLEAN LINEN", action: onCreate, footer: "Start linen out" },
-    { title: "Dispatches", subtitle: "Get deliveries on their way", description: "Resume saved carts and confirm dispatch.", icon: Truck, theme: "dispatch", tag: `${drafts.length} DRAFT${drafts.length === 1 ? "" : "S"} WAITING`, action: () => onNavigate("drafts"), footer: "Open dispatch queue" },
+    { title: "Assign Deliveries", subtitle: "Plan the delivery run", description: "Assign ready manifests to a driver, route and date.", icon: Truck, theme: "dispatch", tag: `${unassigned} UNASSIGNED`, action: () => onNavigate("deliveries"), footer: "Open delivery assignments" },
   ];
   return <section className="dashboard admin-dashboard">
     <div className="dashboard-heading"><div><div className="eyebrow">LAUNDRY OWNER WORKSPACE</div><h1>Shipping & receiving</h1><p>From the first bag in to the last cart out.</p></div><div className="date-label"><CalendarDays size={17} /><span>{date}</span></div></div>

@@ -5,10 +5,10 @@ export const LIVE_LAUNDRY_ID = "purelinen";
 
 export function emptyLaundryWorkspace(laundry: Laundry): LaundryWorkspace {
   return {
-    nextNumber: 1,
+    nextNumber: 1, nextOutgoingCartNumber: 1,
     company: { name: laundry.name, address: laundry.address, email: laundry.email, phone: laundry.phone,
       website: laundry.website, logo: laundry.logo, defaultWeightUnit: laundry.defaultWeightUnit },
-    customers: [], sites: [], categories: [], items: [], assignments: [], dispatches: [], receipts: [], activity: [],
+    customers: [], sites: [], categories: [], items: [], assignments: [], dispatches: [], receipts: [], activity: [], drivers: [], deliveryAssignments: [],
   };
 }
 
@@ -27,8 +27,9 @@ function scopedData(db: Database, laundryId: string): LaundryWorkspace {
   const laundry = db.laundries?.find(l => l.id === laundryId);
   if (!laundry) throw new Error("Laundry not found.");
   if (laundryId === LIVE_LAUNDRY_ID) return {
-    nextNumber: db.nextNumber, company: db.company, customers: db.customers, sites: db.sites,
+    nextNumber: db.nextNumber, nextOutgoingCartNumber: db.nextOutgoingCartNumber, company: db.company, customers: db.customers, sites: db.sites,
     categories: db.categories, items: db.items, assignments: db.assignments, dispatches: db.dispatches,
+    drivers: db.drivers || [], deliveryAssignments: db.deliveryAssignments || [],
     receipts: db.receipts || [], activity: db.activity.filter(a => a.scope !== "platform" && (!a.laundryId || a.laundryId === laundryId)),
   };
   return Object.hasOwn(db.laundryWorkspaces || {}, laundryId) ? db.laundryWorkspaces![laundryId] : emptyLaundryWorkspace(laundry);
@@ -51,6 +52,9 @@ export function laundryInventory(data: Database) {
     const records = data.dispatches.filter(d => d.status === "Dispatched").map(d => ({ ...d,
       carts: d.carts.map(c => ({ ...c, lines: c.lines.filter(l => l.itemId === item.id) })),
     }));
-    return { item, assignments: data.assignments.filter(a => a.itemId === item.id), dispatched: totals(records) };
+    const incomingLines = (data.receipts || []).flatMap(r => (r.lines || []).filter(l => l.itemId === item.id).map(line => ({ line, unit: r.weightUnit || "kg" })));
+    const received = { pieces: incomingLines.reduce((sum, entry) => sum + entry.line.quantity, 0), weights: { kg: 0, lb: 0 } };
+    for (const entry of incomingLines) received.weights[entry.unit] += entry.line.weight || 0;
+    return { item, received, assignments: data.assignments.filter(a => a.itemId === item.id), dispatched: totals(records) };
   });
 }

@@ -1,5 +1,7 @@
 import type { Activity, Cart, Database, Dispatch, Filters, Line, Method, Role, Totals, Unit } from "./types";
 
+import { nextOutgoingCartNumber, numberOutgoingCarts } from "./outgoing";
+
 export const uid = () => crypto.randomUUID();
 export const clone = <T,>(value: T): T => structuredClone(value);
 export function today() {
@@ -63,46 +65,50 @@ export function log(db: Database, actor: string, action: string, detail: string,
   const entry: Activity = { id: uid(), at: new Date().toISOString(), actor, action, detail, ...(dispatchId ? { dispatchId } : {}) };
   db.activity.unshift(entry);
 }
-export function saveDispatch(db: Database, draft: Dispatch, role: Role, confirm: boolean): Dispatch {
+export function saveDispatch(db: Database, draft: Dispatch, role: Role, confirm: boolean | "manifest"): Dispatch {
+  if (role === "SystemsAdministrator") throw new Error("Use a laundry owner or operator role for floor operations.");
   const existing = db.dispatches.find(d => d.id === draft.id);
   // A repeated confirm is idempotent; a confirmed or cancelled record is never rewritten.
   if (existing && existing.status !== "Draft") {
-    if (confirm && existing.status === "Dispatched") return clone(existing);
+    if ((confirm === true && existing.status === "Dispatched") || (confirm === "manifest" && existing.status === "Ready")) return clone(existing);
     throw new Error("This record is locked. Open its saved version from history.");
   }
   if (existing && existing.version !== draft.version) throw new Error("This draft changed in another tab. Reopen it from Draft Dispatches before saving.");
-  const errors = dispatchErrors(db, draft, confirm);
+  const errors = dispatchErrors(db, draft, !!confirm);
   if (errors.length) throw new Error(errors.join("\n"));
   const now = new Date().toISOString();
   const record = clone(draft);
   record.number = existing?.number || `LM-${String(db.nextNumber++).padStart(6, "0")}`;
   record.version = (existing?.version || 0) + 1;
   record.updatedAt = now;
-  record.carts = record.carts.map(cart => ({ ...cart, lines: cart.lines.map(line => {
+  record.carts = numberOutgoingCarts(db, record.carts).map(cart => ({ ...cart, lines: cart.lines.map(line => {
     const item = db.items.find(i => i.id === line.itemId)!;
     return normalizeLine({ ...line, code: item.code, description: item.name });
   }) }));
   if (confirm) {
-    record.status = "Dispatched";
-    record.confirmedAt = now;
+    record.status = confirm === "manifest" ? "Ready" : "Dispatched";
+    if (confirm === "manifest") { record.preparedAt = now; record.confirmedAt = null; }
+    else record.confirmedAt = now;
     record.snapshot = clone({ customer: db.customers.find(c => c.id === record.customerId)!, site: db.sites.find(s => s.id === record.siteId)!, company: db.company, createdBy: record.createdBy });
   }
   const index = db.dispatches.findIndex(d => d.id === record.id);
   if (index < 0) db.dispatches.unshift(record); else db.dispatches[index] = record;
-  log(db, role, confirm ? "Dispatch confirmed" : "Draft saved", record.number, record.id);
+  db.nextOutgoingCartNumber = nextOutgoingCartNumber(db);
+  log(db, role, confirm === "manifest" ? "Manifest prepared" : confirm ? "Dispatch confirmed" : "Draft saved", record.number, record.id);
   return clone(record);
 }
 export function cancelDispatch(db: Database, id: string, reason: string, role: Role) {
   if (role !== "Admin") throw new Error("Only an Admin can cancel a confirmed dispatch.");
   if (!reason.trim()) throw new Error("A cancellation reason is required.");
   const record = db.dispatches.find(d => d.id === id);
-  if (!record || record.status !== "Dispatched") throw new Error("Only a confirmed dispatch can be cancelled.");
+  if (!record || !["Ready", "Dispatched"].includes(record.status)) throw new Error("Only a prepared manifest or confirmed dispatch can be cancelled.");
+  const wasReady = record.status === "Ready";
   record.status = "Cancelled";
   record.cancellationReason = reason.trim();
   record.cancelledAt = new Date().toISOString();
   record.updatedAt = record.cancelledAt;
   record.version += 1;
-  log(db, role, "Dispatch cancelled", `${record.number}: ${reason.trim()}`, id);
+  log(db, role, wasReady ? "Manifest cancelled" : "Dispatch cancelled", `${record.number}: ${reason.trim()}`, id);
 }
 export function totals(records: Dispatch[]): Totals {
   const result: Totals = { customerPieces: 0, poolPieces: 0, pieces: 0, weights: { kg: 0, lb: 0 },
@@ -128,7 +134,7 @@ export function totals(records: Dispatch[]): Totals {
   }
   return result;
 }
-export const operational = (db: Database, includeCancelled = false) => db.dispatches.filter(d => d.status === "Dispatched" || (includeCancelled && d.status === "Cancelled"));
+export const operational = (db: Database, includeCancelled = false) => db.dispatches.filter(d => d.status === "Dispatched" || (includeCancelled && d.status === "Cancelled" && !!d.confirmedAt));
 export const emptyFilters: Filters = { customerId: "", from: "", to: "", status: "", number: "", cartReference: "" };
 export function filterDispatches(records: Dispatch[], f: Filters) {
   return records.filter(d => (!f.customerId || d.customerId === f.customerId) && (!f.from || d.shippingDate >= f.from) &&

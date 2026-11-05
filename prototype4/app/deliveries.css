@@ -1,0 +1,60 @@
+/* Driver assignment is a separate floor operation, after manifest preparation. */
+.floor-workspace .app-content > section.delivery-screen { border: 0; border-radius: 0; padding: 0; box-shadow: none; background: transparent; }
+.delivery-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 20px; }
+.app-content .delivery-heading h1 { margin: 0; color: #46556c; font-size: 25px; letter-spacing: -.6px; }
+.app-content .delivery-heading p { margin: 6px 0 0; font-size: 13px; color: #72889b; }
+.delivery-heading > div:last-child { display: flex; gap: 9px; }
+.delivery-filters { display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: 17px; padding: 18px; background: #e2edf6; border: 1px solid #d4e2ee; border-radius: 11px; }
+.delivery-filters .field { margin: 0; }
+.app-content .delivery-filters label { color: #617c92; font-size: 11px; }
+.floor-workspace .app-content .delivery-filters select, .floor-workspace .app-content .delivery-filters input { min-height: 48px; padding: 11px; font-size: 13px; border-radius: 8px; border-color: #cbdce9; background: #fff; width: 100%; }
+.delivery-list-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin: 20px 0 15px; font-size: 12px; color: #7890a2; }
+.delivery-list-heading > div { display: flex; flex-wrap: wrap; gap: 8px; }
+.delivery-card-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 18px; }
+.delivery-card { padding: 22px; border: 1px solid #d9e5ee; border-radius: 13px; background: #fff; box-shadow: 0 6px 18px #1a45670a; min-width: 0; }
+.delivery-card.selected { border-color: #337ba0; box-shadow: 0 0 0 2px #337ba022; }
+.delivery-card-heading { display: flex; align-items: flex-start; gap: 10px; }
+.delivery-card-heading > div { flex: 1; min-width: 0; }
+.app-content .delivery-card h2 { margin: 0 0 6px; font-size: 17px; line-height: 1.4; color: #285b7b; }
+.delivery-card-heading > div > span { font-size: 11px; color: #91a0ae; }
+.delivery-assignment-badge { padding: 5px 8px; border-radius: 5px; background: #fff4e4; color: #a97026; font-size: 10px; white-space: nowrap; }
+.delivery-assignment-badge.assigned { color: #247f70; background: #e6f5ef; }
+.delivery-select { display: flex; align-items: center; min-height: 44px; min-width: 36px; cursor: pointer; }
+.delivery-select input { width: 22px; height: 22px; accent-color: #277a98; }
+.app-content .delivery-document { font-size: 11px; color: #7d91a2; margin: 17px 0; }
+.delivery-card dl { display: grid; gap: 16px; padding: 3px 0 20px; }
+.delivery-card dl > div { display: flex; align-items: start; justify-content: space-between; gap: 10px; }
+.delivery-card dt { display: flex; align-items: center; gap: 7px; font-size: 12px; color: #748a9a; white-space: nowrap; }
+.delivery-card dd { text-align: right; font-size: 13px; color: #365c75; overflow-wrap: anywhere; }
+.delivery-card dd small { font-size: 11px; color: #8d9eaa; }
+.delivery-card dd > small:only-child { display: block; }
+.delivery-card-actions { display: flex; gap: 8px; margin-top: 8px; padding-top: 18px; border-top: 1px solid #e8eef4; }
+.floor-workspace .app-content .delivery-card-actions button { min-height: 47px; padding: 10px; font-size: 12px; border-radius: 8px; }
+.delivery-card-actions > button:first-child { flex: 1; }
+.floor-workspace .app-content .delivery-heading button, .floor-workspace .app-content .delivery-list-heading button { min-height: 45px; padding: 10px 13px; font-size: 12px; border-radius: 8px; }
+.delivery-driver-notice { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; border: 1px solid #efd9b9; background: #fff7e9; padding: 14px 17px; margin-top: 16px; border-radius: 10px; color: #9f7742; font-size: 12px; }
+.delivery-driver-notice span { flex: 1; }
+.delivery-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 10px; color: #93a6b5; padding: 60px 24px; background: #ffffffa8; border: 1px dashed #d4e0ea; border-radius: 12px; margin-top: 16px; }
+.app-content .delivery-empty h2 { margin: 0; font-size: 18px; color: #647f93; }
+.app-content .delivery-empty p { margin: 0; font-size: 13px; }
+.delivery-dialog { max-width: 620px; }
+.delivery-dialog > p { white-space: pre-line; font-size: 13px; background: #f3f7fa; border-radius: 9px; padding: 14px; max-height: 150px; overflow-y: auto; }
+.delivery-dialog select, .delivery-dialog input { min-height: 49px; }
+.delivery-quick-dates { display: flex; gap: 8px; margin: -5px 0 6px; }
+.delivery-quick-dates button { min-height: 44px; font-size: 12px; }
+.delivery-quick-dates button[aria-pressed="true"] { background: #e7f3f8; color: #277394; border-color: #9abfce; }
+.delivery-dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px; }
+.delivery-details { margin: 22px 0; padding: 20px; background: #f3f8fb; border: 1px solid #dce7ef; border-radius: 11px; }
+.delivery-details h3 { display: flex; align-items: center; gap: 8px; font-size: 15px; margin-bottom: 16px; }
+.delivery-details dl { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; }
+.delivery-details dt { font-size: 11px; color: #8195a5; }
+.delivery-details dd { font-size: 13px; margin-top: 4px; overflow-wrap: anywhere; }
+.delivery-details p { font-size: 11px !important; color: #8698a6; margin-bottom: 0; }
+@media (max-width: 1200px) { .delivery-card-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width: 700px) {
+  .delivery-card-grid { grid-template-columns: minmax(0,1fr); }
+  .delivery-filters { grid-template-columns: repeat(2,minmax(0,1fr)); padding: 13px; gap: 12px; }
+  .delivery-heading > div:last-child { width: 100%; justify-content: flex-end; }
+  .delivery-card { padding: 18px; }
+  .delivery-details dl { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}

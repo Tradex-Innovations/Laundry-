@@ -76,7 +76,7 @@ export function ReadOnlyNotice({ role }: { role: Role }) {
   return role === "Operator" ? <p className="!mb-5 flex items-center gap-2 rounded-xl bg-brand-50 px-4 py-3 !text-xs !text-brand-700"><LockKeyhole size={15} />Operator access: setup is view-only. Switch to Admin to manage these records.</p> : null;
 }
 export function StatusBadge({ status }: { status: string }) {
-  return <span className={`status-badge ${status === "Dispatched" ? "bg-brand-50 text-brand-600" : status === "Draft" ? "bg-canvas text-muted" : "bg-red-50 text-red-600"}`}>{status}</span>;
+  return <span className={`status-badge ${status === "Ready" ? "bg-pool-50 text-pool-700" : status === "Dispatched" ? "bg-brand-50 text-brand-600" : status === "Draft" ? "bg-canvas text-muted" : "bg-red-50 text-red-600"}`}>{status === "Ready" ? "Ready for delivery" : status}</span>;
 }
 export function OwnershipBadge({ ownership }: { ownership: string }) {
   return <span className={`ownership-badge ${ownership === "customer" ? "bg-brand-100 text-brand-700" : "bg-pool-100 text-pool-700"}`}>{ownership === "customer" ? "Customer-owned" : "Laundry Pool"}</span>;

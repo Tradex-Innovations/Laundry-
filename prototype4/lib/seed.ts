@@ -26,7 +26,8 @@ export function seedDatabase(): Database {
       { id: "table", code: "TL-001", name: "Table linen", categoryId: "Restaurant Linen", methods: ["pieces", "bundles", "weight"], defaultMethod: "weight", bundleSize: 10, image: "", active: true },
       { id: "kitchen", code: "KT-001", name: "Kitchen cloth", categoryId: "Kitchen", methods: ["pieces", "weight"], defaultMethod: "pieces", bundleSize: null, image: "", active: true },
     ],
-    assignments: [], dispatches: [], activity: [],
+    assignments: [], dispatches: [], activity: [], deliveryAssignments: [],
+    drivers: [{ id: "driver-am", name: "Demo Driver A", phone: "", vehicle: "Van 01", active: true }, { id: "driver-pm", name: "Demo Driver B", phone: "", vehicle: "Van 02", active: true }],
   };
   for (const customer of db.customers) for (const item of db.items) db.assignments.push({ id: uid(), itemId: item.id, customerId: customer.id, ownership: "customer", active: true });
   for (const item of db.items) db.assignments.push({ id: uid(), itemId: item.id, customerId: null, ownership: "pool", active: true });

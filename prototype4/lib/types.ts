@@ -5,7 +5,7 @@ export type Ownership = "customer" | "pool";
 export type Method = "pieces" | "bundles" | "weight";
 export type WeightUnit = "kg" | "lb";
 export type Unit = "pieces" | "bundles" | WeightUnit;
-export type Status = "Draft" | "Dispatched" | "Cancelled";
+export type Status = "Draft" | "Ready" | "Dispatched" | "Cancelled";
 
 export interface Customer {
   id: string; code: string; name: string; contact: string; phone: string; email: string; active: boolean;
@@ -41,7 +41,12 @@ export interface Dispatch {
   id: string; number: string; customerId: string; siteId: string; shippingDate: string;
   route: string; notes: string; status: Status; carts: Cart[]; createdAt: string; updatedAt: string;
   createdBy: string; confirmedAt: string | null; cancelledAt: string | null; cancellationReason: string;
-  snapshot: DocumentSnapshot | null; version: number;
+  snapshot: DocumentSnapshot | null; version: number; preparedAt?: string;
+}
+export interface Driver { id: string; name: string; phone: string; vehicle: string; active: boolean }
+export interface DeliveryAssignment {
+  dispatchId: string; driverId: string; driverName: string; driverPhone: string; vehicle: string;
+  route: string; scheduledDate: string; assignedAt: string; assignedBy: string; version: number;
 }
 export interface Activity {
   id: string; at: string; actor: string; action: string; detail: string; dispatchId?: string; laundryId?: string; scope?: "platform";
@@ -57,22 +62,31 @@ export interface PlatformUser {
   id: string; name: string; email: string; phone: string; laundryId: string | null;
   role: Role; active: boolean; lastSignIn: string | null;
 }
+export interface ReceivingLine {
+  id: string; itemId: string; code: string; description: string; categoryName: string;
+  quantity: number; weight: number | null;
+}
 export interface ReceivingInput {
   id: string; customerId: string; siteId: string; receivedDate: string; containers: number;
   pieces: number; weightKg: number; reference: string; notes: string;
+  lines?: ReceivingLine[]; tare?: number | null; gross?: number | null;
+  weightUnit?: WeightUnit; netWeight?: number | null;
 }
 export interface Receipt extends ReceivingInput {
   number: string; createdAt: string; createdBy: string; customerName: string; siteName: string;
+  snapshot?: DocumentSnapshot;
 }
 export interface LaundryWorkspace {
-  nextNumber: number; company: Company; customers: Customer[]; sites: Site[]; categories: Category[];
+  nextNumber: number; nextOutgoingCartNumber?: number; company: Company; customers: Customer[]; sites: Site[]; categories: Category[];
   items: Item[]; assignments: Assignment[]; dispatches: Dispatch[]; receipts: Receipt[]; activity: Activity[];
+  drivers?: Driver[]; deliveryAssignments?: DeliveryAssignment[];
 }
 export interface Database {
-  schemaVersion: 1; nextNumber: number; customers: Customer[]; sites: Site[]; categories: Category[];
+  schemaVersion: 1; nextNumber: number; nextOutgoingCartNumber?: number; customers: Customer[]; sites: Site[]; categories: Category[];
   items: Item[]; assignments: Assignment[]; dispatches: Dispatch[]; company: Company; activity: Activity[];
   receipts?: Receipt[]; laundries?: Laundry[]; users?: PlatformUser[];
   laundryWorkspaces?: Record<string, LaundryWorkspace>;
+  drivers?: Driver[]; deliveryAssignments?: DeliveryAssignment[];
 }
 export interface Totals {
   customerPieces: number; poolPieces: number; pieces: number;

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, CircleAlert, Leaf, X } from "lucide-react";
-import type { Database, Dispatch, Role } from "../lib/types";
+import type { Database, Dispatch, Receipt, Role } from "../lib/types";
 import { cancelDispatch, clone, newDispatch, saveDispatch } from "../lib/domain";
 import { localRepository, STORAGE_KEY } from "../lib/repository";
 import Customers from "./Customers";
@@ -16,9 +16,12 @@ import Navbar, { isAdminPage, isPlatformPage, Page } from "./Navbar";
 import Dashboard from "./Dashboard";
 import AdminDashboard from "./AdminDashboard";
 import Receiving from "./Receiving";
+import ReceivingPrintPreview from "./ReceivingDocument";
 import Platform from "./Platform";
+import Drivers from "./Drivers";
+import DeliveryAssignments from "./DeliveryAssignments";
 
-const pageLabels: Record<Page, string> = { "admin-dashboard": "Overview", dashboard: "Overview", receiving: "Linen In", receipts: "Receiving records", manifests: "Shipping manifests", create: "Linen Out", drafts: "Dispatch queue", history: "Dispatch History", customers: "Customers", sites: "Delivery Sites", categories: "Categories", items: "Item Catalogue", "customer-linen": "Customer-owned Linen", "pool-linen": "Laundry Pool Linen", reports: "Reports", settings: "Settings", record: "Dispatch Details", "platform-home": "Overview", "platform-laundries": "Laundries", "platform-laundry": "Laundry details", "platform-users": "Users", "platform-audit": "Audit log" };
+const pageLabels: Record<Page, string> = { "admin-dashboard": "Overview", dashboard: "Overview", receiving: "Linen In", receipts: "Receiving records", manifests: "Shipping manifests", create: "Linen Out", drafts: "Packed carts", deliveries: "Assign Deliveries", drivers: "Drivers", history: "Dispatch History", customers: "Customers", sites: "Delivery Sites", categories: "Categories", items: "Item Catalogue", "customer-linen": "Customer-owned Linen", "pool-linen": "Laundry Pool Linen", reports: "Reports", settings: "Settings", record: "Dispatch Details", "platform-home": "Overview", "platform-laundries": "Laundries", "platform-laundry": "Laundry details", "platform-users": "Users", "platform-audit": "Audit log" };
 const homeFor = (role: Role): Page => role === "SystemsAdministrator" ? "platform-home" : role === "Admin" ? "admin-dashboard" : "dashboard";
 
 export default function LaundryApp() {
@@ -28,7 +31,9 @@ export default function LaundryApp() {
   const [draft, setDraft] = useState<Dispatch | null>(null);
   const [dirty, setDirty] = useState(false);
   const [recordId, setRecordId] = useState("");
+  const [deliveryFocus, setDeliveryFocus] = useState("");
   const [laundryId, setLaundryId] = useState("");
+  const [receiptPreview, setReceiptPreview] = useState<Receipt | null>(null);
   const [preview, setPreview] = useState<Dispatch | null>(null);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
@@ -60,6 +65,7 @@ export default function LaundryApp() {
     setDirty(false); setError(""); setNotice("");
     if (role === "SystemsAdministrator" && !isPlatformPage(next)) return;
     if (role !== "SystemsAdministrator" && isPlatformPage(next)) return;
+    if (next === "deliveries") setDeliveryFocus("");
     if (next === "create") setDraft(newDispatch(database, `Demo ${role}`));
     setPage(next);
   }
@@ -84,14 +90,15 @@ export default function LaundryApp() {
   }
   function persist(d: Dispatch, confirm: boolean) {
     let result: Dispatch | undefined;
-    const ok = mutate(state => { result = saveDispatch(state, d, role, confirm); }, confirm ? "Dispatch confirmed. Linen Out is recorded and the document is locked." : "Draft saved. You can reopen it from Draft Dispatches.");
+    const ok = mutate(state => { result = saveDispatch(state, d, role, confirm ? "manifest" : false); }, confirm ? "Manifest ready for delivery. Assign a driver from Assign Deliveries." : "Packed carts saved. Reopen them from Packed carts to prepare the manifest.");
     if (ok && result) { setDraft(result); setDirty(false); return result; }
     return undefined;
   }
   const openPreview = (record: Dispatch) => setPreview(clone(record));
+  function assignRecord(record: Dispatch) { if (!canLeave()) return; setDirty(false); setDeliveryFocus(record.id); setPage("deliveries"); setNotice(""); }
   const record = db.dispatches.find(d => d.id === recordId);
   return <>
-    <div hidden={!!preview} className={isPlatformPage(page) ? "admin-workspace platform-workspace" : isAdminPage(page) ? "admin-workspace" : "floor-workspace"}>
+    <div hidden={!!preview || !!receiptPreview} className={isPlatformPage(page) ? "admin-workspace platform-workspace" : isAdminPage(page) ? "admin-workspace" : "floor-workspace"}>
       <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:p-3">Skip to content</a>
       <Navbar page={page} role={role} draftCount={db.dispatches.filter(d => d.status === "Draft").length} pageLabel={pageLabels[page]} dirty={dirty} onRoleChange={changeRole} onNavigate={navigate} />
       <div className="app-shell">
@@ -101,18 +108,21 @@ export default function LaundryApp() {
         {isPlatformPage(page) && <Platform key={page} db={db} page={page} laundryId={laundryId} mutate={mutate} onNavigate={navigate} onOpenLaundry={id => { setLaundryId(id); setPage("platform-laundry"); }} />}
         {page === "admin-dashboard" && <AdminDashboard db={db} onCreate={createDispatch} onOpen={openRecord} onPreview={openPreview} onNavigate={navigate} />}
         {page === "dashboard" && <Dashboard onCreate={createDispatch} onNavigate={navigate} />}
-        {(page === "receiving" || page === "receipts") && <Receiving key={page} initialView={page === "receipts" ? "records" : "new"} db={db} role={role} mutate={mutate} onDirtyChange={setDirty} />}
-        {page === "create" && draft && <DispatchEditor key={draft.id} db={db} draft={draft} onChange={d => { setDraft(d); setDirty(true); }} onSave={persist} onOpen={d => openRecord(d, false)} onPreview={openPreview} />}
-        {(page === "drafts" || page === "history" || page === "manifests") && <History key={page} db={db} draftsOnly={page === "drafts"} manifestsOnly={page === "manifests"} onOpen={openRecord} onPreview={openPreview} />}
+        {(page === "receiving" || page === "receipts") && <Receiving key={page} initialView={page === "receipts" ? "records" : "new"} db={db} role={role} mutate={mutate} onDirtyChange={setDirty} onPrint={setReceiptPreview} onBack={() => navigate(homeFor(role))} />}
+        {page === "create" && draft && <DispatchEditor key={draft.id} db={db} draft={draft} onChange={d => { setDraft(d); setDirty(true); }} onBack={() => navigate(homeFor(role))} onSave={persist} onOpen={d => openRecord(d, false)} onPreview={openPreview} />}
+        {(page === "drafts" || page === "history" || page === "manifests") && <History key={page} db={db} draftsOnly={page === "drafts"} manifestsOnly={page === "manifests"} onPackedCarts={() => navigate("drafts")} onAssignments={() => navigate("deliveries")} onOpen={openRecord} onPreview={openPreview} />}
         {(page === "customers" || page === "sites") && <Customers key={page} db={db} role={role} mutate={mutate} sitesOnly={page === "sites"} />}
         {(["categories", "items", "customer-linen", "pool-linen"] as Page[]).includes(page) && <LinenSetup key={page} db={db} role={role} mutate={mutate} view={page as "categories" | "items" | "customer-linen" | "pool-linen"} />}
+        {page === "drivers" && <Drivers db={db} role={role} mutate={mutate} />}
+        {page === "deliveries" && <DeliveryAssignments key={deliveryFocus || "all"} initialDispatchId={deliveryFocus} db={db} role={role} mutate={mutate} onOpen={openRecord} onPreview={openPreview} onManageDrivers={() => navigate("drivers")} />}
         {page === "reports" && <Reports db={db} />}
         {page === "settings" && <Settings db={db} role={role} mutate={mutate} />}
-        {page === "record" && (record ? <RecordView key={record.id} db={db} record={record} role={role} onPreview={openPreview} onCancel={(id, reason) => mutate(state => cancelDispatch(state, id, reason, role), "Dispatch cancelled. Operational dashboard and report totals have been updated.")} /> : <p>Dispatch not found. Open a record from Dispatch History.</p>)}
+        {page === "record" && (record ? <RecordView key={record.id} db={db} record={record} role={role} onPreview={openPreview} onAssign={assignRecord} onCancel={(id, reason) => mutate(state => cancelDispatch(state, id, reason, role), "Record cancelled. It is no longer available for delivery assignment.")} /> : <p>Dispatch not found. Open a record from Dispatch History.</p>)}
       </main>
       {(isAdminPage(page) || isPlatformPage(page)) && <footer className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5 text-[10px] text-muted"><span>Pure Linen · {isPlatformPage(page) ? "Platform control" : "Laundry Management"}</span><span className="flex items-center gap-1.5"><span className="size-1.5 rounded-full bg-brand-500" />Saved on this device · Demo workspace</span></footer>}
       </div>
     </div>
+    {receiptPreview && <ReceivingPrintPreview db={db} record={receiptPreview} onClose={() => setReceiptPreview(null)} />}
     {preview && <Manifest db={db} record={preview} onClose={() => setPreview(null)} />}
   </>;
 }

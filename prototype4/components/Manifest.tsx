@@ -36,7 +36,7 @@ export function ManifestDocument({ db, record }: { db: Database; record: Dispatc
         {company.logo ? <img src={company.logo} alt={`${company.name} logo`} width={100} /> : <p>[Company Logo]</p>}
         <h2>{company.name}</h2><p>{company.address}<br />Phone: {company.phone} · Email: {company.email}<br />{company.website}</p>
         <h1>Shipping Manifest</h1>
-        <p><strong>Document number: {number}</strong><br />Shipping date: {record.shippingDate}<br />Status: {record.status}{record.status === "Draft" ? " · PREVIEW — NOT DISPATCHED" : ""}</p>
+        <p><strong>Document number: {number}</strong><br />Shipping date: {record.shippingDate}<br />Status: {record.status === "Ready" ? "Ready for delivery" : record.status}{record.status === "Draft" ? " · PREVIEW — NOT DISPATCHED" : ""}</p>
         <Barcode number={number} />
         {record.status === "Cancelled" && <p><strong>CANCELLED</strong> · {record.cancellationReason}<br />Cancelled: {record.cancelledAt ? new Date(record.cancelledAt).toLocaleString() : ""}</p>}
       </header>
@@ -67,6 +67,6 @@ export function ManifestDocument({ db, record }: { db: Database; record: Dispatc
       </section>
       {record.notes && <p><strong>Dispatch notes:</strong> {record.notes}</p>}
       <div className="signatures"><div><strong>Driver signature</strong><p>____________________________</p><p>Name: ______________________</p></div><div><strong>Receiver signature</strong><p>____________________________</p><p>Name: ______________________</p><p>Received date: _______________</p></div></div>
-      <footer><p>Created by: {snapshot?.createdBy || record.createdBy}<br />Created: {new Date(record.createdAt).toLocaleString()}{record.confirmedAt ? ` · Confirmed: ${new Date(record.confirmedAt).toLocaleString()}` : ""}</p><p>Thank you for choosing {company.name}.</p></footer>
+      <footer><p>Created by: {snapshot?.createdBy || record.createdBy}<br />Created: {new Date(record.createdAt).toLocaleString()}{record.preparedAt ? ` · Prepared: ${new Date(record.preparedAt).toLocaleString()}` : ""}{record.confirmedAt ? ` · Confirmed: ${new Date(record.confirmedAt).toLocaleString()}` : ""}</p><p>Thank you for choosing {company.name}.</p></footer>
     </article>;
 }
