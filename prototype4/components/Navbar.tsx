@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState, type ComponentType } from "react";
 import { Building2, ChartNoAxesCombined, ChevronRight, ClipboardList, LayoutGrid, Leaf, Menu, Monitor, Settings2, Shield, Truck, UsersRound, X } from "lucide-react";
 import type { Role } from "../lib/types";
+import { APP_NAME, APP_WORDMARK } from "../lib/branding";
 import ThemeToggle from "./ThemeToggle";
 import { DeliveryTruckIcon, DispatchHistoryIcon, LinenInIcon, LinenOutIcon, LinenStackIcon, ManifestIcon, PackedCartIcon, ReceivingRecordsIcon, type LinenIconProps } from "./LinenIcons";
 
@@ -77,7 +78,7 @@ export default function Navbar({ page, role, onRoleChange, onNavigate, draftCoun
   return <>
     <header className="workspace-header">
       <button ref={menuButton} className="mobile-menu btn-quiet" aria-label="Open navigation" aria-expanded={menuOpen} aria-controls="workspace-drawer" onClick={() => setMenuOpen(true)}><Menu size={23} /></button>
-      <button className="brand-lockup" onClick={() => go(platformView || role === "SystemsAdministrator" ? "platform-home" : admin || role === "Admin" ? "admin-dashboard" : "dashboard")} aria-label="Pure Linen home"><span className="brand-mark"><Leaf size={25} strokeWidth={1.7} /></span><span>purelinen<span className="brand-dot">.</span><small>{platformView ? "PLATFORM CONTROL" : "LAUNDRY MANAGEMENT"}</small></span></button>
+      <button className="brand-lockup" onClick={() => go(platformView || role === "SystemsAdministrator" ? "platform-home" : admin || role === "Admin" ? "admin-dashboard" : "dashboard")} aria-label={`${APP_NAME} home`}><span className="brand-mark"><Leaf size={25} strokeWidth={1.7} /></span><span>{APP_WORDMARK}<span className="brand-dot">.</span><small>{platformView ? "PLATFORM CONTROL" : "LAUNDRY MANAGEMENT"}</small></span></button>
       {platformView && <span className="platform-header-label"><Shield size={16} />Administration console</span>}
       {!admin && !platformView && <span className="operator-page-title">{page === "dashboard" ? "Operations" : pageLabel}</span>}
       {!admin && !platformView && dirty && <span className="operator-unsaved">Unsaved changes</span>}

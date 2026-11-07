@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { APP_NAME } from "../lib/branding";
 import { themeInitScript } from "../lib/theme";
 import "./globals.css";
 import "./platform.css";
@@ -14,7 +15,7 @@ import "./dark-platform.css";
 import "./print.css";
 
 export const metadata: Metadata = {
-  title: "Pure Linen · Laundry Management",
+  title: `${APP_NAME} · Laundry Management`,
   description: "Touch-friendly laundry receiving and dispatch prototype",
 };
 

@@ -66,12 +66,17 @@
   }
   .keypad-grid { @apply grid grid-cols-3; }
   .keypad-key {
-    @apply !min-h-[78px] !rounded-none !border-0 !border-b !border-r !border-line !bg-white !text-3xl !font-medium hover:!bg-brand-50;
+    @apply !min-h-[78px] !rounded-none !border-0 !border-b !border-r !border-line !text-3xl !font-medium;
+    background-color: var(--surface-solid, #fff) !important;
+    color: var(--color-ink) !important;
   }
+  .keypad-key:hover { background-color: var(--surface-subtle, var(--color-brand-50)) !important; }
+  .keypad-key:active { background-color: var(--color-brand-500) !important; color: #fff !important; }
   .keypad-key.is-pressed { @apply !border-brand-500 !bg-brand-500 !text-white hover:!bg-brand-500; }
   .keypad-enter { @apply !min-h-[72px] !w-full !rounded-none !text-2xl; }
   .keypad-field {
-    @apply !min-h-12 !w-full !justify-start !rounded-xl !border !border-line !bg-white !px-3.5 !py-3 !text-left !text-base !font-normal !text-ink hover:!border-brand-500 hover:!bg-white;
+    @apply !min-h-12 !w-full !justify-start !rounded-xl !border !border-line !px-3.5 !py-3 !text-left !text-base !font-normal !text-ink hover:!border-brand-500;
+    background-color: var(--surface-solid, #fff) !important;
   }
   :is(.app-content, dialog) h1 { @apply mb-5 text-2xl font-semibold tracking-tight text-ink md:text-[28px]; }
   :is(.app-content, dialog) h2 { @apply mb-4 mt-7 text-lg font-semibold tracking-tight text-ink; }

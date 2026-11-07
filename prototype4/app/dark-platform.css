@@ -8,7 +8,7 @@
   :root[data-theme="dark"] .platform-workspace :is(.platform-sidebar-note > svg, .platform-access-panel, .platform-text-button, .platform-back) { color: var(--color-brand-700); }
   :root[data-theme="dark"] .platform-workspace .platform-text-button:hover { color: #c6f4e8; }
   :root[data-theme="dark"] .platform-workspace .platform-primary { color: #fff; }
-  :root[data-theme="dark"] .platform-workspace .platform-primary:hover { background-color: #32968b; border-color: #32968b; }
+  :root[data-theme="dark"] .platform-workspace .platform-primary:hover { background-color: #216f69; border-color: #216f69; }
 
   :root[data-theme="dark"] .platform-workspace .platform-table-scroll,
   :root[data-theme="dark"] .platform-workspace .laundry-browser-content .table-scroll { background-color: var(--surface-solid); border-color: var(--color-line); }

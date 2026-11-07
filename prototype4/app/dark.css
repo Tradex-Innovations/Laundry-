@@ -2,6 +2,7 @@
 .theme-toggle { min-height: 44px; width: 44px; flex-shrink: 0; padding: 0; border: 1px solid var(--surface-edge); border-radius: 14px; background: var(--control-glass); color: var(--color-ink); box-shadow: inset 0 1px 0 #ffffff80; }
 .theme-toggle:hover { background: var(--surface-hover); border-color: var(--color-line); }
 @media (max-width: 1100px) { .header-right { gap: 12px; } }
+@media (min-width: 768px) and (max-width: 900px) { .brand-lockup > span:last-child { display: none; } }
 @media (max-width: 767px) { .header-right { gap: 8px; } }
 @media (max-width: 480px) { .brand-lockup > span:last-child { display: none; } }
 
@@ -26,6 +27,11 @@
     --color-weight-50: #40321e;
     --color-weight-100: #594327;
     --color-weight-700: #f1c688;
+    --color-red-50: #492730;
+    --color-red-100: #5a303b;
+    --color-red-200: #80454e;
+    --color-red-600: #ffb4be;
+    --color-red-700: #ffb4be;
     --workspace-glass: #162731;
     --workspace-edge: #405965;
     --workspace-shadow: 0 12px 36px #0003, inset 0 1px 0 #ffffff12;
@@ -61,7 +67,7 @@
   :root[data-theme="dark"] .theme-toggle { box-shadow: inset 0 1px 0 #ffffff12; }
   :root[data-theme="dark"] select:not([multiple]) { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a6b9c2' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important; }
   :root[data-theme="dark"] :is(button, input, select, textarea):focus-visible { outline-color: #9ce1d4; }
-  :root[data-theme="dark"] :is(.app-content, dialog) :is(button, input:not([type="checkbox"]):not([type="file"]), select, textarea) { color: var(--color-ink); border-color: var(--color-line); background-color: var(--surface-solid); }
+  :root[data-theme="dark"] :is(.app-content, dialog) :where(button, input:not([type="checkbox"]):not([type="file"]), select, textarea) { color: var(--color-ink); border-color: var(--color-line); background-color: var(--surface-solid); }
   :root[data-theme="dark"] :is(.app-content, dialog) button:hover { background-color: var(--surface-subtle); }
   :root[data-theme="dark"] :is(.app-content, dialog) :is(.btn-primary, button[type="submit"]) { color: #fff; background-color: var(--dark-primary); border-color: var(--dark-primary); }
   :root[data-theme="dark"] :is(.app-content, dialog) :is(.btn-primary, button[type="submit"]):hover { background-color: #216f69; border-color: #216f69; }
@@ -114,6 +120,7 @@
   /* Paper documents keep the same colors when previewed inside a dark workspace. */
   :root[data-theme="dark"] .manifest {
     color-scheme: light;
+    --surface-solid: #fff; --surface-subtle: #f3f6f5;
     --color-ink: #233d40; --color-muted: #536b70; --color-line: #dce6e3; --color-canvas: #f3f6f5;
     --color-brand-50: #edf7f5; --color-brand-100: #cde8e2; --color-brand-500: #167d7a; --color-brand-600: #116c69; --color-brand-700: #185655;
     --color-pool-50: #e6f6f1; --color-pool-100: #cceee4; --color-pool-600: #0f8a73; --color-pool-700: #0b6e5c;
@@ -132,4 +139,6 @@
 }
 @media (forced-colors: active) {
   .theme-toggle { color: ButtonText; background: ButtonFace; border-color: ButtonText; box-shadow: none; }
+  :root[data-theme="dark"] { --color-ink: CanvasText; --color-muted: CanvasText; --color-line: CanvasText; --color-canvas: Canvas; --surface-solid: Canvas; --surface-subtle: Canvas; --workspace-glass: Canvas; --surface-glass: Canvas; --control-glass: Canvas; --workspace-edge: CanvasText; --surface-edge: CanvasText; --surface-hover: Canvas; }
+  :root[data-theme="dark"] :is(.admin-workspace, .floor-workspace, .platform-workspace) { background: Canvas; }
 }

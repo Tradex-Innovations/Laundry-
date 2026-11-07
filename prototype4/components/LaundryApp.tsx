@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, CircleAlert, Leaf, X } from "lucide-react";
 import type { Database, Dispatch, Receipt, Role } from "../lib/types";
+import { APP_NAME } from "../lib/branding";
 import { cancelDispatch, clone, newDispatch, saveDispatch } from "../lib/domain";
 import { localRepository, STORAGE_KEY } from "../lib/repository";
 import Customers from "./Customers";
@@ -56,7 +57,7 @@ export default function LaundryApp() {
     try { const result = localRepository.update(operation); setDb(result.db); setError(""); setNotice(message); return true; }
     catch (e) { const message = e instanceof Error ? e.message : String(e); setError(message); window.alert(message); return false; }
   };
-  if (!db) return <main className="mx-auto max-w-xl px-6 py-24"><Leaf className="mb-5 text-brand-500" size={32} /><h1 className="mb-4 text-2xl font-semibold">Pure Linen</h1>{error ? <p role="alert" className="rounded-xl bg-red-50 p-5 text-red-700">{error}</p> : <p className="text-muted">Getting your workspace ready…</p>}</main>;
+  if (!db) return <main className="mx-auto max-w-xl px-6 py-24"><Leaf className="mb-5 text-brand-500" size={32} /><h1 className="mb-4 text-2xl font-semibold">{APP_NAME}</h1>{error ? <p role="alert" className="rounded-xl bg-red-50 p-5 text-red-700">{error}</p> : <p className="text-muted">Getting your workspace ready…</p>}</main>;
   const database = db;
   function canLeave() { return !dirty || window.confirm("This draft has unsaved changes. Leave without saving those changes?"); }
   function navigate(next: Page) {
@@ -119,7 +120,7 @@ export default function LaundryApp() {
         {page === "settings" && <Settings db={db} role={role} mutate={mutate} />}
         {page === "record" && (record ? <RecordView key={record.id} db={db} record={record} role={role} onPreview={openPreview} onAssign={assignRecord} onCancel={(id, reason) => mutate(state => cancelDispatch(state, id, reason, role), "Record cancelled. It is no longer available for delivery assignment.")} /> : <p>Dispatch not found. Open a record from Dispatch History.</p>)}
       </main>
-      {(isAdminPage(page) || isPlatformPage(page)) && <footer className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5 text-[10px] text-muted"><span>Pure Linen · {isPlatformPage(page) ? "Platform control" : "Laundry Management"}</span><span className="flex items-center gap-1.5"><span className="size-1.5 rounded-full bg-brand-500" />Saved on this device · Demo workspace</span></footer>}
+      {(isAdminPage(page) || isPlatformPage(page)) && <footer className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5 text-[10px] text-muted"><span>{APP_NAME} · {isPlatformPage(page) ? "Platform control" : "Laundry Management"}</span><span className="flex items-center gap-1.5"><span className="size-1.5 rounded-full bg-brand-500" />Saved on this device · Demo workspace</span></footer>}
       </div>
     </div>
     {receiptPreview && <ReceivingPrintPreview db={db} record={receiptPreview} onClose={() => setReceiptPreview(null)} />}

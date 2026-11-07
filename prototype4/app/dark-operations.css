@@ -20,7 +20,7 @@
   :root[data-theme="dark"] .floor-workspace .app-content .incoming-choice { background-color: var(--surface-solid); border-color: var(--color-line); box-shadow: 0 2px 8px #0002; }
   :root[data-theme="dark"] .incoming-choice-label { background-color: var(--surface-solid); color: var(--color-ink); }
   :root[data-theme="dark"] .incoming-choice-image { background-color: var(--surface-subtle); color: var(--color-brand-700); }
-  :root[data-theme="dark"] .incoming-choice-image > span { background-color: var(--color-brand-50); color: var(--color-brand-700); }
+  :root[data-theme="dark"] .incoming-choice-image > span:not(.category-glyph) { background-color: var(--color-brand-50); color: var(--color-brand-700); }
   :root[data-theme="dark"] .floor-workspace .app-content .incoming-choice:hover { border-color: #74b7aa; box-shadow: 0 4px 12px #0003; }
   :root[data-theme="dark"] .incoming-choice:hover .incoming-choice-label { background-color: var(--surface-subtle); }
   :root[data-theme="dark"] .incoming-choice.is-added { outline-color: #77c9b8; }
