@@ -1,0 +1,68 @@
+/* Platform overrides stay on screen; saved manifests and receipt documents keep their paper styling. */
+@media screen {
+  :root[data-theme="dark"] .platform-workspace { --platform-accent: var(--dark-primary); }
+
+  :root[data-theme="dark"] .platform-workspace :is(.platform-header-label, .platform-sidebar-note, .platform-panel-footer, .platform-activity-list > div, .platform-status-tabs, .platform-workspace-stats > div, .laundry-browser-heading, .laundry-browser-nav, .platform-form-section + .platform-form-section, .platform-dialog-actions) { border-color: var(--color-line); }
+  :root[data-theme="dark"] .platform-workspace :is(.platform-date, .platform-business-cell small, .platform-person-cell small, .platform-plan, .platform-team-count, .platform-team-count small, .platform-record-count, .platform-record-count small, .platform-panel-footer, .platform-activity-list p, .platform-activity-list time, .platform-empty p, .platform-plan-distribution > div > div:first-child, .platform-inline-stats > span, .platform-role, .platform-time, .platform-time small, .platform-audit-cell small, .platform-workspace-identity p, .platform-workspace-stats dt, .laundry-section-title small, .read-table-count, .laundry-detail-fields dt, .platform-dialog .field label, .platform-checkbox small) { color: var(--color-muted); }
+  :root[data-theme="dark"] .platform-workspace :is(.platform-sidebar-note strong, .platform-plan-distribution strong, .platform-access-panel h2, .platform-inline-stats strong, .laundry-detail-fields dd, .platform-form-section h3, .platform-checkbox strong) { color: var(--color-ink); }
+  :root[data-theme="dark"] .platform-workspace :is(.platform-sidebar-note > svg, .platform-access-panel, .platform-text-button, .platform-back) { color: var(--color-brand-700); }
+  :root[data-theme="dark"] .platform-workspace .platform-text-button:hover { color: #c6f4e8; }
+  :root[data-theme="dark"] .platform-workspace .platform-primary { color: #fff; }
+  :root[data-theme="dark"] .platform-workspace .platform-primary:hover { background-color: #32968b; border-color: #32968b; }
+
+  :root[data-theme="dark"] .platform-workspace .platform-table-scroll,
+  :root[data-theme="dark"] .platform-workspace .laundry-browser-content .table-scroll { background-color: var(--surface-solid); border-color: var(--color-line); }
+  :root[data-theme="dark"] .platform-workspace .platform-table-scroll th,
+  :root[data-theme="dark"] .platform-workspace .laundry-browser-content .table-scroll th { background-color: var(--surface-subtle); border-color: var(--color-line); color: var(--color-muted); }
+  :root[data-theme="dark"] .platform-workspace .platform-table-scroll td,
+  :root[data-theme="dark"] .platform-workspace .laundry-browser-content .table-scroll td { border-color: var(--color-line); color: var(--color-ink); }
+  :root[data-theme="dark"] .platform-workspace .platform-table-scroll tbody tr:hover { background-color: var(--surface-subtle); }
+
+  :root[data-theme="dark"] .platform-workspace :is(.platform-search input, .platform-filter-controls select, .laundry-browser-content > label input, .platform-dialog input:not([type="checkbox"]), .platform-dialog select, .platform-dialog textarea) { background-color: var(--surface-solid); border-color: var(--color-line); color: var(--color-ink); }
+  :root[data-theme="dark"] .platform-workspace :is(.platform-search input, .laundry-browser-content > label input)::placeholder { color: var(--color-muted); }
+  :root[data-theme="dark"] .platform-workspace .platform-search > svg { color: var(--color-muted); }
+  :root[data-theme="dark"] .platform-workspace :is(.platform-open, .platform-row-actions > button, .platform-workspace-actions button, .platform-action-menu summary) { background-color: var(--control-glass); border-color: var(--color-line); color: var(--color-ink); }
+  :root[data-theme="dark"] .platform-workspace :is(.platform-open, .platform-row-actions > button, .platform-workspace-actions button):hover { background-color: var(--surface-hover); border-color: #527571; }
+  :root[data-theme="dark"] .platform-workspace .platform-icon-button { color: var(--color-muted); }
+  :root[data-theme="dark"] .platform-workspace .platform-access-panel button { color: var(--color-brand-700); }
+  :root[data-theme="dark"] .platform-workspace .platform-attention-list > button { border-color: var(--color-line); }
+  :root[data-theme="dark"] .platform-workspace .platform-attention-list > button > svg { color: var(--color-muted); }
+
+  :root[data-theme="dark"] .platform-workspace :is(.platform-event-icon, .platform-empty > span, .platform-person-avatar) { border-color: var(--color-line); background-color: var(--surface-subtle); color: #b4c7d3; }
+  :root[data-theme="dark"] .platform-workspace .platform-laundry-mark { background-color: #203b4b; color: #abd4e5; }
+  :root[data-theme="dark"] .platform-workspace .platform-metric-icon.blue { background-color: #20364d; color: #a8c8ed; }
+  :root[data-theme="dark"] .platform-workspace .platform-metric-icon.teal { background-color: #1c3e36; color: #9de1c7; }
+  :root[data-theme="dark"] .platform-workspace :is(.platform-metric-icon.violet, .platform-person-avatar.system) { background-color: #342a49; color: #c9b6ef; }
+  :root[data-theme="dark"] .platform-workspace :is(.platform-metric-icon.amber, .attention-amber, .platform-small-count) { background-color: #49391f; color: #ecc88b; }
+  :root[data-theme="dark"] .platform-workspace .attention-red { background-color: #492b33; color: #efacb6; }
+  :root[data-theme="dark"] .platform-workspace :is(.platform-plan.plan-premium, .platform-role.role-SystemsAdministrator) { color: #c9b6ef; }
+  :root[data-theme="dark"] .platform-workspace .platform-plan.plan-trial { color: #ecc88b; }
+  :root[data-theme="dark"] .platform-workspace .platform-status { background-color: var(--surface-subtle); color: #b9cad5; }
+  :root[data-theme="dark"] .platform-workspace .platform-status.status-active { background-color: #1c3e36; color: #9de1c7; }
+  :root[data-theme="dark"] .platform-workspace .platform-status.status-trial { background-color: #49391f; color: #ecc88b; }
+  :root[data-theme="dark"] .platform-workspace .platform-status.status-suspended { background-color: #492b33; color: #efacb6; }
+  :root[data-theme="dark"] .platform-workspace .platform-all-clear { color: #9de1c7; }
+  :root[data-theme="dark"] .platform-workspace .platform-business-cell small i { background-color: #8fa9b7; }
+  :root[data-theme="dark"] .platform-workspace .platform-progress { background-color: var(--surface-subtle); }
+
+  :root[data-theme="dark"] .platform-workspace .platform-status-tabs button { color: var(--color-muted); }
+  :root[data-theme="dark"] .platform-workspace .platform-status-tabs button[aria-pressed="true"] { color: var(--color-brand-700); }
+  :root[data-theme="dark"] .platform-workspace .platform-status-tabs button[aria-pressed="true"]::after { background-color: #6dc6b8; }
+  :root[data-theme="dark"] .platform-workspace .platform-status-tabs button > span { background-color: var(--surface-subtle); }
+  :root[data-theme="dark"] .platform-workspace .platform-status-tabs button[aria-pressed="true"] > span { background-color: var(--color-brand-50); color: var(--color-brand-700); }
+
+  :root[data-theme="dark"] .platform-workspace .platform-action-menu > div { border-color: var(--color-line); background-color: var(--surface-solid); box-shadow: 0 12px 30px #0006; }
+  :root[data-theme="dark"] .platform-workspace .platform-action-menu > div > button { background-color: transparent; color: var(--color-ink); }
+  :root[data-theme="dark"] .platform-workspace .platform-action-menu > div > button:hover { background-color: var(--surface-subtle); }
+  :root[data-theme="dark"] .platform-workspace .platform-action-menu > div > button.text-red-700 { color: #f4a8b1; }
+  :root[data-theme="dark"] .platform-workspace .laundry-browser-heading > span { background-color: var(--color-brand-50); color: var(--color-brand-700); }
+  :root[data-theme="dark"] .platform-workspace .laundry-browser-nav > button { color: var(--color-muted); }
+  :root[data-theme="dark"] .platform-workspace .laundry-browser-nav > button:hover { background-color: var(--surface-hover); }
+  /* The selected inspection tab already uses explicit important colors in the light theme. */
+  :root[data-theme="dark"] .platform-workspace .laundry-browser-nav > button[aria-pressed="true"] { background-color: var(--color-brand-50) !important; color: var(--color-brand-700) !important; }
+  :root[data-theme="dark"] .platform-workspace .laundry-browser-nav > button > span:last-of-type:not(:first-of-type) { color: var(--color-muted); }
+  :root[data-theme="dark"] .platform-workspace .platform-dialog { border-color: var(--color-line); }
+  :root[data-theme="dark"] .platform-workspace .platform-dialog-actions > button[type="submit"] { background-color: var(--dark-primary); border-color: var(--dark-primary); color: #fff; }
+  :root[data-theme="dark"] .platform-workspace .platform-checkbox { border-color: var(--color-line); background-color: var(--surface-subtle); }
+  :root[data-theme="dark"] .platform-workspace .app-shell > footer { border-color: var(--color-line); color: var(--color-muted); }
+}

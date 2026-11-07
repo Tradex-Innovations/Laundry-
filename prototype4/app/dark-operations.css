@@ -1,0 +1,83 @@
+/* Operational controls and records stay opaque and readable over the dark glass shell. */
+@media screen {
+  :root[data-theme="dark"] .app-content :is(.incoming-topbar h1, .incoming-panel-title h2, .delivery-heading h1, .receiving-record-totals dd, .delivery-card dd) { color: var(--color-ink); }
+  :root[data-theme="dark"] :is(.incoming-unit, .incoming-bottom-bar .field label, .incoming-extra summary, .incoming-catalogue-toolbar > label > svg, .incoming-empty, .delivery-empty) { color: var(--color-muted); }
+  :root[data-theme="dark"] :is(.incoming-cart-count strong, .outgoing-owner, .delivery-card h2, .delivery-empty h2) { color: var(--color-brand-700); }
+
+  :root[data-theme="dark"] .floor-workspace .app-content :is(.incoming-customer-chip, .incoming-layout-toggle button, .outgoing-items-heading button, .outgoing-cart-tabs button) {
+    background-color: var(--surface-solid);
+    border-color: var(--color-line);
+    color: var(--color-ink);
+  }
+  :root[data-theme="dark"] .floor-workspace .app-content :is(.incoming-customer-chip, .incoming-layout-toggle button, .outgoing-items-heading button, .outgoing-cart-tabs button):hover { background-color: var(--surface-subtle); border-color: #527571; }
+  :root[data-theme="dark"] .floor-workspace .app-content :is(.incoming-layout-toggle button[aria-pressed="true"], .outgoing-cart-tabs button[aria-selected="true"], .outgoing-items-heading button.btn-primary, .incoming-catalogue-toolbar > button, .incoming-bottom-bar > .btn-primary) {
+    background-color: var(--dark-primary);
+    border-color: var(--dark-primary);
+    color: #fff;
+  }
+  :root[data-theme="dark"] .floor-workspace .app-content :is(.incoming-layout-toggle button[aria-pressed="true"], .outgoing-cart-tabs button[aria-selected="true"], .outgoing-items-heading button.btn-primary, .incoming-catalogue-toolbar > button, .incoming-bottom-bar > .btn-primary):hover { background-color: var(--color-brand-600); border-color: var(--color-brand-600); }
+
+  :root[data-theme="dark"] .floor-workspace .app-content .incoming-choice { background-color: var(--surface-solid); border-color: var(--color-line); box-shadow: 0 2px 8px #0002; }
+  :root[data-theme="dark"] .incoming-choice-label { background-color: var(--surface-solid); color: var(--color-ink); }
+  :root[data-theme="dark"] .incoming-choice-image { background-color: var(--surface-subtle); color: var(--color-brand-700); }
+  :root[data-theme="dark"] .incoming-choice-image > span { background-color: var(--color-brand-50); color: var(--color-brand-700); }
+  :root[data-theme="dark"] .floor-workspace .app-content .incoming-choice:hover { border-color: #74b7aa; box-shadow: 0 4px 12px #0003; }
+  :root[data-theme="dark"] .incoming-choice:hover .incoming-choice-label { background-color: var(--surface-subtle); }
+  :root[data-theme="dark"] .incoming-choice.is-added { outline-color: #77c9b8; }
+  :root[data-theme="dark"] :is(.incoming-selected-content, .incoming-records, .outgoing-review-cart, .delivery-card dl, .delivery-details) { background-color: var(--surface-solid); border-color: var(--color-line); }
+  :root[data-theme="dark"] .incoming-cart-count { border-color: var(--color-line); }
+
+  :root[data-theme="dark"] .app-content :is(.incoming-items-table, .incoming-records table) { background-color: var(--surface-solid); color: var(--color-ink); }
+  :root[data-theme="dark"] .app-content :is(.incoming-items-table, .incoming-records table) th { background-color: var(--surface-subtle); color: var(--color-muted); border-color: var(--color-line); }
+  :root[data-theme="dark"] .app-content :is(.incoming-items-table, .incoming-records table) td { color: var(--color-ink); border-color: var(--color-line); }
+  :root[data-theme="dark"] .app-content :is(.incoming-items-table, .incoming-records table) tbody tr:hover { background-color: var(--surface-subtle); }
+  :root[data-theme="dark"] .floor-workspace .app-content :is(.incoming-unit select, .incoming-quantity, .incoming-top-actions > input, .incoming-top-actions > select, .incoming-catalogue-toolbar input, .incoming-bottom-bar input, .incoming-record-search input, .delivery-filters input, .delivery-filters select) {
+    background-color: var(--surface-solid);
+    border-color: var(--color-line);
+    color: var(--color-ink);
+  }
+  :root[data-theme="dark"] .floor-workspace .app-content .incoming-quantity { color: var(--color-brand-700); }
+  :root[data-theme="dark"] .floor-workspace .app-content .incoming-bottom-bar .keypad-field { background-color: var(--surface-solid) !important; border-color: var(--color-line) !important; color: var(--color-ink) !important; }
+  :root[data-theme="dark"] .floor-workspace .app-content .incoming-bottom-bar .keypad-field:hover { background-color: var(--surface-subtle) !important; }
+  :root[data-theme="dark"] .floor-workspace .app-content .incoming-line-weight { color: var(--color-ink); }
+  :root[data-theme="dark"] .floor-workspace .app-content .incoming-line-weight:hover { background-color: var(--surface-subtle); border-color: var(--color-line); }
+  :root[data-theme="dark"] .floor-workspace .app-content .incoming-remove { color: #f0a1aa; }
+  :root[data-theme="dark"] .floor-workspace .app-content .incoming-remove:hover { background-color: #472b36; color: #ffc1c7; }
+  :root[data-theme="dark"] .incoming-net { background-color: var(--surface-subtle); border-color: var(--color-line); color: var(--color-brand-700); }
+  :root[data-theme="dark"] .incoming-net.invalid { background-color: #472b36; border-color: #94515f; color: #ffb7c1; }
+  :root[data-theme="dark"] .floor-workspace .app-content .incoming-save { background-color: var(--surface-solid); border-color: #507e76; color: var(--color-brand-700); }
+  :root[data-theme="dark"] .floor-workspace .app-content .incoming-save:hover { background-color: var(--color-brand-50); border-color: #77b6a9; }
+  :root[data-theme="dark"] .app-content details.incoming-extra,
+  :root[data-theme="dark"] .receiving-record-totals { background-color: var(--surface-subtle); border-color: var(--color-line); }
+
+  :root[data-theme="dark"] .floor-workspace .app-content .outgoing-ownership button { background-color: var(--surface-subtle); border-color: var(--color-line); color: var(--color-muted); }
+  :root[data-theme="dark"] .floor-workspace .app-content .outgoing-ownership button[aria-pressed="true"] { background-color: var(--dark-primary); border-color: var(--dark-primary); color: #fff; }
+  :root[data-theme="dark"] .floor-workspace .app-content .outgoing-ownership button:last-child[aria-pressed="true"] { background-color: #6c62a0; border-color: #9286c2; color: #fff; }
+  :root[data-theme="dark"] .outgoing-owner.pool { color: #c5b6ed; }
+
+  :root[data-theme="dark"] .incoming-keypad { background-color: var(--surface-solid); border-color: var(--color-line); }
+  :root[data-theme="dark"] .incoming-keypad > div:first-child { background-color: var(--dark-primary); }
+  :root[data-theme="dark"] .incoming-keypad-item { background-color: #d4ede5; color: #163f38; }
+  :root[data-theme="dark"] .incoming-keypad-display { background-color: var(--surface-solid); border-color: var(--color-line); }
+  :root[data-theme="dark"] .incoming-keypad-display output { color: var(--color-ink); }
+  :root[data-theme="dark"] .incoming-keypad-display > button { background-color: var(--surface-subtle); color: var(--color-muted); border-color: var(--color-line); }
+  /* The shared keypad uses important utility colors, so these overrides match that priority. */
+  :root[data-theme="dark"] .incoming-keypad .keypad-key { background-color: var(--surface-solid) !important; border-color: var(--color-line) !important; color: var(--color-ink) !important; }
+  :root[data-theme="dark"] .incoming-keypad .keypad-key:hover { background-color: var(--surface-subtle) !important; }
+  :root[data-theme="dark"] .incoming-keypad .keypad-key:is(:active, .is-pressed) { background-color: var(--dark-primary) !important; color: #fff !important; }
+  :root[data-theme="dark"] .incoming-keypad button[aria-label="Backspace"] { background-color: var(--surface-subtle) !important; color: var(--color-ink) !important; }
+  :root[data-theme="dark"] .incoming-keypad .keypad-enter { background-color: var(--dark-primary); border-color: var(--dark-primary); color: #fff; }
+  :root[data-theme="dark"] .incoming-keypad .keypad-enter:hover { background-color: var(--color-brand-600); border-color: var(--color-brand-600); }
+  :root[data-theme="dark"] dialog .incoming-keypad-error { background-color: #472b36; color: #ffb7c1; }
+
+  :root[data-theme="dark"] .delivery-card.selected { border-color: #77c9b8; box-shadow: var(--surface-shadow), 0 0 0 2px #77c9b82e; }
+  :root[data-theme="dark"] .delivery-select input { accent-color: #77c9b8; }
+  :root[data-theme="dark"] .delivery-assignment-badge { background-color: var(--color-weight-50); color: var(--color-weight-700); }
+  :root[data-theme="dark"] .delivery-assignment-badge.assigned { background-color: var(--color-pool-50); color: var(--color-pool-700); }
+  :root[data-theme="dark"] .delivery-card-actions { border-color: var(--color-line); }
+  :root[data-theme="dark"] .delivery-driver-notice { background-color: var(--color-weight-50); border-color: #78613c; color: var(--color-weight-700); }
+  :root[data-theme="dark"] .delivery-empty { border-color: #507568; }
+  :root[data-theme="dark"] .delivery-dialog > p { background-color: var(--surface-subtle); color: var(--color-muted); }
+  :root[data-theme="dark"] .delivery-dialog :is(input, select) { background-color: var(--surface-solid); color: var(--color-ink); border-color: var(--color-line); }
+  :root[data-theme="dark"] .delivery-quick-dates button[aria-pressed="true"] { background-color: var(--color-brand-50); color: var(--color-brand-700); border-color: #507e76; }
+}

@@ -1,0 +1,41 @@
+/* Category artwork and dashboard symbols share a softly tinted glass setting. */
+.category-glyph[data-category-tone] {
+  --icon-accent: #26756c;
+  --icon-tint: #e4f3ed;
+  border: 1px solid #ffffffc9;
+  background: linear-gradient(145deg, #ffffffb3, #ffffff00), var(--icon-tint);
+  color: var(--icon-accent);
+  box-shadow: inset 0 1px 0 #fff, 0 2px 5px #244c4608;
+}
+.category-glyph[data-category-tone="aqua"] { --icon-accent: #177f8b; --icon-tint: #e0f3f5; }
+.category-glyph[data-category-tone="blue"] { --icon-accent: #426ea5; --icon-tint: #e6effa; }
+.category-glyph[data-category-tone="amber"] { --icon-accent: #9c6c28; --icon-tint: #fbefda; }
+.category-glyph[data-category-tone="violet"] { --icon-accent: #775eaa; --icon-tint: #eee7f8; }
+.category-glyph svg { flex-shrink: 0; }
+
+.launcher-icon { --icon-accent: var(--launcher-accent); --icon-tint: var(--launcher-tint); }
+.admin-workspace .admin-dashboard .operation-icon { --icon-accent: var(--operation-color); --icon-tint: var(--operation-light); }
+.launcher-icon, .admin-workspace .admin-dashboard .operation-icon {
+  border: 1px solid #ffffffed;
+  background: linear-gradient(145deg, #ffffffc9 0%, #ffffff14 70%), var(--icon-tint);
+  color: var(--icon-accent);
+  box-shadow: inset 0 1px 1px #fff, inset 0 -2px 3px #244c4606, 0 5px 12px #244c460c;
+}
+.admin-workspace .admin-dashboard .operation-in { --operation-color: #785da6; --operation-light: #eee7f8; }
+.admin-workspace .admin-dashboard .operation-dispatch { --operation-color: #9a6b2a; --operation-light: #fbefda; }
+.launcher-icon > svg, .operation-icon > svg { flex-shrink: 0; filter: drop-shadow(0 1px 0 #ffffffb3); }
+.rail-link > svg { color: inherit; }
+.rail-link[aria-current="page"] > svg { color: #116c69; stroke-width: 2; }
+
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  .category-glyph[data-category-tone], .launcher-icon, .admin-workspace .admin-dashboard .operation-icon {
+    border-color: #c3d7d2;
+    background: var(--icon-tint);
+    box-shadow: none;
+  }
+}
+@media (forced-colors: active) {
+  .category-glyph[data-category-tone], .launcher-icon, .admin-workspace .admin-dashboard .operation-icon { border-color: CanvasText; background: Canvas; color: CanvasText; box-shadow: none; }
+  .launcher-icon > svg, .operation-icon > svg { filter: none; }
+  .rail-link[aria-current="page"] > svg { color: Highlight; }
+}

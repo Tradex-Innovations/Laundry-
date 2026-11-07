@@ -1,0 +1,72 @@
+/* Frosted action cards keep the operator's six daily tasks easy to scan. */
+.operator-launcher { max-width: 1260px; margin: 0 auto; padding: 9px 0 16px; }
+.launcher-heading { margin-bottom: 29px; padding: 0 2px; }
+.launcher-eyebrow { display: block; margin-bottom: 9px; color: var(--color-muted); font-size: 10px; font-weight: 600; letter-spacing: 1.7px; }
+.app-content .launcher-heading h1 { margin: 0; color: var(--color-ink, #203347); font-size: clamp(27px, 3vw, 36px); line-height: 1.2; letter-spacing: -1.2px; font-weight: 600; }
+.app-content .launcher-heading p { margin: 11px 0 0; color: var(--color-muted, #64748b); font-size: 14px; line-height: 1.6; }
+.launcher-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.floor-workspace .app-content .launcher-tile {
+  --launcher-accent: #277f78;
+  --launcher-tint: #e9f5f0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 28px;
+  min-width: 0;
+  min-height: 216px;
+  padding: 26px;
+  overflow: hidden;
+  text-align: left;
+  border: 1px solid var(--surface-edge, #fff);
+  border-radius: 22px;
+  background: var(--surface-glass, #fff);
+  color: var(--color-ink, #203347);
+  box-shadow: var(--surface-shadow, 0 7px 24px rgb(36 70 66 / 6%)), inset 0 1px 0 rgb(255 255 255 / 80%);
+  -webkit-backdrop-filter: var(--surface-blur, none);
+  backdrop-filter: var(--surface-blur, none);
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease, background-color 180ms ease;
+}
+.floor-workspace .app-content .launcher-tile.launcher-tone-violet { --launcher-accent: #8874b3; --launcher-tint: #f0ebf8; }
+.floor-workspace .app-content .launcher-tile.launcher-tone-amber { --launcher-accent: #b88843; --launcher-tint: #fbf2e2; }
+.floor-workspace .app-content .launcher-tile.launcher-tone-slate { --launcher-accent: #6c8294; --launcher-tint: #eef2f5; }
+.floor-workspace .app-content .launcher-tile.launcher-tone-blue { --launcher-accent: #5c87b0; --launcher-tint: #eaf1f9; }
+.launcher-tile-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.launcher-icon { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 62px; height: 62px; border-radius: 19px; background: var(--launcher-tint); color: var(--launcher-accent); box-shadow: inset 0 1px 0 rgb(255 255 255 / 75%); }
+.launcher-arrow { margin-top: 4px; color: #a2b4b1; transition: color 180ms ease, transform 180ms ease; }
+.launcher-copy { display: flex; flex-direction: column; gap: 7px; }
+.launcher-copy strong { font-size: 18px; line-height: 1.3; font-weight: 600; letter-spacing: -.4px; }
+.launcher-copy > span { max-width: 240px; color: var(--color-muted, #64748b); font-size: 13px; line-height: 1.6; font-weight: 400; }
+@media (hover: hover) {
+  .floor-workspace .app-content .launcher-tile:hover { transform: translateY(-3px); border-color: var(--surface-edge, #fff); background: var(--surface-hover, #fff); box-shadow: var(--surface-shadow, 0 13px 30px rgb(36 70 66 / 9%)), inset 0 1px 0 rgb(255 255 255 / 90%); }
+  .launcher-tile:hover .launcher-arrow { color: var(--launcher-accent); transform: translate(2px, -2px); }
+}
+.floor-workspace .app-content .launcher-tile:active { transform: scale(.985); background: var(--control-glass, #f8fcfa); }
+@media (max-width: 1000px) {
+  .launcher-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .floor-workspace .app-content .launcher-tile { min-height: 202px; padding: 23px; gap: 22px; }
+}
+@media (max-width: 600px) {
+  .operator-launcher { padding-top: 4px; }
+  .launcher-heading { margin-bottom: 24px; }
+  .launcher-eyebrow { margin-bottom: 8px; font-size: 9px; letter-spacing: 1.5px; }
+  .app-content .launcher-heading h1 { font-size: 28px; letter-spacing: -.9px; }
+  .app-content .launcher-heading p { margin-top: 9px; font-size: 13px; }
+  .launcher-grid { gap: 12px; }
+  .floor-workspace .app-content .launcher-tile { min-height: 208px; padding: 19px 16px; gap: 24px; border-radius: 21px; }
+  .launcher-icon { width: 52px; height: 52px; border-radius: 16px; }
+  .launcher-icon svg { width: 26px; height: 26px; }
+  .launcher-tile-top { gap: 6px; }
+  .launcher-arrow { width: 17px; height: 17px; }
+  .launcher-copy strong { font-size: 16px; letter-spacing: -.3px; }
+  .launcher-copy > span { font-size: 12px; line-height: 1.55; }
+}
+@media (max-width: 359px) {
+  .launcher-grid { grid-template-columns: minmax(0, 1fr); }
+  .floor-workspace .app-content .launcher-tile { min-height: 178px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .floor-workspace .app-content .launcher-tile, .launcher-arrow { transition: none; }
+  .floor-workspace .app-content .launcher-tile:hover, .floor-workspace .app-content .launcher-tile:active, .launcher-tile:hover .launcher-arrow { transform: none; }
+}

@@ -1,25 +1,27 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
-import { AlertCircle, Bath, BedDouble, CookingPot, Delete, Layers3, LockKeyhole, Shirt, type LucideIcon, UtensilsCrossed, X } from "lucide-react";
+import { useEffect, useRef, useState, type ComponentType } from "react";
+import { AlertCircle, Delete, LockKeyhole, X } from "lucide-react";
+import { BedLinenIcon, KitchenLinenIcon, LinenStackIcon, TableLinenIcon, TowelIcon, UniformIcon, type LinenIconProps } from "./LinenIcons";
 import type { Database, Dispatch, Role } from "../lib/types";
 import { fmt, totals } from "../lib/domain";
 
-const categoryIcons: [RegExp, LucideIcon][] = [
-  [/pillow|sheet|duvet|blanket|bedding|bed/i, BedDouble],
-  [/towel|bath|mat/i, Bath],
-  [/kitchen|chef|cook/i, CookingPot],
-  [/restaurant|table|napkin|dining/i, UtensilsCrossed],
-  [/uniform|shirt|garment|apparel|clothing/i, Shirt],
+const categoryIcons: { pattern: RegExp; icon: ComponentType<LinenIconProps>; tone: string }[] = [
+  { pattern: /towel|bath|mat/i, icon: TowelIcon, tone: "aqua" },
+  { pattern: /pillow|sheet|duvet|blanket|bedding|bed/i, icon: BedLinenIcon, tone: "blue" },
+  { pattern: /kitchen|chef|cook|apron/i, icon: KitchenLinenIcon, tone: "amber" },
+  { pattern: /restaurant|table|napkin|dining/i, icon: TableLinenIcon, tone: "violet" },
+  { pattern: /uniform|shirt|garment|apparel|clothing/i, icon: UniformIcon, tone: "teal" },
 ];
+const fallbackCategory = { icon: LinenStackIcon, tone: "teal" };
+const categoryAppearance = (name?: string | null) => categoryIcons.find(({ pattern }) => pattern.test(name?.trim() || "")) || fallbackCategory;
 
-export function categoryIcon(name?: string | null): LucideIcon {
-  const label = name?.trim() || "";
-  return categoryIcons.find(([pattern]) => pattern.test(label))?.[1] || Layers3;
+export function categoryIcon(name?: string | null): ComponentType<LinenIconProps> {
+  return categoryAppearance(name).icon;
 }
 
 export function CategoryGlyph({ name, size = 14, className = "size-7 rounded-lg" }: { name?: string | null; size?: number; className?: string }) {
-  const Icon = categoryIcon(name);
-  return <span className={`inline-flex shrink-0 items-center justify-center bg-brand-50 text-brand-500 ${className}`} aria-hidden="true"><Icon size={size} strokeWidth={1.75} /></span>;
+  const { icon: Icon, tone } = categoryAppearance(name);
+  return <span className={`category-glyph inline-flex shrink-0 items-center justify-center ${className}`} data-category-tone={tone} aria-hidden="true"><Icon size={size} strokeWidth={1.8} /></span>;
 }
 
 export function CategoryLabel({ name }: { name?: string | null }) {

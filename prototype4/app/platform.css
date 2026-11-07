@@ -1,54 +1,40 @@
-/* Platform administration is deliberately scoped away from owner and operator UI. */
-.platform-workspace { --platform-navy: #142f40; --platform-accent: #167d88; min-height: 100dvh; background: #f4f6f9; }
-.platform-workspace .workspace-header { height: 76px; gap: 28px; background: linear-gradient(to right, var(--platform-navy) 0, var(--platform-navy) 248px, #fff 248px); border-bottom-color: #e6ebf0; }
-.platform-workspace .brand-lockup { width: 196px; color: #fff; }
-.platform-workspace .brand-lockup small { color: #b0c4d0; }
-.platform-workspace .brand-mark { background: #23878b; }
-.platform-header-label { display: flex; align-items: center; gap: 9px; color: #506375; font-size: 12px; font-weight: 500; }
-.platform-workspace .workspace-rail { top: 76px; width: 248px; padding: 28px 16px 20px; background: var(--platform-navy); border: 0; }
-.platform-workspace .rail-heading { color: #88a5b6; font-size: 10px; letter-spacing: 1.8px; padding-left: 14px; margin-bottom: 10px; }
-.platform-workspace .workspace-rail .rail-link { min-height: 46px; padding: 0 14px; gap: 13px; color: #b9cbd7; border-radius: 9px; font-size: 12px; }
-.platform-workspace .workspace-rail .rail-link:hover { color: #fff; background: #ffffff0b; }
-.platform-workspace .workspace-rail .rail-link[aria-current="page"] { color: #fff; background: #ffffff14; }
-.platform-workspace .rail-link[aria-current="page"]::before { display: none; }
-.platform-workspace .workspace-rail .rail-link[aria-current="page"]::after { content: ""; width: 5px; height: 5px; margin-left: auto; border-radius: 50%; background: #73cebf; }
-.platform-workspace .rail-version { color: #7f9aaa; font-size: 8px; margin-top: 20px; }
-.platform-sidebar-note { border-top: 1px solid #ffffff16; padding: 22px 12px 8px; color: #8eabba; }
-.platform-sidebar-note > svg { color: #78bcb8; margin-bottom: 10px; }
-.platform-sidebar-note strong { display: block; font-weight: 500; font-size: 11px; color: #d0dfe7; }
+/* Platform data screens share the navigation material with the laundry workspace. */
+.platform-workspace { --platform-accent: #167d7a; }
+.platform-header-label { display: flex; align-items: center; gap: 8px; border-left: 1px solid #dce6e3; padding-left: 24px; color: var(--color-muted); font-size: 12px; font-weight: 500; }
+.platform-sidebar-note { border-top: 1px solid #dce6e3; padding: 20px 12px 8px; color: var(--color-muted); }
+.platform-sidebar-note > svg { color: #167d7a; margin-bottom: 10px; }
+.platform-sidebar-note strong { display: block; font-weight: 500; font-size: 11px; color: #233d40; }
 .platform-sidebar-note span { display: block; margin-top: 6px; font-size: 11px; line-height: 1.7; max-width: 165px; }
-.platform-workspace .workspace-breadcrumb { margin-left: 248px; min-height: 46px; padding: 0 32px; background: #fff; border-bottom: 1px solid #e6ebf0; }
-.platform-workspace .app-shell { margin-left: 248px; margin-right: 0; max-width: none; padding: 28px 32px 24px; }
 .platform-workspace .app-content > section.platform-page { border: 0; background: transparent; padding: 0; box-shadow: none; border-radius: 0; }
 .platform-page-heading { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-bottom: 26px; }
-.platform-eyebrow { color: #6d8392; font-size: 10px; font-weight: 600; letter-spacing: 1.7px; margin-bottom: 8px; }
+.platform-eyebrow { color: var(--color-muted); font-size: 10px; font-weight: 600; letter-spacing: 1.7px; margin-bottom: 8px; }
 .platform-workspace .platform-page-heading h1 { margin: 0; font-size: 29px; letter-spacing: -.9px; line-height: 1.25; font-weight: 600; }
-.platform-workspace .platform-page-heading p { font-size: 12px; color: #738292; margin: 9px 0 0; line-height: 1.6; }
+.platform-workspace .platform-page-heading p { font-size: 12px; color: var(--color-muted); margin: 9px 0 0; line-height: 1.6; }
 .platform-heading-actions { display: flex; gap: 16px; align-items: center; flex-shrink: 0; }
 .platform-workspace .app-content button { font-size: 12px; min-height: 38px; border-radius: 8px; }
 .platform-workspace .app-content .platform-primary { background: var(--platform-accent); border-color: var(--platform-accent); min-height: 41px; padding: 9px 15px; box-shadow: 0 2px 4px #183f5010; }
 .platform-workspace .app-content .platform-primary:hover { background: #126b76; border-color: #126b76; }
 .platform-date { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #738292; }
 .platform-metrics { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 16px; margin-bottom: 24px; }
-.platform-metric { background: #fff; border: 1px solid #e3e9ef; border-radius: 12px; padding: 20px; box-shadow: 0 2px 3px #20334702; }
+.platform-metric { background: var(--surface-glass); border: 1px solid var(--surface-edge); border-radius: 21px; padding: 20px; box-shadow: var(--surface-shadow); -webkit-backdrop-filter: var(--surface-blur); backdrop-filter: var(--surface-blur); }
 .platform-metric > div { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.platform-metric > div > span:first-child { font-size: 11px; color: #6d7d8d; font-weight: 500; }
+.platform-metric > div > span:first-child { font-size: 11px; color: var(--color-muted); font-weight: 500; }
 .platform-metric-icon { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 10px; }
 .platform-metric-icon.blue { background: #edf3fa; color: #547ca7; }
 .platform-metric-icon.teal { background: #eaf6f3; color: #278572; }
 .platform-metric-icon.violet { background: #f0edfa; color: #8070b1; }
 .platform-metric-icon.amber { background: #fff5e8; color: #c08a3f; }
 .platform-metric > strong { display: block; font-size: 32px; font-weight: 600; line-height: 1.3; letter-spacing: -.9px; margin: 8px 0 5px; font-variant-numeric: tabular-nums; }
-.platform-metric > small { color: #677b8c; font-size: 11px; }
+.platform-metric > small { color: var(--color-muted); font-size: 11px; }
 .platform-overview-grid { display: grid; grid-template-columns: minmax(0,1fr) 310px; align-items: start; gap: 22px; }
 .platform-overview-main, .platform-overview-aside { display: flex; flex-direction: column; min-width: 0; gap: 22px; }
-.platform-workspace .platform-panel { border: 1px solid #e2e8ee; background: #fff; border-radius: 12px; box-shadow: 0 2px 4px #20334702; overflow: visible; min-width: 0; }
+.platform-workspace .platform-panel { border: 1px solid var(--surface-edge); background: var(--surface-glass); border-radius: 21px; box-shadow: var(--surface-shadow); -webkit-backdrop-filter: var(--surface-blur); backdrop-filter: var(--surface-blur); overflow: visible; min-width: 0; }
 .platform-panel-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 21px 22px; }
 .platform-workspace .platform-panel-heading h2 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 14px; font-weight: 600; letter-spacing: -.2px; }
-.platform-workspace .platform-panel-heading p { margin: 5px 0 0; color: #687c8d; font-size: 11px; }
+.platform-workspace .platform-panel-heading p { margin: 5px 0 0; color: var(--color-muted); font-size: 11px; }
 .platform-workspace .app-content .platform-text-button { min-height: 32px; padding: 4px 0; border: 0; background: transparent; color: #33808c; font-size: 11px; font-weight: 500; white-space: nowrap; }
 .platform-workspace .platform-text-button:hover { color: #165963; }
-.platform-table-scroll { width: 100%; overflow-x: auto; }
+.platform-table-scroll { width: 100%; overflow-x: auto; background: #fff; }
 .platform-workspace .platform-table-scroll table { min-width: 690px; font-size: 12px; }
 .platform-workspace .platform-overview-main table { min-width: 540px; }
 .platform-workspace .platform-table-scroll th { padding: 13px 20px; background: #f9fafc; color: #667989; border-top: 1px solid #edf0f3; border-bottom-color: #edf0f3; font-size: 10px; font-weight: 500; letter-spacing: .2px; }
@@ -93,16 +79,17 @@
 .platform-empty > button { margin-top: 15px; }
 .platform-small-count { font-size: 11px; padding: 3px 7px; border-radius: 5px; background: #f8f0e5; color: #ad8551; }
 .platform-attention-list { padding: 0 18px 12px; }
-.platform-workspace .app-content .platform-attention-list > button { display: flex; width: 100%; justify-content: start; border: 0; border-top: 1px solid #f0f2f5; border-radius: 0; padding: 16px 2px; gap: 10px; text-align: left; }
+.platform-workspace .app-content .platform-attention-list > button { display: flex; width: 100%; justify-content: start; border: 0; border-top: 1px solid #e2ebe7; border-radius: 0; background: transparent; padding: 16px 2px; gap: 10px; text-align: left; }
+.platform-workspace .app-content .platform-attention-list > button:hover { background: var(--surface-hover); }
 .platform-attention-list > button > span:first-child { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 9px; flex-shrink: 0; }
 .attention-red { color: #ba7b80; background: #fdf0f1; }
 .attention-amber { color: #bb975c; background: #fff6e8; }
 .platform-attention-list strong { font-size: 11px; display: block; font-weight: 500; }
-.platform-attention-list small { display: block; font-size: 10px; color: #8b98a2; margin-top: 5px; }
+.platform-attention-list small { display: block; font-size: 10px; color: var(--color-muted); margin-top: 5px; }
 .platform-attention-list > button > svg { margin-left: auto; color: #a1adb7; }
 .platform-all-clear { padding: 10px 22px 26px; color: #4c9b86; text-align: center; }
 .platform-all-clear strong { display: block; font-size: 12px; margin-top: 10px; }
-.platform-workspace .platform-all-clear p { font-size: 11px; color: #85949d; margin: 7px 0 0; }
+.platform-workspace .platform-all-clear p { font-size: 11px; color: var(--color-muted); margin: 7px 0 0; }
 .platform-plan-distribution { padding: 0 22px 22px; }
 .platform-plan-distribution > div { margin-top: 15px; }
 .platform-plan-distribution > div > div:first-child { display: flex; justify-content: space-between; font-size: 11px; color: #7b8b98; text-transform: capitalize; }
@@ -111,17 +98,18 @@
 .platform-progress > span { display: block; height: 100%; background: #7fa9c0; border-radius: 4px; }
 .platform-progress.plan-trial > span { background: #dbbb83; }
 .platform-progress.plan-premium > span { background: #a596c6; }
-.platform-access-panel { padding: 23px; border-radius: 12px; background: #eaf0f4; border: 1px solid #dee7ed; color: #6f929c; }
+.platform-access-panel { padding: 23px; border-radius: 21px; background: var(--surface-glass); border: 1px solid var(--surface-edge); box-shadow: var(--surface-shadow); -webkit-backdrop-filter: var(--surface-blur); backdrop-filter: var(--surface-blur); color: #397e76; }
 .platform-workspace .platform-access-panel h2 { margin: 12px 0 7px; color: #35596b; font-size: 14px; }
-.platform-workspace .platform-access-panel p { font-size: 11px; color: #7c909c; margin: 0; }
-.platform-workspace .app-content .platform-access-panel button { min-height: 35px; margin-top: 18px; width: 100%; border-color: #d7e2e8; background: #fff; color: #426a7d; justify-content: space-between; padding: 8px 12px; font-size: 11px; }
+.platform-workspace .platform-access-panel p { font-size: 11px; color: var(--color-muted); margin: 0; }
+.platform-workspace .app-content .platform-access-panel button { min-height: 35px; margin-top: 18px; width: 100%; border-color: var(--surface-edge); background: var(--control-glass); color: #185655; justify-content: space-between; padding: 8px 12px; font-size: 11px; }
+.platform-workspace .app-content .platform-access-panel button:hover { background: var(--surface-hover); }
 .platform-status-tabs { display: flex; gap: 23px; border-bottom: 1px solid #dfe6ed; margin-bottom: 21px; overflow-x: auto; }
 .platform-workspace .app-content .platform-status-tabs button { position: relative; gap: 8px; padding: 0 0 13px; min-height: 37px; background: transparent; border: 0; border-radius: 0; color: #7c8d9b; font-size: 11px; white-space: nowrap; text-transform: capitalize; }
 .platform-workspace .platform-status-tabs button[aria-pressed="true"] { color: #327886; }
 .platform-status-tabs button[aria-pressed="true"]::after { position: absolute; content: ""; height: 2px; background: #2c8791; bottom: -1px; left: 0; right: 0; }
 .platform-status-tabs button > span { min-width: 20px; padding: 2px 5px; border-radius: 5px; background: #e9eef3; font-size: 10px; }
 .platform-status-tabs button[aria-pressed="true"] > span { background: #e1eff0; color: #47858b; }
-.platform-filterbar { display: flex; align-items: center; gap: 15px; justify-content: space-between; padding: 18px 21px; }
+.platform-filterbar { display: flex; align-items: center; gap: 15px; justify-content: space-between; padding: 18px 21px; border-radius: 21px 21px 0 0; background: var(--control-glass); }
 .platform-search { position: relative; display: flex; align-items: center; width: 100%; max-width: 355px; }
 .platform-search > svg { position: absolute; left: 12px; color: #9ba8b2; pointer-events: none; }
 .platform-workspace .app-content .platform-search input { padding-left: 37px; background: #f9fafb; border-color: #e7ebf0; min-height: 38px; font-size: 11px; }
@@ -146,7 +134,7 @@
 .platform-audit-cell { display: flex; gap: 10px; align-items: start; max-width: 380px; }
 .platform-audit-cell small { display: block; color: #6b7f90; font-size: 11px; line-height: 1.7; margin-top: 5px; }
 .platform-workspace .app-content .platform-back { min-height: 28px; font-size: 11px; padding: 0; border: 0; background: transparent; color: #718897; margin: -4px 0 17px; }
-.platform-workspace .platform-workspace-hero { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 23px 25px; }
+.platform-workspace .platform-workspace-hero { position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 23px 25px; }
 .platform-workspace-identity { display: flex; align-items: center; gap: 16px; }
 .platform-workspace-name { display: flex; align-items: center; gap: 13px; flex-wrap: wrap; }
 .platform-workspace .platform-workspace-name h1 { margin: 0; font-size: 24px; line-height: 1.3; letter-spacing: -.7px; }
@@ -155,22 +143,22 @@
 .platform-workspace-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .platform-workspace .app-content .platform-workspace-actions button { min-height: 35px; padding: 6px 11px; font-size: 11px; color: #6a8392; }
 .platform-workspace .app-content details.platform-action-menu { position: relative; margin: 0; border: 0; padding: 0; background: transparent; border-radius: 8px; }
-.platform-action-menu summary { display: flex; align-items: center; gap: 6px; border: 1px solid #e2e8ee; border-radius: 8px; min-height: 35px; padding: 6px 10px; color: #6a8392; font-size: 11px; list-style: none; }
+.platform-action-menu summary { display: flex; align-items: center; gap: 6px; border: 1px solid var(--surface-edge); border-radius: 8px; background: var(--control-glass); min-height: 35px; padding: 6px 10px; color: #526f70; font-size: 11px; list-style: none; }
 .platform-action-menu summary::-webkit-details-marker { display: none; }
 .platform-action-menu > div { position: absolute; right: 0; top: calc(100% + 7px); z-index: 25; width: 180px; border: 1px solid #e1e7ed; border-radius: 10px; padding: 6px; box-shadow: 0 10px 25px #20334716; background: #fff; }
 .platform-action-menu > div > button { display: block; text-align: left; border: 0; width: 100%; background: transparent; }
 .platform-action-menu > div > button:hover { background: #f3f7f9; }
-.platform-workspace-stats { display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); border: 1px solid #e3e9ef; border-radius: 11px; background: #fff; margin: 14px 0 23px; padding: 17px 0; }
+.platform-workspace-stats { display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); border: 1px solid var(--surface-edge); border-radius: 21px; background: var(--surface-glass); box-shadow: var(--surface-shadow); -webkit-backdrop-filter: var(--surface-blur); backdrop-filter: var(--surface-blur); margin: 14px 0 23px; padding: 17px 0; }
 .platform-workspace-stats > div { border-right: 1px solid #e9eef2; padding: 0 23px; }
 .platform-workspace-stats > div:last-child { border: 0; }
 .platform-workspace-stats dt { color: #6c8090; font-size: 10px; text-transform: capitalize; }
 .platform-workspace-stats dd { margin-top: 5px; font-size: 23px; line-height: 1.2; font-weight: 600; letter-spacing: -.4px; }
-.platform-workspace .laundry-browser { border: 1px solid #e1e7ee; border-radius: 12px; background: #fff; overflow: hidden; }
+.platform-workspace .laundry-browser { border: 1px solid var(--surface-edge); border-radius: 21px; background: var(--surface-glass); box-shadow: var(--surface-shadow); -webkit-backdrop-filter: var(--surface-blur); backdrop-filter: var(--surface-blur); overflow: hidden; }
 .laundry-browser-heading { display: flex; justify-content: space-between; align-items: center; gap: 15px; padding: 18px 23px; border-bottom: 1px solid #e9edf2; }
 .platform-workspace .laundry-browser-heading h2 { font-size: 12px !important; letter-spacing: 0; font-weight: 500; }
 .laundry-browser-heading > span { font-size: 10px; padding: 4px 8px; border-radius: 5px; background: #f0f6f7; color: #70909b; }
 .laundry-browser-layout { display: grid; grid-template-columns: 193px minmax(0,1fr); }
-.laundry-browser-nav { padding: 14px 10px; border-right: 1px solid #e9edf2; background: #fbfcfd; display: flex; flex-direction: column; gap: 4px; }
+.laundry-browser-nav { padding: 14px 10px; border-right: 1px solid #e0eae5; background: var(--control-glass); display: flex; flex-direction: column; gap: 4px; }
 .platform-workspace .app-content .laundry-browser-nav > button { display: flex; justify-content: start; gap: 10px; min-height: 39px; padding: 8px 10px; border: 0 !important; border-radius: 7px; background: transparent; color: #8595a2; font-size: 11px; }
 .platform-workspace .app-content .laundry-browser-nav > button[aria-pressed="true"] { background: #eaf3f5 !important; color: #357d89 !important; }
 .platform-workspace .app-content .laundry-browser-nav > button:hover { background: #f0f4f7; }
@@ -184,7 +172,7 @@
 .platform-workspace .laundry-browser-content > label { max-width: 340px; }
 .platform-workspace .laundry-browser-content > label input { font-size: 11px; background: #fafbfd; border-color: #e5eaf0; }
 .platform-workspace .laundry-browser-content h2 { font-size: 13px; margin: 26px 0 17px; }
-.platform-workspace .laundry-browser-content .table-scroll { border-radius: 9px; border-color: #e7edf2; }
+.platform-workspace .laundry-browser-content .table-scroll { border-radius: 9px; border-color: #e7edf2; background: #fff; }
 .platform-workspace .laundry-browser-content th { font-size: 10px; background: #f8fafc; color: #6b7f90; padding: 13px 14px; }
 .platform-workspace .laundry-browser-content td { font-size: 11px; padding: 14px; }
 .platform-workspace .laundry-browser-content .table-scroll table { min-width: 620px; }
@@ -234,13 +222,7 @@
   .platform-workspace .app-content .laundry-browser-nav > button { white-space: nowrap; }
 }
 @media (max-width: 767px) {
-  .platform-workspace .workspace-header { height: 72px; background: #fff; padding: 0 15px; gap: 12px; }
-  .platform-workspace .brand-lockup { color: #203347; width: auto; font-size: 19px; }
-  .platform-workspace .brand-lockup small { color: #6f8292; }
   .platform-header-label { display: none; }
-  .platform-workspace .role-control select { max-width: 130px; font-size: 11px !important; }
-  .platform-workspace .workspace-breadcrumb { margin-left: 0; padding: 0 18px; }
-  .platform-workspace .app-shell { margin-left: 0; padding: 22px 16px; }
   .platform-page-heading { flex-wrap: wrap; align-items: start; gap: 17px; margin-bottom: 22px; }
   .platform-workspace .platform-page-heading h1 { font-size: 26px; }
   .platform-workspace .platform-page-heading p { font-size: 11px; }

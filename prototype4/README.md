@@ -1,6 +1,6 @@
 # Laundry Management · Prototype 4
 
-Next.js App Router, React, TypeScript and Tailwind CSS. All demo data is persisted in localStorage; there are no API routes or database services. The interface follows the LinenTech shipping-and-receiving workspace pattern with a modern slate, teal, amber and indigo palette. The operator home screen is a simple grid of six icon-and-label tiles under a blue header, without statistics or activity panels. Touch keypads and spacious controls serve floor operations. The Admin (laundry owner) dashboard retains daily statistics, detailed workflow cards, recent dispatches and ownership totals. Its administration screens use compact desktop controls. Selecting a demo role opens that role’s home screen, and the selected role is restored on reload. Navigation switches to a modal drawer on smaller screens. No backup files are created.
+Next.js App Router, React, TypeScript and Tailwind CSS. All demo data is persisted in localStorage; there are no API routes or database services. The interface uses a light frosted-glass theme over soft teal and blue gradients. Navigation, dashboard cards and outer panel frames share translucent surfaces, bright edges and gentle shadows; tables, keypads and entry controls stay solid and readable. The operator home screen has six large action tiles with short descriptions, without statistics or activity panels. Touch keypads and spacious controls serve floor operations. Receiving and packing use frosted panel frames with white data areas and a frosted action bar that stays visible on desktop and tablet and stacks in the page on mobile. The Admin (laundry owner) dashboard retains daily statistics, detailed workflow cards, recent dispatches and ownership totals. Its administration screens use compact desktop controls. Selecting a demo role opens that role’s home screen, and the selected role is restored on reload. Navigation switches to a modal drawer on smaller screens, supports Escape and restores focus when closed. Glass effects have solid fallbacks for unsupported browsers, reduced transparency and increased contrast; motion respects the system preference. No backup files are created.
 
 ## Run
 
@@ -15,6 +15,7 @@ Open http://127.0.0.1:3004. For a production build, run `npm run build`, then `n
 ## Included
 
 - Operations dashboard; Linen In receiving, Linen Out packing, packed carts, shipping manifests, separate delivery assignments and history.
+- Custom linen SVG icons with two-tone glass settings on dashboards and category cards, matching outlines in navigation, and clear selected states. Uploaded item photos keep priority over category artwork.
 - Item-based incoming carts: customer/site selection, category and item tiles, quantity keypads with addition, optional item weights, automatic cart number, date, and optional tare/gross weighing with calculated net weight. Save or Save & Print creates an immutable receipt with item and document snapshots. Original kg/lb units are preserved, and switching units converts entered weights. Older batch receipts remain readable.
 - Customer and delivery site creation, editing, searching and deactivation.
 - Categories and item catalogue, image uploads, allowed quantity methods and default bundle sizes.
@@ -32,9 +33,9 @@ The Alexandra Hotel example is available under **Shipping manifests**, using **R
 
 ## Systems Administrator interface
 
-The platform console has a separate navy sidebar and desktop layout. Its overview shows live laundry and user counts, plan distribution, suspended or expiring trial workspaces, and recent platform changes. The laundry directory has status tabs, plan filters and search. User management supports role, laundry and status filtering, while the audit log supports search, action/workspace filters and CSV export.
+The platform console shares the glass navigation shell and frosted panel theme and keeps its compact desktop layout. Its overview shows live laundry and user counts, plan distribution, suspended or expiring trial workspaces, and recent platform changes. The laundry directory has status tabs, plan filters and search. User management supports role, laundry and status filtering, while the audit log supports search, action/workspace filters and CSV export.
 
-Laundry detail pages use a compact profile header, record counts, and vertical navigation for read-only workspace inspection. Profile and user forms group related fields, and status changes sit under the laundry's **Manage status** menu. These styles are scoped to platform pages; the laundry owner and operator interfaces retain their existing designs.
+Laundry detail pages use a compact profile header, record counts, and vertical navigation for read-only workspace inspection. Profile and user forms group related fields, and status changes sit under the laundry's **Manage status** menu. Data-screen styles remain scoped to platform pages while typography, navigation and color tokens are shared across roles.
 
 ## Platform laundry inspection
 
@@ -110,6 +111,10 @@ The production build and 40 automated tests pass. Delivery tests cover manifest 
 - `components/AdminDashboard.tsx`: detailed owner dashboard with daily statistics and recent dispatches.
 - `components/Dashboard.tsx`: simple operator tiles for receiving, clean linen, dispatches, manifests and records.
 - `app/globals.css`: Tailwind theme and shared component styles.
+- `app/workspace.css`: shared glass navigation, responsive shell, drawer and accessibility fallbacks.
+- `app/dashboard.css`: responsive operator action tiles.
+- `components/LinenIcons.tsx`: shared linen, category and operation SVG symbols.
+- `app/icons.css`: icon glass settings, category colors and selected navigation styling.
 - `app/print.css`: separate A4 document layout and print visibility.
 
 Browser storage key: `laundry.prototype4.v1`. Clearing that origin's localStorage reseeds the demonstration on the next reload. Data remains on the current browser/origin. No stock availability, receiving-to-dispatch reconciliation, balances, prices or invoicing are implemented. Older browser data remains compatible; the optional receipts collection is created when linen is first received.
