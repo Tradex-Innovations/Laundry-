@@ -1,0 +1,89 @@
+name: Publish ComfortLinen to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'prototype4/comfortlinen-experience/**'
+      - '.github/workflows/comfortlinen-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: prototype4/comfortlinen-experience
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: prototype4/comfortlinen-experience/package-lock.json
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Install dependencies
+        run: npm ci
+      - name: Prepare static export and project asset paths
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          owner, repository = os.environ['GITHUB_REPOSITORY'].split('/', 1)
+          base = '/' + repository
+          site = 'https://' + owner.lower() + '.github.io' + base + '/'
+          for path in Path('app').rglob('*'):
+              if not path.is_file() or path.suffix not in {'.ts', '.tsx', '.css'}:
+                  continue
+              text = path.read_text()
+              for prefix in ['/media/', '/brand/', '/fonts/', '/favicon.svg']:
+                  text = text.replace(prefix, base + prefix)
+              text = text.replace('https://comfortlinen-a-softer-world.manusara.chatgpt.site', site)
+              path.write_text(text)
+          config = {'output': 'export', 'basePath': base, 'trailingSlash': True,
+                    'images': {'unoptimized': True}}
+          Path('next.config.ts').write_text(
+              "import type { NextConfig } from 'next';\n"
+              + 'const config: NextConfig = ' + json.dumps(config) + ';\n'
+              + 'export default config;\n')
+          PY
+      - name: Build static website
+        env:
+          NEXT_TELEMETRY_DISABLED: '1'
+        run: npx next build --webpack
+      - name: Verify static files
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          root = Path('out')
+          for name in ['index.html', 'brand/comfortlinen-green.png',
+                       'media/film.mp4', 'media/co-founder.jpg', 'fonts/font-0.ttf']:
+              assert (root / name).is_file(), 'Missing static asset: ' + name
+          (root / '.nojekyll').touch()
+          PY
+      - name: Upload website artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: prototype4/comfortlinen-experience/out
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy website
+        id: deployment
+        uses: actions/deploy-pages@v4
