@@ -1,7 +1,8 @@
 .landing-intro{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;padding:28px 4%;color:#25382e;background:radial-gradient(ellipse at 50% 43%,#f6f4e8 0%,#e6eadb 53%,#dce3ce 100%);opacity:1;visibility:visible;transition:opacity .65s ease,transform .65s cubic-bezier(.2,.7,.3,1),visibility .65s;overflow:hidden}
 .landing-intro.intro-leaving{opacity:0;transform:scale(1.035);visibility:hidden;pointer-events:none}
 .intro-header,.intro-footer{display:flex;align-items:center;justify-content:space-between;gap:24px}
-.intro-header>img{width:178px;height:auto;display:block}
+.intro-header{justify-content:flex-end}
+.intro-logo{width:178px;height:auto;display:block;margin:0 auto 28px}
 .intro-header>button{display:flex;align-items:center;gap:10px;font-size:10px;padding:12px 0}
 .intro-footer{font-size:7px;letter-spacing:.1em;color:#61715a}
 .intro-footer>span:last-child{text-align:right}
@@ -49,6 +50,6 @@
 @keyframes washer-water{from{transform:translateX(-7px) rotate(-5deg)}to{transform:translateX(7px) rotate(5deg)}}
 @keyframes washer-bubble{0%{opacity:0;transform:translate(0,0)}20%{opacity:.8}100%{opacity:0;transform:translate(8px,-75px)}}
 @keyframes wash-progress{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-@media(max-width:700px){.landing-intro{padding:20px 6% 25px}.intro-header>img{width:150px}.intro-header>button{font-size:9px;gap:7px}.machine-scene{transform:scale(.86);margin-top:-20px;margin-bottom:0}.intro-centre{padding:20px 0}.intro-caption{font-size:39px}.intro-footer{font-size:6px;gap:18px}.intro-status{font-size:8px}}
-@media(max-height:660px){.machine-scene{transform:scale(.72);height:260px;margin-top:-35px;margin-bottom:0}.intro-caption{font-size:34px}.intro-progress{margin-top:18px}.intro-centre{padding:12px 0}}
+@media(max-width:700px){.landing-intro{padding:20px 6% 25px}.intro-logo{width:150px;margin-bottom:20px}.intro-header>button{font-size:9px;gap:7px}.machine-scene{transform:scale(.86);transform-origin:top center;height:290px;margin-bottom:0}.intro-centre{padding:20px 0}.intro-caption{font-size:39px}.intro-footer{font-size:6px;gap:18px}.intro-status{font-size:8px}}
+@media(max-height:660px){.intro-logo{width:140px;margin-bottom:12px}.machine-scene{transform:scale(.72);transform-origin:top center;height:235px;margin-bottom:0}.intro-caption{font-size:34px}.intro-progress{margin-top:18px}.intro-centre{padding:12px 0}}
 @media(prefers-reduced-motion:reduce){.washing-machine,.machine-drum,.machine-linen,.machine-water,.machine-bubbles>i,.machine-ground,.intro-progress>i{animation:none}.machine-bubbles{display:none}.landing-intro{transition:none}}

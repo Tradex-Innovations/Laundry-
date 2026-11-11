@@ -29,10 +29,10 @@ export default function LandingIntro({ready, onComplete}: {ready: boolean; onCom
 
   return <div className={`landing-intro ${leaving ? 'intro-leaving' : ''}`} role="dialog" aria-modal="true" aria-label="ComfortLinen opening animation">
     <div className="intro-header">
-      <img src="/brand/comfortlinen-green.png" alt="ComfortLinen LTD" width={2172} height={724}/>
       <button ref={skip} onClick={onComplete}>Skip animation <SkipForward size={13}/></button>
     </div>
     <div className="intro-centre">
+      <img className="intro-logo" src="/brand/comfortlinen-green.png" alt="ComfortLinen LTD" width={2172} height={724}/>
       <div className="machine-scene" aria-hidden="true">
         <div className="machine-ground"/>
         <div className="washing-machine">
