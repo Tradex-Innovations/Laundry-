@@ -35,11 +35,12 @@ function createAmbience(): Ambience {
   return {context, gain, sources, nodes};
 }
 
-/** Soft wind, rustling leaves and occasional stereo bird calls, enabled by the visitor. */
-export function useAmbientSound() {
-  const [sound, setSound] = useState(false);
+/** Nature ambience with a default-on preference and browser-compliant gesture recovery. */
+export function useAmbientSound({defaultEnabled = false}: {defaultEnabled?: boolean} = {}) {
+  const [sound, setSound] = useState(defaultEnabled);
+  const [playing, setPlaying] = useState(false);
   const audio = useRef<Ambience | null>(null);
-  const requested = useRef(false);
+  const requested = useRef(defaultEnabled);
   const revision = useRef(0);
 
   const updatePlayback = useCallback(async () => {
@@ -52,9 +53,11 @@ export function useAmbientSound() {
       if (audible) {
         await current.context.resume();
         if (request !== revision.current) return;
+        setPlaying(current.context.state === 'running');
         current.gain.gain.cancelScheduledValues(current.context.currentTime);
         current.gain.gain.setTargetAtTime(.65, current.context.currentTime, .6);
       } else {
+        setPlaying(false);
         current.gain.gain.cancelScheduledValues(current.context.currentTime);
         current.gain.gain.setTargetAtTime(0, current.context.currentTime, .05);
         // Let the fade finish before suspending; rapid toggles cancel this timer.
@@ -63,37 +66,62 @@ export function useAmbientSound() {
         }, 280);
       }
     } catch {
-      if (request === revision.current) {requested.current = false; setSound(false);}
+      // An autoplay rejection must not erase the visitor's enabled preference.
+      // A later trusted pointer or keyboard interaction retries the same context.
+      if (request === revision.current) setPlaying(false);
     }
   }, []);
 
   const setEnabled = useCallback(async (enabled: boolean) => {
     requested.current = enabled;
     try {
-      if (!audio.current && enabled) audio.current = createAmbience();
+      if (!audio.current && enabled) {
+        const current = createAmbience();
+        audio.current = current;
+        current.context.onstatechange = () => {
+          if (audio.current === current) setPlaying(requested.current && !document.hidden && current.context.state === 'running');
+        };
+      }
       setSound(enabled);
+      if (!enabled) setPlaying(false);
       await updatePlayback();
     } catch {
-      requested.current = false; setSound(false);
+      requested.current = false; setSound(false); setPlaying(false);
     }
   }, [updatePlayback]);
 
   useEffect(() => {
     const visibility = () => {void updatePlayback();};
+    const gesture = (event: Event) => {
+      if (!event.isTrusted || !requested.current || document.hidden) return;
+      // A mute click should mute without also unlocking audio just beforehand.
+      if (event.target instanceof Element && event.target.closest('[data-sound-toggle]')) return;
+      if (event instanceof KeyboardEvent && (event.metaKey || event.ctrlKey || event.altKey || ['Shift', 'Control', 'Alt', 'Meta'].includes(event.key))) return;
+      if (!audio.current || audio.current.context.state !== 'running') void setEnabled(true);
+    };
+    const initial = defaultEnabled ? requestAnimationFrame(() => {void setEnabled(true);}) : 0;
     document.addEventListener('visibilitychange', visibility);
+    window.addEventListener('pointerdown', gesture, {capture: true, passive: true});
+    window.addEventListener('click', gesture, {capture: true, passive: true});
+    window.addEventListener('keydown', gesture, {capture: true});
     return () => {
+      cancelAnimationFrame(initial);
       document.removeEventListener('visibilitychange', visibility);
+      window.removeEventListener('pointerdown', gesture, true);
+      window.removeEventListener('click', gesture, true);
+      window.removeEventListener('keydown', gesture, true);
       revision.current++;
       requested.current = false;
       const current = audio.current;
       audio.current = null;
       if (current) {
+        current.context.onstatechange = null;
         clearTimeout(current.suspendTimer);
         current.sources.forEach(source => {source.stop(); source.disconnect();});
         current.nodes.forEach(node => node.disconnect());
         void current.context.close();
       }
     };
-  }, [updatePlayback]);
-  return {sound, setEnabled};
+  }, [defaultEnabled, setEnabled, updatePlayback]);
+  return {sound, playing, setEnabled};
 }

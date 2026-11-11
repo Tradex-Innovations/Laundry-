@@ -4,6 +4,7 @@ import {ArrowUpRight,ArrowDown,ArrowRight,Plus,Minus,X,Play,Pause,Check,Copy,Vol
 import {useAmbientSound} from './useAmbientSound';
 import ServicesGallery from './ServicesGallery';
 import OurCompany from './OurCompany';
+import LandingIntro from './LandingIntro';
 const ExperienceScene=lazy(()=>import('./ExperienceScene'));
 const services=[
  {number:'01',name:'Hotels & hospitality',short:'For the art of a good night.',image:'hotel.webp',type:'Hotel & hospitality',description:'Beautifully fresh bedding and soft towels, ready for your next arrival. A dedicated linen supply that helps you make every stay feel special.',details:['Bed linen & pillowcases','Bath towels & hand towels','Dedicated linen stock','Scheduled collection & delivery']},
@@ -14,14 +15,14 @@ const services=[
 function Brand({onClick}:{onClick?:()=>void}){return <a href="#home" onClick={onClick} className="brand" aria-label="ComfortLinen home"><img src="/brand/comfortlinen-green.png" alt="ComfortLinen LTD" width={2172} height={724} decoding="async"/></a>}
 export default function Home(){
  const [entered,setEntered]=useState(false),[ready,setReady]=useState(false),[supported,setSupported]=useState(true),[paused,setPaused]=useState(false),[holding,setHolding]=useState(false),[menu,setMenu]=useState(false),[quote,setQuote]=useState(false),[video,setVideo]=useState(false),[service,setService]=useState<number|null>(null),[emailDraft,setEmailDraft]=useState(''),[copied,setCopied]=useState(false),[faq,setFaq]=useState<number|null>(null);
- const {sound,setEnabled}=useAmbientSound();
- const dialog=useRef<HTMLDialogElement>(null),videoRef=useRef<HTMLVideoElement>(null),reel=useRef<HTMLVideoElement>(null),world=useRef<HTMLDivElement>(null),entryButton=useRef<HTMLButtonElement>(null),heroLink=useRef<HTMLAnchorElement>(null),cursor=useRef<HTMLDivElement>(null);
+ const {sound,playing,setEnabled}=useAmbientSound({defaultEnabled:true});
+ const dialog=useRef<HTMLDialogElement>(null),videoRef=useRef<HTMLVideoElement>(null),reel=useRef<HTMLVideoElement>(null),world=useRef<HTMLDivElement>(null),heroLink=useRef<HTMLAnchorElement>(null),cursor=useRef<HTMLDivElement>(null);
  const modalOpen=menu||quote||video||service!==null;
  const readyCallback=useCallback((success:boolean)=>{setReady(true);setSupported(success)},[]);
  useEffect(()=>{
   const preference=matchMedia('(prefers-reduced-motion: reduce)');
   const updatePreference=()=>setPaused(preference.matches);
-  const initialFrame=requestAnimationFrame(()=>{updatePreference();entryButton.current?.focus({preventScroll:true})});
+  const initialFrame=requestAnimationFrame(updatePreference);
   preference.addEventListener('change',updatePreference);
   return()=>{cancelAnimationFrame(initialFrame);preference.removeEventListener('change',updatePreference)};
  },[]);
@@ -54,14 +55,14 @@ export default function Home(){
  const requestQuote=(value?:string)=>{setMenu(false);setService(null);setQuote(true);setEmailDraft('');if(value)setTimeout(()=>{const select=document.getElementById('enquiry-service') as HTMLSelectElement|null;if(select)select.value=value},0)};
  const go=(id:string)=>{close();const target=document.getElementById(id);if(!target)return;if(id==='services')window.scrollTo({top:target.getBoundingClientRect().top+window.scrollY,behavior:paused?'instant':'smooth'});else target.scrollIntoView({behavior:paused?'instant':'smooth'})};
  const toServices=(event:React.MouseEvent<HTMLAnchorElement>)=>{event.preventDefault();history.replaceState(null,'','#services');go('services')};
- const enter=(withSound:boolean)=>{window.scrollTo(0,0);setEntered(true);if(withSound)void setEnabled(true);requestAnimationFrame(()=>heroLink.current?.focus({preventScroll:true}))};
+ const enter=useCallback(()=>{window.scrollTo({top:0,behavior:'instant'});history.replaceState(null,'','#home');setEntered(true);void setEnabled(true);requestAnimationFrame(()=>heroLink.current?.focus({preventScroll:true}))},[setEnabled]);
  const makeDraft=(event:React.FormEvent<HTMLFormElement>)=>{event.preventDefault();const d=new FormData(event.currentTarget);setEmailDraft(`Hello ComfortLinen,\n\nI'd like to enquire about ${d.get('service')}.\n\nName: ${d.get('name')}\nBusiness: ${d.get('business')}\nEmail: ${d.get('email')}\nPostcode: ${d.get('postcode')}\n\n${d.get('message')||'Please contact me to discuss a tailored linen service.'}\n\nThank you.`)};
  const faqs=[['Where do you collect and deliver?','From our home in Axminster, we serve businesses across the South West. Share your postcode and we’ll confirm service availability and the right collection schedule.'],['Can you supply our linen too?','Yes. We offer linen hire and laundry for hotels, restaurants and holiday accommodation, including bedding, towels and table linen.'],['Can we have dedicated linen stock?','Yes. A dedicated stock system keeps linen reserved for your business. We’ll work with you on quantities, care and collection.']];
  return <div ref={world} className={`experience ${entered?'has-entered':''} ${supported?'':'world-fallback'} ${holding?'is-holding':''}`} data-section="home">
   <div className="scene-backdrop" aria-hidden="true"/>
   <Suspense fallback={null}><ExperienceScene entered={entered} paused={paused} holding={holding} onReady={readyCallback}/></Suspense>
   <div className="scene-grain" aria-hidden="true"/><div className="dive-wash" aria-hidden="true"/>
-  {!entered&&<div className="entry-screen" role="dialog" aria-modal="true" aria-label="Enter the ComfortLinen experience"><div className="entry-top"><Brand/><span>ROOTED IN THE SOUTH WEST</span></div><div className="entry-centre"><div className="entry-emblem" aria-hidden="true"><span>c</span><i/><i/></div><p className="eyebrow">A MORE CONSIDERED WORLD</p><h1>A little care.<br/><em>A better world.</em></h1><p>Linen that feels good.<br/>Care that goes a little further.</p><button ref={entryButton} className="enter-button" onClick={()=>enter(true)}>Enter our world <ArrowRight size={18}/></button><button className="enter-silent" onClick={()=>enter(false)}>Enter without sound <VolumeX size={13}/></button></div><div className="entry-bottom"><button onClick={()=>setPaused(!paused)}>{paused?'Reduced motion on':'Reduce motion'}</button><span>{ready?'TAKE A BREATH. YOU’RE IN GOOD HANDS.':'PREPARING A LITTLE CALM…'}</span><span>©2026</span></div></div>}
+  {!entered&&<LandingIntro ready={ready} onComplete={enter}/>}
   <div className="site-content" inert={!entered}>
    <a className="skip-link" href="#services" onClick={toServices}>Skip to services</a>
    <header className="site-header"><Brand/><nav aria-label="Main navigation"><a href="#home">Index</a><a href="#care">Our care</a><a href="#services" onClick={toServices}>Services</a><a href="#about">About us</a><a href="#story">Our story</a><a href="#contact">Contact</a></nav><button className="menu-button" aria-label="Open menu" onClick={()=>setMenu(true)}><i/><i/></button></header>
@@ -83,7 +84,7 @@ export default function Home(){
     <section id="contact" className="contact-scene"><p className="eyebrow">GOOD THINGS START WITH A CONVERSATION</p><h2><em>A fresh</em><br/>beginning.</h2><button className="round-link" onClick={()=>requestQuote()}>Let’s talk linen <ArrowUpRight size={18}/></button><div className="contact-address"><a href="mailto:hello@comfortlinen.co.uk">↳ hello@comfortlinen.co.uk</a><a href="tel:+44129732121">↳ 01297 32121</a><p>Unit 3 & 4, Whitty Court<br/>Waycroft Avenue, Axminster, EX13 5HU</p></div></section>
    </main>
    <footer><Brand/><p>Care in every fibre.<br/>Rooted in the South West.</p><a href="#home">BACK TO OUR WORLD <ArrowUpRight size={15}/></a><span>©{new Date().getFullYear()} TRADEX INNOVATIONS</span></footer>
-   <div className="world-controls"><button className={`sound-toggle ${sound?'sound-on':''}`} onClick={()=>void setEnabled(!sound)} aria-label={sound?'Mute ambient sound':'Enable ambient sound'} aria-pressed={sound}>{sound?<Volume2 size={17}/>:<VolumeX size={17}/>}<span className="sound-bars"><i/><i/><i/><i/></span></button><button className="motion-toggle" onClick={()=>setPaused(!paused)} aria-label={paused?'Resume animations':'Pause animations'}>{paused?<Play size={14}/>:<Pause size={14}/>}</button></div>
+   <div className="world-controls"><button data-sound-toggle data-playback={playing?'playing':sound?'waiting':'muted'} title={sound&&!playing?'Sound on · starts with your first interaction':sound?'Mute nature sounds':'Enable nature sounds'} className={`sound-toggle ${playing?'sound-on':''}`} onClick={()=>void setEnabled(!sound)} aria-label={sound?'Mute ambient sound':'Enable ambient sound'} aria-pressed={sound}>{sound?<Volume2 size={17}/>:<VolumeX size={17}/>}<span className="sound-bars"><i/><i/><i/><i/></span></button><button className="motion-toggle" onClick={()=>setPaused(!paused)} aria-label={paused?'Resume animations':'Pause animations'}>{paused?<Play size={14}/>:<Pause size={14}/>}</button></div>
    <div className="world-position" aria-hidden="true"><span className="position-home">01 / OUR WORLD</span><span className="position-care">02 / OUR CARE</span><span className="position-services">03 / YOUR WORLD</span><span className="position-about">04 / ABOUT US</span><span className="position-story">05 / OUR STORY</span><span className="position-contact">06 / SAY HELLO</span><i/></div>
   </div>
   <div ref={cursor} className="world-cursor" aria-hidden="true"><MoveHorizontal size={12}/></div>
